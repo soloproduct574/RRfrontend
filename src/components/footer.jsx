@@ -1,6 +1,7 @@
 "use client";
 import { Box, Container, Grid, Typography, IconButton, Link, useTheme, useMediaQuery } from "@mui/material";
 import { Facebook, Instagram, YouTube, Room, Phone, Email } from "@mui/icons-material";
+import Button from "./SupportCOmponents/SocialMediaIcn";
 
 export default function Footer() {
   const theme = useTheme();
@@ -11,12 +12,12 @@ export default function Footer() {
       component="footer"
       sx={{
         position: 'relative',
-        mt: 8,
+        mt: 6,
         py: 6,
-        background: "linear-gradient(to right, rgba(44, 62, 80, 0.9), rgba(52, 73, 94, 0.95)), url('/pooja-background.jpg')",
+        background: " url('/footerbg.jpg')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        color: "#fff",
+        color: "#000000ff",
         overflow: 'hidden',
         '&::before': {
           content: '""',
@@ -82,6 +83,8 @@ export default function Footer() {
                 >
                   RR Traders
                 </Typography>
+
+                
               </Box>
               <Typography variant="body2" sx={{ 
                 opacity: 0.85, 
@@ -92,24 +95,25 @@ export default function Footer() {
               }}>
                 Bringing spirituality closer to you. Explore our premium collection of pooja essentials with divinity and trust.
               </Typography>
+                {/* Social Media Icons */}
+           <Button/>
             </Box>
           </Grid>
 
           {/* Quick Links */}
           <Grid item xs={6} md={2}>
-            <Typography variant="h6" gutterBottom textAlign={{ xs: 'center', md: 'left' }} sx={{ fontWeight: 600 }}>
+            <Typography variant="h6" gutterBottom textAlign={{ xs: 'center', md: 'left' }} sx={{ fontWeight: 600,textDecoration: 'underline', textUnderlineOffset: '6px', textDecorationColor: '#f1530fff' }}>
               Quick Links
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, alignItems: { xs: 'center', md: 'flex-start' } }}>
-              <Link href="/" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1c40f' } }}>Home</Link>
-              <Link href="/shop" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1c40f' } }}>Shop</Link>
-              <Link href="/about" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1c40f' } }}>About Us</Link>
-              <Link href="/contact" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1c40f' } }}>Contact</Link>
+              <Link href="/blogs" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>Blogs</Link>
+              <Link href="/about" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>About Us</Link>
+              <Link href="/contact" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>Contact Us</Link>
             </Box>
           </Grid>
 
           {/* Policies */}
-          <Grid item xs={6} md={2}>
+          {/* <Grid item xs={6} md={2}>
             <Typography variant="h6" gutterBottom textAlign={{ xs: 'center', md: 'left' }} sx={{ fontWeight: 600 }}>
               Policies
             </Typography>
@@ -119,12 +123,12 @@ export default function Footer() {
               <Link href="/return" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1c40f' } }}>Return Policy</Link>
               <Link href="/shipping" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1c40f' } }}>Shipping Info</Link>
             </Box>
-          </Grid>
+          </Grid> */}
 
           {/* Contact Info */}
           <Grid item xs={12} md={4}>
-            <Typography variant="h6" gutterBottom textAlign={{ xs: 'center', md: 'left' }} sx={{ fontWeight: 600 }}>
-              Contact Us
+            <Typography variant="h6" gutterBottom textAlign={{ xs: 'center', md: 'left' }} sx={{ fontWeight: 600 ,textDecoration: 'underline', textUnderlineOffset: '6px', textDecorationColor: '#f1530fff' }}>
+              Get in Touch
             </Typography>
             <Box sx={{ 
               display: 'flex', 
@@ -146,48 +150,7 @@ export default function Footer() {
               </Box>
             </Box>
 
-            {/* Social Media Icons */}
-            <Box mt={3} sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' } }}>
-              <IconButton 
-                color="inherit" 
-                href="https://facebook.com" 
-                target="_blank"
-                sx={{ 
-                  backgroundColor: '#3b5998', 
-                  mx: 0.5,
-                  '&:hover': { backgroundColor: '#2d4373', transform: 'translateY(-3px)' },
-                  transition: 'all 0.3s'
-                }}
-              >
-                <Facebook />
-              </IconButton>
-              <IconButton 
-                color="inherit" 
-                href="https://instagram.com" 
-                target="_blank"
-                sx={{ 
-                  background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)', 
-                  mx: 0.5,
-                  '&:hover': { opacity: 0.9, transform: 'translateY(-3px)' },
-                  transition: 'all 0.3s'
-                }}
-              >
-                <Instagram />
-              </IconButton>
-              <IconButton 
-                color="inherit" 
-                href="https://youtube.com" 
-                target="_blank"
-                sx={{ 
-                  backgroundColor: '#FF0000', 
-                  mx: 0.5,
-                  '&:hover': { backgroundColor: '#cc0000', transform: 'translateY(-3px)' },
-                  transition: 'all 0.3s'
-                }}
-              >
-                <YouTube />
-              </IconButton>
-            </Box>
+          
           </Grid>
         </Grid>
 

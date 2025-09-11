@@ -1,6 +1,6 @@
 import "./globals.css";
 import ThemeRegistry from "@/lib/ThemeRegistry";
-import ReduxProvider from "@/lib/ReduxProvider"; // ✅ New wrapper component
+import ReduxProvider from "../lib/ReduxProvider"; // ✅ New wrapper component
 
 export const metadata = {
   title: "RR_Traders",

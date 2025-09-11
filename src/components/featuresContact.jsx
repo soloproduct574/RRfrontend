@@ -6,7 +6,7 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import { keyframes } from "@mui/system";
 import ContactButton from "./SupportCOmponents/Buttons";
-
+import { useRouter } from "next/navigation";
 // Define the shake animation
 const shake = keyframes`
   0% { transform: rotate(0deg); }
@@ -24,6 +24,7 @@ const bloom = keyframes`
 `;
 
 export default function FeaturesSection() {
+  const router = useRouter();
   const features = [
     {
       icon: <LocalShippingIcon sx={{ fontSize: 50 }} />,
@@ -39,6 +40,9 @@ export default function FeaturesSection() {
     },
   ];
 
+  const handleClick = () => {
+    router.push('/contact'); // Navigate to the contact page
+  }
   return (
     <Box
       sx={{
@@ -126,7 +130,7 @@ export default function FeaturesSection() {
           <Typography variant="body2" sx={{ mb: 2, color: "#300909ff" }}>
             Our team is ready to assist you with any questions
           </Typography>
-         <Box ml={7}>          <ContactButton />
+         <Box ml={7}>          <ContactButton  onClick={handleClick} />
 </Box>
         </Grid>
       </Grid>

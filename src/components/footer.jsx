@@ -109,6 +109,7 @@ export default function Footer() {
               <Link href="/blogs" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>Blogs</Link>
               <Link href="/about" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>About Us</Link>
               <Link href="/contact" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>Contact Us</Link>
+              <Link href="/about/faq" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>FAQs</Link>
             </Box>
           </Grid>
 
@@ -165,13 +166,13 @@ export default function Footer() {
             © {new Date().getFullYear()} RR Traders 🪔 | All Rights Reserved
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 1, flexWrap: 'wrap' }}>
-            <Link href="/privacy" color="inherit" underline="hover" sx={{ fontSize: '0.8rem', opacity: 0.7, '&:hover': { opacity: 1 } }}>
+            <Link href="/about/privacypolicy" color="inherit" underline="hover" sx={{ fontSize: '0.8rem', opacity: 0.7, '&:hover': { opacity: 1 } }}>
               Privacy Policy
             </Link>
-            <Link href="/terms" color="inherit" underline="hover" sx={{ fontSize: '0.8rem', opacity: 0.7, '&:hover': { opacity: 1 } }}>
+            <Link href="/about/terms&conditions" color="inherit" underline="hover" sx={{ fontSize: '0.8rem', opacity: 0.7, '&:hover': { opacity: 1 } }}>
               Terms of Service
             </Link>
-            <Link href="/return" color="inherit" underline="hover" sx={{ fontSize: '0.8rem', opacity: 0.7, '&:hover': { opacity: 1 } }}>
+            <Link href="/about/returnPolicy" color="inherit" underline="hover" sx={{ fontSize: '0.8rem', opacity: 0.7, '&:hover': { opacity: 1 } }}>
               Return Policy
             </Link>
           </Box>

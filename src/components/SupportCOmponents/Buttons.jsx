@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const ContactButton = () => {
+const ContactButton = ({ onClick }) => {
   return (
     <StyledWrapper>
-      <button className="super-button">
+      <button className="super-button" onClick={onClick}>
         <span>Contact Us</span>
         <svg fill="none" viewBox="0 0 24 24" className="arrow">
           <path strokeLinejoin="round" strokeLinecap="round" strokeWidth={2} stroke="currentColor" d="M5 12h14M13 6l6 6-6 6" />

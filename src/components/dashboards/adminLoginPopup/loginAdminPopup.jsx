@@ -1,8 +1,23 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginAdmin, setTokenFromStorage, fetchAdminDashboard } from "../../../Redux/Slice/AdminAuthSlice";
+import {
+  loginAdmin,
+  setTokenFromStorage,
+  fetchAdminDashboard,
+} from "../../../Redux/Slice/AdminAuthSlice";
 import { useRouter } from "next/navigation";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  TextField,
+  Typography,
+  Alert,
+  InputAdornment,
+  Container,
+} from "@mui/material";
+import { Email, Lock } from "@mui/icons-material";
 
 export default function AdminLoginPage() {
   const [login, setLogin] = useState("");
@@ -10,9 +25,8 @@ export default function AdminLoginPage() {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const { token, admin, loading, error } = useSelector((state) => state.auth);
+  const { token, loading, error } = useSelector((state) => state.auth);
 
-  // ✅ If already logged in, redirect to dashboard
   useEffect(() => {
     dispatch(setTokenFromStorage());
   }, [dispatch]);
@@ -36,34 +50,109 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4">Admin Login</h2>
-        {error && <p className="text-red-600 mb-3">{error}</p>}
-        <input
-          type="text"
-          placeholder="Email or Username"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
-          className="w-full p-2 mb-3 border rounded"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 mb-3 border rounded"
-          required
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
+    <Box
+      sx={{
+        minHeight: "100vh",
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+         backgroundImage: "url('/adminbg.jpg')", 
+    backgroundSize: "cover", 
+    backgroundPosition: "center", 
+    backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* <AdminSidebar/> */}
+      {/* Full-width container but form centered */}
+      <Container maxWidth="sm">
+        <Box
+          sx={{
+            p: 5,
+    borderRadius: 3,
+    boxShadow: 6,
+    width: "100%",
+    backgroundColor: "rgba(255, 255, 255, 0.3)", 
+    backdropFilter: "blur(12px)",
+    WebkitBackdropFilter: "blur(12px)",
+          }}
         >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
-    </div>
+          <Typography
+            variant="h4"
+            align="center"
+            fontWeight="bold"
+            gutterBottom
+          >
+            Admin Login
+          </Typography>
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          <Box component="form" onSubmit={handleSubmit} noValidate>
+            {/* Username / Email */}
+            <TextField
+              margin="normal"
+              fullWidth
+              required
+              label="Email or Username"
+             
+              value={login}
+              onChange={(e) => setLogin(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Email color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            {/* Password */}
+            <TextField
+              margin="normal"
+              fullWidth
+              required
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{
+                mt: 3,
+                mb: 2,
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: "bold",
+                textTransform: "none",
+                background: "#4f46e5",
+                "&:hover": {
+                  background: "linear-gradient(45deg, #4338ca, #7e22ce)",
+                },
+              }}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+    </Box>
   );
 }

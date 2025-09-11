@@ -1,4 +1,5 @@
 "use client";
+
 import * as React from "react";
 import Link from "next/link";
 import AppBar from "@mui/material/AppBar";
@@ -16,6 +17,8 @@ import Avatar from "@mui/material/Avatar";
 import { styled, alpha } from "@mui/material/styles";
 import { usePathname } from "next/navigation";
 import HoverButton from "./logohead";
+import LoginModal from "../app/auth/login/page.jsx";
+import RegisterModal from "../app/auth/register/page";
 
 const pages = [
   { name: "Home", path: "/" },
@@ -23,7 +26,6 @@ const pages = [
   { name: "Contact", path: "/contact" },
 ];
 
-// Custom styled components
 const LogoContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -34,15 +36,14 @@ const LogoContainer = styled(Box)(({ theme }) => ({
 }));
 
 const NavLink = styled(Link, {
-  shouldForwardProp: (prop) => prop !== 'isActive',
+  shouldForwardProp: (prop) => prop !== "isActive",
 })(({ theme, isActive }) => ({
   position: "relative",
   textDecoration: "none",
-  color: isActive ? '#ff6600' : '#000',
+  color: isActive ? "#ff6600" : "#000",
   fontWeight: isActive ? 600 : 500,
   padding: theme.spacing(1, 1.5),
   transition: "all 0.3s ease",
-  
   "&:after": {
     content: '""',
     position: "absolute",
@@ -53,11 +54,9 @@ const NavLink = styled(Link, {
     backgroundColor: "#ff6600",
     transition: "width 0.3s",
   },
-  
   "&:hover": {
     color: "#ff6600",
   },
-  
   "&:hover:after": {
     width: "100%",
   },
@@ -85,7 +84,7 @@ const ProfileMenu = styled(Menu)(({ theme }) => ({
     "& .MuiMenuItem-root": {
       padding: theme.spacing(1.2, 2),
       "&:hover": {
-        backgroundColor: alpha('#ff6600', 0.1),
+        backgroundColor: alpha("#ff6600", 0.1),
         color: "#ff6600",
       },
     },
@@ -95,220 +94,200 @@ const ProfileMenu = styled(Menu)(({ theme }) => ({
 export default function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [openLogin, setOpenLogin] = React.useState(false);
+  const [openRegister, setOpenRegister] = React.useState(false);
   const pathname = usePathname();
 
-  // mobile menu handlers
+  // Handlers
   const handleOpenNavMenu = (event) => setAnchorElNav(event.currentTarget);
   const handleCloseNavMenu = () => setAnchorElNav(null);
 
-  // profile menu handlers
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
   const handleCloseUserMenu = () => setAnchorElUser(null);
 
+  const handleOpenLoginModal = () => {
+    setAnchorElUser(null);
+    setOpenLogin(true);
+  };
+
+  const handleCloseLoginModal = () => setOpenLogin(false);
+
+  const handleOpenRegisterModal = () => {
+    setAnchorElUser(null);
+    setOpenRegister(true);
+  };
+
+  const handleCloseRegisterModal = () => setOpenRegister(false);
+
+  // Switch between modals
+  const handleSwitchToRegister = () => {
+    setOpenLogin(false);
+    setOpenRegister(true);
+  };
+  const handleSwitchToLogin = () => {
+    setOpenRegister(false);
+    setOpenLogin(true);
+  };
+
   return (
-    <AppBar 
-      position="sticky" 
-      sx={{ 
-        backgroundColor: "transparent", 
-        color: "#000", 
-        boxShadow: "none",
-        backgroundImage: "none",
-        backdropFilter: "blur(8px)",
-        borderBottom: "1px solid rgba(0,0,0,0.05)",
-      }}
-    >
-      <Toolbar sx={{ 
-        display: "flex", 
-        justifyContent: "space-between",
-        py: 1,
-        maxWidth: "xl",
-        mx: "auto",
-        width: "100%",
-      }}>
-        
-        {/* LOGO - Rectangular shape without text */}
-        <LogoContainer component={Link} href="/">
-          <Box 
-            component="img"
-            src="/logo.jpg" 
-            alt="RR_Traders Logo" 
-            sx={{ 
-              width: 90, 
-              height: 55,
-              objectFit: "contain",
-              borderRadius: "4px",
-              border: "1px solid rgba(0,0,0,0.1)",
-            }} 
-          />
-          
-        </LogoContainer>
-<HoverButton text="RR_Traders" />
-
-        {/* Desktop Menu */}
-        <Box sx={{ 
-          display: { xs: "none", md: "flex" }, 
-          alignItems: "center", 
-          gap: 1 
-        }}>
-          {pages.map((page) => (
-            <NavLink 
-              key={page.name} 
-              href={page.path}
-              isActive={pathname === page.path}
-            >
-              {page.name}
-            </NavLink>
-          ))}
-
-          {/* Cart with badge */}
-          <CartButton
-            component={Link}
-            href="/cart"
-            startIcon={
-            //   <Badge badgeContent={3} color="error">
-                <ShoppingCartIcon />
-            //   </Badge>
-            }
-          >
-            Cart
-          </CartButton>
-
-          {/* Profile Icon with Dropdown - Orange hover effect */}
-          <Box sx={{ ml: 1 }}>
-            <IconButton 
-              onClick={handleOpenUserMenu} 
-              sx={{ 
-                p: 0.5,
-                border: "1px solid",
-                borderColor: "rgba(0,0,0,0.1)",
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  borderColor: "#ff6600",
-                  backgroundColor: alpha('#ff6600', 0.1),
-                }
+    <>
+      <AppBar
+        position="sticky"
+        sx={{
+          backgroundColor: "transparent",
+          color: "#000",
+          boxShadow: "none",
+          backdropFilter: "blur(8px)",
+          borderBottom: "1px solid rgba(0,0,0,0.05)",
+        }}
+      >
+        <Toolbar
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            py: 1,
+            maxWidth: "xl",
+            mx: "auto",
+            width: "100%",
+          }}
+        >
+          {/* LOGO */}
+          <LogoContainer component={Link} href="/">
+            <Box
+              component="img"
+              src="/logo.jpg"
+              alt="RR_Traders Logo"
+              sx={{
+                width: 90,
+                height: 55,
+                objectFit: "contain",
+                borderRadius: "4px",
+                border: "1px solid rgba(0,0,0,0.1)",
               }}
-            >
-              <Avatar 
-                alt="Profile" 
-                src="/profile.png" 
-                sx={{ 
-                  width: 36, 
-                  height: 36,
-                }} 
-              />
-            </IconButton>
-            <ProfileMenu
-              anchorEl={anchorElUser}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-            >
-              <MenuItem onClick={handleCloseUserMenu}>
-                <Link 
-                  href="/auth/login" 
-                  style={{ 
-                    textDecoration: "none", 
-                    color: "inherit",
-                    width: "100%",
-                  }}
-                >
-                  Login
-                </Link>
-              </MenuItem>
-              <MenuItem onClick={handleCloseUserMenu}>
-                <Link 
-                  href="/auth/register" 
-                  style={{ 
-                    textDecoration: "none", 
-                    color: "inherit",
-                    width: "100%",
-                  }}
-                >
-                  Register
-                </Link>
-              </MenuItem>
-            </ProfileMenu>
-          </Box>
-        </Box>
+            />
+          </LogoContainer>
+          <HoverButton text="RR_Traders" />
 
-        {/* Mobile Menu */}
-        <Box sx={{ display: { xs: "flex", md: "none" } }}>
-          <IconButton 
-            size="large" 
-            onClick={handleOpenNavMenu} 
-            color="inherit"
-            sx={{
-              color: "#000",
-              "&:hover": {
-                backgroundColor: alpha('#ff6600', 0.1),
-              }
-            }}
-          >
-            <Badge badgeContent={3} color="error">
-              <MenuIcon />
-            </Badge>
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorElNav}
-            open={Boolean(anchorElNav)}
-            onClose={handleCloseNavMenu}
-            sx={{ 
-              display: { xs: "block", md: "none" },
-              "& .MuiPaper-root": {
-                borderRadius: "8px",
-                mt: 1.5,
-                minWidth: 180,
-                boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
-              }
-            }}
-          >
+          {/* Desktop Menu */}
+          <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 1 }}>
             {pages.map((page) => (
-              <MenuItem 
-                key={page.name} 
-                onClick={handleCloseNavMenu}
-                selected={pathname === page.path}
+              <NavLink key={page.name} href={page.path} isActive={pathname === page.path}>
+                {page.name}
+              </NavLink>
+            ))}
+
+            <CartButton component={Link} href="/cart" startIcon={<ShoppingCartIcon />}>
+              Cart
+            </CartButton>
+
+            {/* Profile Avatar & Menu */}
+            <Box sx={{ ml: 1 }}>
+              <IconButton
+                onClick={handleOpenUserMenu}
                 sx={{
-                  "&.Mui-selected": {
-                    backgroundColor: alpha('#ff6600', 0.1),
-                    color: "#ff6600",
-                    "&:hover": {
-                      backgroundColor: alpha('#ff6600', 0.2),
-                    }
-                  }
+                  p: 0.5,
+                  border: "1px solid rgba(0,0,0,0.1)",
+                  "&:hover": {
+                    borderColor: "#ff6600",
+                    backgroundColor: alpha("#ff6600", 0.1),
+                  },
                 }}
               >
-                <NavLink 
-                  href={page.path} 
-                  isActive={pathname === page.path}
-                  sx={{ width: "100%" }}
+                <Avatar alt="Profile" src="/profile.png" sx={{ width: 36, height: 36 }} />
+              </IconButton>
+              <ProfileMenu
+                anchorEl={anchorElUser}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+              >
+                <MenuItem onClick={handleOpenLoginModal}>Login</MenuItem>
+                <MenuItem onClick={handleOpenRegisterModal}>Register</MenuItem>
+              </ProfileMenu>
+            </Box>
+          </Box>
+
+          {/* Mobile Menu */}
+          <Box sx={{ display: { xs: "flex", md: "none" } }}>
+            <IconButton
+              size="large"
+              onClick={handleOpenNavMenu}
+              color="inherit"
+              sx={{
+                color: "#000",
+                "&:hover": {
+                  backgroundColor: alpha("#ff6600", 0.1),
+                },
+              }}
+            >
+              <Badge badgeContent={3} color="error">
+                <MenuIcon />
+              </Badge>
+            </IconButton>
+            <Menu
+              anchorEl={anchorElNav}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: "block", md: "none" },
+                "& .MuiPaper-root": {
+                  borderRadius: "8px",
+                  mt: 1.5,
+                  minWidth: 180,
+                  boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
+                },
+              }}
+            >
+              {pages.map((page) => (
+                <MenuItem
+                  key={page.name}
+                  onClick={handleCloseNavMenu}
+                  selected={pathname === page.path}
+                  sx={{
+                    "&.Mui-selected": {
+                      backgroundColor: alpha("#ff6600", 0.1),
+                      color: "#ff6600",
+                    },
+                  }}
                 >
-                  {page.name}
-                </NavLink>
-              </MenuItem>
-            ))}
-            <MenuItem onClick={handleCloseNavMenu}>
-              <NavLink href="/cart" sx={{ width: "100%", display: "flex", alignItems: "center" }}>
-                <Badge badgeContent={3} color="error" sx={{ mr: 1 }}>
-                  <ShoppingCartIcon fontSize="small" />
-                </Badge>
-                Cart
-              </NavLink>
-            </MenuItem>
-            <MenuItem onClick={handleCloseNavMenu}>
-              <NavLink href="/auth/login" sx={{ width: "100%" }}>
+                  <NavLink href={page.path} isActive={pathname === page.path} sx={{ width: "100%" }}>
+                    {page.name}
+                  </NavLink>
+                </MenuItem>
+              ))}
+              <MenuItem
+                onClick={() => {
+                  handleCloseNavMenu();
+                  handleOpenLoginModal();
+                }}
+              >
                 Login
-              </NavLink>
-            </MenuItem>
-            <MenuItem onClick={handleCloseNavMenu}>
-              <NavLink href="/auth/register" sx={{ width: "100%" }}>
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleCloseNavMenu();
+                  handleOpenRegisterModal();
+                }}
+              >
                 Register
-              </NavLink>
-            </MenuItem>
-          </Menu>
-        </Box>
-      </Toolbar>
-    </AppBar>
+              </MenuItem>
+            </Menu>
+          </Box>
+        </Toolbar>
+      </AppBar>
+
+      {/* ✅ Login & Register Modals */}
+      <LoginModal
+        open={openLogin}
+        onClose={handleCloseLoginModal}
+        onSwitchToRegister={handleSwitchToRegister}
+      />
+      <RegisterModal
+        open={openRegister}
+        onClose={handleCloseRegisterModal}
+        onSwitchToLogin={handleSwitchToLogin}
+      />
+    </>
   );
 }

@@ -72,6 +72,8 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
           justifyContent: "center",
           minHeight: "100vh",
           bgcolor: "rgba(255, 255, 255, 0.1)",
+        //   backdropFilter: "blur(1px)",
+        //    WebkitBackdropFilter: "blur(1px)",
           p: 2,
         }}
       >

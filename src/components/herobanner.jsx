@@ -7,9 +7,8 @@ import Image from "next/image";
 export default function HeroBanner() {
   // Array of banner images to rotate through
   const bannerImages = [
-    "/hero-products.png",
-    "/hero-products2.png", // You'll need to add these images to your public folder
-    "/hero-products3.png",
+    "/footerbg.jpg", // You'll need to add these images to your public folder
+    "/logo.jpg",
   ];
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -20,7 +19,7 @@ export default function HeroBanner() {
       setCurrentImageIndex((prevIndex) => 
         prevIndex === bannerImages.length - 1 ? 0 : prevIndex + 1
       );
-    }, 2000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [bannerImages.length]);
@@ -34,7 +33,10 @@ export default function HeroBanner() {
         flexDirection: { xs: "column", md: "row" },
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
+        background: "url('/herobaner1.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         overflow: "hidden",
         position: "relative",
         py: 4,
@@ -167,19 +169,9 @@ export default function HeroBanner() {
                 sx={{
                   position: "relative",
                   width: "100%",
-                  maxWidth: "400px",
+                  maxWidth: "900px",
                   height: "100%",
-                  "&::before": {
-                    content: '""',
-                    position: "absolute",
-                    top: "-10px",
-                    left: "-10px",
-                    right: "10px",
-                    bottom: "10px",
-                    background: "rgba(255,255,255,0.1)",
-                    borderRadius: "16px",
-                    zIndex: 0,
-                  },
+                
                 }}
               >
                 <img

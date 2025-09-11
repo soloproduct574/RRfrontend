@@ -53,7 +53,32 @@ const ProductCard = ({
   };
 
   return (
-    <Card
+    <><Typography
+            display={"flex"}
+            justifyContent={"center"}
+            gap={3}
+          >
+            <img
+              src="/texticon.png"
+              alt="icon"
+              style={{ width: 50, height: 50, verticalAlign: "middle", marginRight: 10 }}
+            />
+          <Typography variant="h4"
+            sx={{
+              textAlign: "center",
+              fontFamily: "Arial, sans-serif",
+              color:'#ff3838ff',
+              fontWeight: 600,
+              mb: { xs: 3, md: 10 },
+              letterSpacing: "1px",
+            }}>Shop By Product Categories</Typography>
+          <img
+              src="/texticon.png"
+              alt="icon"
+              style={{ width: 50, height: 50, verticalAlign: "middle", marginRight: 10 }}
+            />
+          </Typography>
+           <Card
       sx={{
         maxWidth: 350,
         borderRadius: "20px",
@@ -220,6 +245,8 @@ const ProductCard = ({
         </Box>
       </CardContent>
     </Card>
+    </>
+   
   );
 };
 

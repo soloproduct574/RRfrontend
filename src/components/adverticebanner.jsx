@@ -1,36 +1,27 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
-import Image from "next/image";
+import { Box, useTheme, useMediaQuery } from "@mui/material";
 
 const bannerImages = [
   {
     id: 1,
-    src: "/api/placeholder/1200/600",
+    src: "/herobaner.jpg",
     alt: "Traditional Pooja Setup",
-    title: "Sacred Pooja Ceremony",
-    description: "Experience divine blessings with traditional rituals",
   },
   {
     id: 2,
-    src: "/api/placeholder/1200/600",
+    src: "footerbg.jpg",
     alt: "Festival Celebration",
-    title: "Festival of Lights",
-    description: "Celebrate with devotion and joy",
   },
   {
     id: 3,
-    src: "/api/placeholder/1200/600",
+    src: "/herobaner.jpg",
     alt: "Temple Pooja",
-    title: "Divine Atmosphere",
-    description: "Immerse in spiritual enlightenment",
   },
   {
     id: 4,
     src: "/api/placeholder/1200/600",
     alt: "Pooja Items",
-    title: "Sacred Offerings",
-    description: "Traditional items for complete worship",
   }
 ];
 
@@ -39,16 +30,29 @@ const PoojaBanner = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [paused, setPaused] = useState(false);
+  const progressRef = useRef(null);
 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+
+  // Reset animation on slide change
+  useEffect(() => {
+    if (progressRef.current) {
+      progressRef.current.style.animation = 'none';
+      setTimeout(() => {
+        if (progressRef.current) {
+          progressRef.current.style.animation = '';
+        }
+      }, 10);
+    }
+  }, [currentIndex]);
 
   // Auto slide
   useEffect(() => {
     if (paused) return;
     const interval = setInterval(() => {
       nextSlide();
-    }, 4000);
+    }, 5000);
     return () => clearInterval(interval);
   }, [currentIndex, paused]);
 
@@ -61,16 +65,6 @@ const PoojaBanner = () => {
     setCurrentIndex((prev) =>
       prev === 0 ? bannerImages.length - 1 : prev - 1
     );
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeydown = (e) => {
-      if (e.key === "ArrowRight") nextSlide();
-      if (e.key === "ArrowLeft") prevSlide();
-    };
-    window.addEventListener("keydown", handleKeydown);
-    return () => window.removeEventListener("keydown", handleKeydown);
-  }, []);
 
   // Touch swipe handling
   const handleTouchStart = (e) => {
@@ -88,11 +82,12 @@ const PoojaBanner = () => {
   return (
     <Box
       sx={{
+        mt: 4,
         position: "relative",
         width: "100%",
-        height: { xs: "350px", sm: "450px", md: "600px", lg: "700px" }, // responsive heights
+        height: { xs: "40vh", sm: "50vh", md: "60vh" },
         overflow: "hidden",
-        borderRadius: { xs: 1, sm: 2 },
+        // borderRadius: { xs: 1, sm: 2 },
         boxShadow: 3
       }}
       onMouseEnter={() => setPaused(true)}
@@ -104,7 +99,7 @@ const PoojaBanner = () => {
       <Box
         sx={{
           display: "flex",
-          transition: "transform 0.8s ease-in-out", // smooth sliding
+          transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
           transform: `translateX(-${currentIndex * 100}%)`,
           height: "100%",
           width: `${bannerImages.length * 100}%`
@@ -120,53 +115,17 @@ const PoojaBanner = () => {
               flexShrink: 0
             }}
           >
-            <Image
+            <img
               src={item.src}
               alt={item.alt}
-              fill
-              style={{ objectFit: "cover" }}
-              priority={index === 0}
-              sizes="(max-width: 768px) 100vw, 1200px"
-            />
-            {/* Overlay */}
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: 0,
+              style={{ 
                 width: "100%",
                 height: "100%",
-                background:
-                  "linear-gradient(45deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.25) 100%)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                textAlign: "center",
-                px: { xs: 2, sm: 3, md: 6 },
-                color: "#fff"
+                objectFit: "cover",
+                filter: "brightness(0.9)"
               }}
-            >
-              <Typography
-                variant={isMobile ? "h4" : "h2"}
-                sx={{
-                  fontWeight: 700,
-                  mb: 2,
-                  textShadow: "2px 2px 6px rgba(0,0,0,0.6)"
-                }}
-              >
-                {item.title}
-              </Typography>
-              <Typography
-                variant={isMobile ? "body1" : "h6"}
-                sx={{
-                  maxWidth: "700px",
-                  textShadow: "1px 1px 4px rgba(0,0,0,0.6)"
-                }}
-              >
-                {item.description}
-              </Typography>
-            </Box>
+              priority={index === 0}
+            />
           </Box>
         ))}
       </Box>
@@ -178,7 +137,10 @@ const PoojaBanner = () => {
           top: "50%",
           left: 16,
           transform: "translateY(-50%)",
-          zIndex: 10
+          zIndex: 10,
+          opacity: 0.7,
+          transition: "opacity 0.3s",
+          "&:hover": { opacity: 1 }
         }}
       >
         <Box onClick={prevSlide} sx={navButtonStyle}>
@@ -191,7 +153,10 @@ const PoojaBanner = () => {
           top: "50%",
           right: 16,
           transform: "translateY(-50%)",
-          zIndex: 10
+          zIndex: 10,
+          opacity: 0.7,
+          transition: "opacity 0.3s",
+          "&:hover": { opacity: 1 }
         }}
       >
         <Box onClick={nextSlide} sx={navButtonStyle}>
@@ -199,11 +164,11 @@ const PoojaBanner = () => {
         </Box>
       </Box>
 
-      {/* Dots Indicator */}
+      {/* Minimal Dots Indicator */}
       <Box
         sx={{
           position: "absolute",
-          bottom: { xs: 12, sm: 20 },
+          bottom: 16,
           left: "50%",
           transform: "translateX(-50%)",
           display: "flex",
@@ -216,66 +181,64 @@ const PoojaBanner = () => {
             key={index}
             onClick={() => goToSlide(index)}
             sx={{
-              width: { xs: 8, sm: 12 },
-              height: { xs: 8, sm: 12 },
+              width: 8,
+              height: 8,
               borderRadius: "50%",
-              backgroundColor:
-                currentIndex === index
-                  ? theme.palette.primary.main
-                  : "rgba(255,255,255,0.6)",
+              backgroundColor: currentIndex === index ? "#fff" : "rgba(255,255,255,0.5)",
               cursor: "pointer",
               transition: "all 0.3s ease",
               "&:hover": {
                 transform: "scale(1.2)",
-                backgroundColor: theme.palette.primary.main
+                backgroundColor: "#fff"
               }
             }}
           />
         ))}
       </Box>
 
-      {/* Animated Progress Bar */}
-      <Box
+      {/* Progress Bar */}
+      {/* <Box
         sx={{
           position: "absolute",
           bottom: 0,
           left: 0,
           width: "100%",
-          height: 4,
+          height: 3,
           backgroundColor: "rgba(255,255,255,0.3)",
           overflow: "hidden"
         }}
       >
         <Box
-          key={currentIndex} // restart animation each slide
+          ref={progressRef}
           sx={{
             height: "100%",
             width: "100%",
-            backgroundColor: theme.palette.primary.main,
-            animation: "progress 4s linear forwards",
+            backgroundColor: "#fff",
+            animation: "progress 5s linear forwards",
             "@keyframes progress": {
-              "0%": { width: "0%" },
-              "100%": { width: "100%" }
+              "0%": { transform: "translateX(-100%)" },
+              "100%": { transform: "translateX(0%)" }
             }
           }}
         />
-      </Box>
+      </Box> */}
     </Box>
   );
 };
 
 const navButtonStyle = {
-  width: { xs: 36, sm: 50 },
-  height: { xs: 36, sm: 50 },
+  width: 40,
+  height: 40,
   borderRadius: "50%",
-  backgroundColor: "rgba(255,255,255,0.8)",
+  backgroundColor: "rgba(0,0,0,0.5)",
+  color: "#fff",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   cursor: "pointer",
-  transition: "background-color 0.3s",
+  transition: "all 0.3s",
   "&:hover": {
-    backgroundColor: "rgba(255,255,255,1)",
+    backgroundColor: "rgba(0,0,0,0.7)",
   },
 };
 

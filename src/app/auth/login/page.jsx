@@ -31,6 +31,8 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  // ✅ Snackbar states
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [forgotSnackbarOpen, setForgotSnackbarOpen] = useState(false);
 

@@ -10,9 +10,9 @@ import FeaturesSection from "@/components/featuresContact";
 export default function Home() {
   return (
     <>
-    <Navbar/>
-    <HeroBanner/>
-    <RotatingOffers/>
+    <Navbar />
+    <HeroBanner />
+    <RotatingOffers />
     <PoojaBanner/>
     <ProductsCarousel/>
     <ProductCard/>

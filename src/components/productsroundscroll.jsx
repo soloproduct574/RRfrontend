@@ -7,14 +7,14 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 // Example product data
 const products = [
-  { id: 1, src: "/api/placeholder/200/200", name: "Incense Sticks" },
-  { id: 2, src: "/api/placeholder/200/200", name: "Diya Lamps" },
-  { id: 3, src: "/api/placeholder/200/200", name: "Holy Books" },
-  { id: 4, src: "/api/placeholder/200/200", name: "Prayer Beads" },
-  { id: 5, src: "/api/placeholder/200/200", name: "Offerings" },
-  { id: 6, src: "/api/placeholder/200/200", name: "Statues" },
-  { id: 7, src: "/api/placeholder/200/200", name: "Sacred Cloth" },
-  { id: 8, src: "/api/placeholder/200/200", name: "Coconut" },
+  { id: 1, src: "/img1.jpg", name: "Incense Sticks" },
+  { id: 2, src: "/img1.jpg", name: "Diya Lamps" },
+  { id: 3, src: "/img1.jpg", name: "Holy Books" },
+  { id: 4, src: "/img1.jpg", name: "Prayer Beads" },
+  { id: 5, src: "/img1.jpg", name: "Offerings" },
+  { id: 6, src: "/img1.jpg", name: "Statues" },
+  { id: 7, src: "/img1.jpg", name: "Sacred Cloth" },
+  { id: 8, src: "/img1.jpg", name: "Coconut" },
 ];
 
 const ProductsScroller = () => {
@@ -40,24 +40,37 @@ const ProductsScroller = () => {
     <Box
       sx={{
         width: "100%",
-        py: { xs: 4, md: 6 },
-        background: "linear-gradient(135deg, #f9f9f9, #f0f0f0)",
+        py: { xs: 4, md: 10 },
+        // background: "linear-gradient(135deg, #f9f9f9, #f0f0f0)",
         position: "relative",
         overflow: "hidden",
       }}
     >
       {/* Heading */}
       <Typography
-        variant="h4"
+        display={"flex"}
+        justifyContent={"center"}
+        gap={3}
+      >
+        <img
+          src="/texticon.png"
+          alt="icon"
+          style={{ width: 50, height: 50, verticalAlign: "middle", marginRight: 10 }}
+        />
+      <Typography variant="h4"
         sx={{
           textAlign: "center",
-          color:'#000',
+          fontFamily: "Arial, sans-serif",
+          color:'#ff3838ff',
           fontWeight: 600,
-          mb: { xs: 3, md: 5 },
+          mb: { xs: 3, md: 10 },
           letterSpacing: "1px",
-        }}
-      >
-        Wide Range of Products
+        }}>Shop By Product Categories</Typography>
+      <img
+          src="/texticon.png"
+          alt="icon"
+          style={{ width: 50, height: 50, verticalAlign: "middle", marginRight: 10 }}
+        />
       </Typography>
 
       {/* Product row */}
@@ -65,7 +78,7 @@ const ProductsScroller = () => {
         sx={{
           display: "flex",
           justifyContent: "center",
-          gap: 3,
+          gap: 7,
         }}
       >
         {visibleProducts.map((product) => (
@@ -114,8 +127,8 @@ const ProductsScroller = () => {
         disabled={startIndex === 0}
         sx={{
           position: "absolute",
-          top: "50%",
-          left: 16,
+          top: "60%",
+          left: 56,
           transform: "translateY(-50%)",
           backgroundColor: "white",
           boxShadow: 3,
@@ -132,8 +145,8 @@ const ProductsScroller = () => {
         disabled={startIndex >= products.length - visibleCount}
         sx={{
           position: "absolute",
-          top: "50%",
-          right: 16,
+          top: "60%",
+          right: 56,
           transform: "translateY(-50%)",
           backgroundColor: "white",
           boxShadow: 3,

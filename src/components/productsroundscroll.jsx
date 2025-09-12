@@ -48,6 +48,7 @@ const ProductsScroller = () => {
     >
       {/* Heading */}
       <Typography
+      component={'div'}
         display={"flex"}
         justifyContent={"center"}
         gap={3}

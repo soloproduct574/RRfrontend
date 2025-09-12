@@ -14,6 +14,8 @@ import {
   IconButton,
   Link,
   Snackbar,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonIcon from "@mui/icons-material/Person";
@@ -26,6 +28,9 @@ import { useRouter } from "next/navigation";
 
 export default function LoginModal({ open, onClose, onSwitchToRegister }) {
   const router = useRouter();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -114,8 +119,7 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
             justifyContent: "center",
             minHeight: "100vh",
             bgcolor: "rgba(255, 255, 255, 0.1)",
-            // backdropFilter: "blur(4px)",
-            p: 2,
+            p: isMobile ? 1 : 2,
           }}
         >
           <motion.div
@@ -127,9 +131,20 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
             <Paper
               elevation={8}
               sx={{
-                width: { xs: "85%", sm: 380 },
-                minHeight: 360,
-                p: 4,
+                width: {
+                  xs: "90%",
+                  sm: 380,
+                  md: 400,
+                },
+                minHeight: {
+                  xs: 340,
+                  sm: 360,
+                },
+                p: {
+                  xs: 2.5,
+                  sm: 3,
+                  md: 4,
+                },
                 borderRadius: 3,
                 position: "relative",
                 backgroundColor: "#fff",
@@ -156,9 +171,20 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                       bgcolor: "rgba(255,0,0,0.15)",
                     },
                     borderRadius: "50%",
+                    p: {
+                      xs: 0.5,
+                      sm: 1,
+                    },
                   }}
                 >
-                  <CloseIcon />
+                  <CloseIcon
+                    sx={{
+                      fontSize: {
+                        xs: "1rem",
+                        sm: "1.2rem",
+                      },
+                    }}
+                  />
                 </IconButton>
               </motion.div>
 
@@ -170,6 +196,10 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                   textAlign: "center",
                   mb: 3,
                   color: "#2e2e2e",
+                  fontSize: {
+                    xs: "1.3rem",
+                    sm: "1.5rem",
+                  },
                 }}
               >
                 Welcome Back!!!
@@ -177,7 +207,21 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
 
               {/* Error Alert */}
               {error && (
-                <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+                <Alert 
+                  severity="error" 
+                  sx={{ 
+                    mb: 2, 
+                    borderRadius: 2,
+                    fontSize: {
+                      xs: "0.75rem",
+                      sm: "0.875rem",
+                    },
+                    py: {
+                      xs: 0.5,
+                      sm: 1,
+                    }
+                  }}
+                >
                   {error}
                 </Alert>
               )}
@@ -193,10 +237,18 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                   onChange={handleChange}
                   margin="normal"
                   required
+                  size={isMobile ? "small" : "medium"}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <PersonIcon />
+                        <PersonIcon 
+                          sx={{
+                            fontSize: {
+                              xs: "1.1rem",
+                              sm: "1.25rem",
+                            }
+                          }}
+                        />
                       </InputAdornment>
                     ),
                   }}
@@ -213,10 +265,18 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                   onChange={handleChange}
                   margin="normal"
                   required
+                  size={isMobile ? "small" : "medium"}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LockIcon />
+                        <LockIcon 
+                          sx={{
+                            fontSize: {
+                              xs: "1.1rem",
+                              sm: "1.25rem",
+                            }
+                          }}
+                        />
                       </InputAdornment>
                     ),
                     endAdornment: (
@@ -224,8 +284,26 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                         <IconButton
                           onClick={() => setShowPassword((prev) => !prev)}
                           edge="end"
+                          size={isMobile ? "small" : "medium"}
                         >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                          {showPassword ? 
+                            <VisibilityOff 
+                              sx={{
+                                fontSize: {
+                                  xs: "1.1rem",
+                                  sm: "1.25rem",
+                                }
+                              }}
+                            /> : 
+                            <Visibility 
+                              sx={{
+                                fontSize: {
+                                  xs: "1.1rem",
+                                  sm: "1.25rem",
+                                }
+                              }}
+                            />
+                          }
                         </IconButton>
                       </InputAdornment>
                     ),
@@ -241,8 +319,14 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                   sx={{
                     mt: 3,
                     background: "#ff6600",
-                    height: 40,
-                    fontSize: "0.9rem",
+                    height: {
+                      xs: 36,
+                      sm: 40,
+                    },
+                    fontSize: {
+                      xs: "0.8rem",
+                      sm: "0.9rem",
+                    },
                     fontWeight: 600,
                     borderRadius: 2,
                     textTransform: "none",
@@ -252,7 +336,10 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                   }}
                 >
                   {loading ? (
-                    <CircularProgress size={22} sx={{ color: "#fff" }} />
+                    <CircularProgress 
+                      size={22} 
+                      sx={{ color: "#fff" }} 
+                    />
                   ) : (
                     "Login"
                   )}
@@ -270,7 +357,10 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                     display: "block",
                     textAlign: "center",
                     mt: 2,
-                    fontSize: "0.8rem",
+                    fontSize: {
+                      xs: "0.75rem",
+                      sm: "0.8rem",
+                    },
                     fontWeight: 500,
                     color: "#ff6600",
                     "&:hover": { textDecoration: "underline" },
@@ -286,6 +376,10 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                     mt: 3,
                     textAlign: "center",
                     color: "#555",
+                    fontSize: {
+                      xs: "0.75rem",
+                      sm: "0.875rem",
+                    },
                   }}
                 >
                   New here?{" "}
@@ -296,6 +390,7 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                       fontWeight: 600,
                       color: "#ff6600",
                       cursor: "pointer",
+                      fontSize: "inherit",
                       "&:hover": { textDecoration: "underline" },
                     }}
                     onClick={onSwitchToRegister}

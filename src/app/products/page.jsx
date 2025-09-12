@@ -94,7 +94,7 @@ const ProductList = () => {
       )}
 
       {/* Products Grid */}
-      <Grid container spacing={3} justifyContent="center">
+      <Grid container spacing={3}justifyContent="center" >
         {loading ? (
           // Show loading skeletons
           Array.from({ length: 8 }).map((_, index) => (
@@ -107,7 +107,7 @@ const ProductList = () => {
           products.map((product, index) => {
             console.log(`🎴 Rendering product ${index + 1}:`, product);
             return (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={product._id || product.id || index}>
+              <Grid item xs={12} sm={6} md={3} lg={3} key={product._id || product.id || index}>
                 <ProductCard product={product} />
               </Grid>
             );

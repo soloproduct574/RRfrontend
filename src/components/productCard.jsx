@@ -1,487 +1,284 @@
 "use client";
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import {
   Card,
   CardContent,
   Typography,
-  Button,
+  Button as MuiButton,
   Box,
   IconButton,
   Chip,
   Skeleton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import ShareIcon from "@mui/icons-material/Share";
+import ProductModal from "./ProductModal";
 
 const ProductCard = React.memo(({ 
   product,
   isLoading = false,
   onAddToCart,
-  onBuyNow
+  onBuyNow,
 }) => {
-  console.log('🛍️ Rendering ProductCard:', product);
-
   const [quantity, setQuantity] = useState(1);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImageIndex] = useState(0);
+  const [isFav, setIsFav] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", type: "success" });
+  const [openModal, setOpenModal] = useState(false);
 
-  // Early return for loading state
-  if (isLoading) {
-    return <ProductCardSkeleton />;
-  }
+  if (isLoading) return <ProductCardSkeleton />;
+  if (!product) return null;
 
-  // Early return if no product data
-  if (!product) {
-    console.warn('⚠️ ProductCard: No product data provided');
-    return null;
-  }
-
-  // ✅ Extract and validate product data based on your API structure
   const {
     _id: id,
     product_name: name,
-    description,
     brands = [],
     categories = [],
     original_price,
     offer_price,
     percentage_discount: discount,
     product_images = [],
-    product_videos = [],
-    customerId,
-    createdAt,
-    updatedAt
   } = product;
 
-  console.log('📦 Extracted product data:', {
-    id, name, original_price, offer_price, discount, brands, categories
-  });
+  const productImages = useMemo(() => product_images.length > 0 ? product_images : ["/logo.jpg"], [product_images]);
+  const brandName = brands[0]?.name || brands[0] || "Divine Brand";
+  const categoryName = categories[0]?.name || categories[0] || "";
+  const displayPrice = offer_price || original_price || 0;
+  const discountPercentage = discount || 0;
 
-  // ✅ Handle images from product_images array
-  const productImages = useMemo(() => {
-    if (product_images && product_images.length > 0) {
-      return product_images;
-    }
-    return ["/logo.jpg", "/logo2.jpg", "/logo3.jpg"];
-  }, [product_images]);
+  // ---------- Quantity Handlers ----------
+  const increaseQuantity = useCallback(() => setQuantity(prev => prev + 1), []);
+  const decreaseQuantity = useCallback(() => setQuantity(prev => prev > 1 ? prev - 1 : 1), []);
 
-  // ✅ Handle brand display from brands array
-  const brandName = useMemo(() => {
-    if (Array.isArray(brands) && brands.length > 0) {
-      const firstBrand = brands[0];
-      return firstBrand.name || firstBrand.brand_name || firstBrand;
-    }
-    return "Divine Brand";
-  }, [brands]);
+  // ---------- Persistent Favorite using localStorage ----------
+  useEffect(() => {
+    const favs = JSON.parse(localStorage.getItem("favProducts") || "{}");
+    setIsFav(favs[id] || false);
+  }, [id]);
 
-  // ✅ Handle category display
-  const categoryName = useMemo(() => {
-    if (Array.isArray(categories) && categories.length > 0) {
-      const firstCategory = categories[0];
-      return firstCategory.name || firstCategory.category_name || firstCategory;
-    }
-    return "";
-  }, [categories]);
+  const toggleFavorite = () => {
+    setIsFav(prev => {
+      const newFav = !prev;
+      const favs = JSON.parse(localStorage.getItem("favProducts") || "{}");
+      favs[id] = newFav;
+      localStorage.setItem("favProducts", JSON.stringify(favs));
+      return newFav;
+    });
+  };
 
-  // ✅ Calculate prices - use offer_price if available, otherwise original_price
-  const displayPrice = useMemo(() => {
-    return offer_price || original_price || 0;
-  }, [offer_price, original_price]);
-
-  const originalPrice = useMemo(() => {
-    return original_price || 0;
-  }, [original_price]);
-
-  // ✅ Format discount percentage
-  const discountPercentage = useMemo(() => {
-    return discount || 0;
-  }, [discount]);
-
-  // Memoized handlers
-  const increaseQuantity = useCallback(() => {
-    setQuantity(prev => prev + 1);
-    console.log('➕ Quantity increased');
-  }, []);
-
-  const decreaseQuantity = useCallback(() => {
-    setQuantity(prev => prev > 1 ? prev - 1 : 1);
-    console.log('➖ Quantity decreased');
-  }, []);
-
-  const handleMouseMove = useCallback((e) => {
-    if (productImages.length <= 1) return;
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const width = rect.width;
-
-    let newIndex;
-    if (x < width / 3) newIndex = 0;
-    else if (x < (2 * width) / 3) newIndex = 1 % productImages.length;
-    else newIndex = 2 % productImages.length;
-    
-    if (newIndex !== currentImageIndex) {
-      console.log('🖼️ Image changed to index:', newIndex);
-      setCurrentImageIndex(newIndex);
-    }
-  }, [productImages.length, currentImageIndex]);
-
-  const handleMouseLeave = useCallback(() => {
-    setCurrentImageIndex(0);
-  }, []);
-
+  // ---------- Cart & Buy Handlers ----------
   const handleAddToCart = useCallback(() => {
-    const cartData = { 
-      id, 
-      name, 
-      quantity, 
-      price: displayPrice,
-      originalPrice,
-      discount: discountPercentage,
-      brand: brandName,
-      category: categoryName,
-      image: productImages[0]
-    };
-    
-    if (onAddToCart) {
-      onAddToCart(cartData);
-    } else {
-      console.log('🛒 Adding to cart:', cartData);
-      alert(`${quantity} x ${name} added to cart 🛒`);
-    }
-  }, [id, name, quantity, displayPrice, originalPrice, discountPercentage, brandName, categoryName, productImages, onAddToCart]);
+    const cartData = { id, name, quantity, price: displayPrice };
+    if (onAddToCart) onAddToCart(cartData);
+    setSnackbar({ open: true, message: `${quantity} x ${name} added to cart 🛒`, type: "success" });
+  }, [id, name, quantity, displayPrice, onAddToCart]);
 
   const handleBuyNow = useCallback(() => {
-    const purchaseData = { 
-      id, 
-      name, 
-      quantity, 
-      price: displayPrice,
-      originalPrice,
-      discount: discountPercentage,
-      brand: brandName,
-      category: categoryName,
-      image: productImages[0]
-    };
-    
-    if (onBuyNow) {
-      onBuyNow(purchaseData);
-    } else {
-      console.log('💳 Proceeding to purchase:', purchaseData);
-      alert(`Proceeding to buy ${quantity} x ${name} 💳`);
-    }
-  }, [id, name, quantity, displayPrice, originalPrice, discountPercentage, brandName, categoryName, productImages, onBuyNow]);
+    const purchaseData = { id, name, quantity, price: displayPrice };
+    if (onBuyNow) onBuyNow(purchaseData);
+    setSnackbar({ open: true, message: `Proceeding to buy ${quantity} x ${name} 💳`, type: "info" });
+  }, [id, name, quantity, displayPrice, onBuyNow]);
 
-  const handleImageError = useCallback((e) => {
-    console.warn('🖼️ Image failed to load:', e.target.src);
-    e.target.src = "/logo.jpg";
-  }, []);
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setSnackbar({ open: true, message: "Product link copied to clipboard 📋", type: "info" });
+  };
 
   return (
-    <Card
-      sx={{
-        width: 350,
-        maxHeight: 650,
-        borderRadius: "20px",
-        boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
-        background: "white",
-        position: "relative",
-        overflow: "visible",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease",
-        "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: "0 12px 32px rgba(0,0,0,0.2)",
-        }
-      }}
-    >
-      {/* Offer Tags */}
-      {discountPercentage > 0 && (
-        <Chip
-          icon={<LocalOfferIcon />}
-          label={`${Math.round(discountPercentage)}% OFF`}
-          color="error"
-          size="small"
-          sx={{
-            position: "absolute",
-            top: 12,
-            left: 12,
-            fontWeight: "bold",
-            borderRadius: "8px",
-            zIndex: 2,
-          }}
-        />
-      )}
-      
-      {offer_price && offer_price < original_price && (
-        <Chip
-          icon={<LocalOfferIcon />}
-          label="Special Offer"
-          size="small"
-          sx={{
-            position: "absolute",
-            top: discountPercentage > 0 ? 50 : 12,
-            left: 12,
-            fontWeight: "bold",
-            color: "white",
-            borderRadius: "8px",
-            zIndex: 2,
-            backgroundColor: "#4caf50",
-          }}
-        />
-      )}
-
-      {/* Product Image */}
-      <Box
+    <>
+      <Card
         sx={{
-          height: 350,
-          width: "100%",
+          width: 280,
+          borderRadius: "10px",
           overflow: "hidden",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
           position: "relative",
-          cursor: "pointer",
+          transition: "box-shadow 0.3s ease",
+          "&:hover": { boxShadow: "0 12px 40px rgba(0,0,0,0.25)" },
         }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
       >
-        <img
-          src={productImages[currentImageIndex]}
-          alt={name || "Product Image"}
-          style={{ 
-            maxWidth: "100%", 
-            height: "100%", 
-            objectFit: "cover",
-            transition: "transform 0.3s ease",
-          }}
-          onError={handleImageError}
-          loading="lazy"
-        />
-      </Box>
-
-      {/* Product Details */}
-      <CardContent sx={{ textAlign: "center", p: 2 }}>
-        {/* Brand */}
-        <Typography 
-          variant="caption" 
-          color="text.secondary" 
-          sx={{ 
-            fontWeight: 600, 
-            textTransform: "uppercase", 
-            letterSpacing: "0.5px",
-            display: "block",
-            mb: 0.5
-          }}
-        >
-          {brandName}
-        </Typography>
-
-        {/* Category */}
-        {categoryName && (
-          <Typography 
-            variant="caption" 
-            color="primary" 
-            sx={{ 
-              fontWeight: 500, 
-              display: "block",
-              mb: 0.5,
-              fontSize: "0.7rem"
+        {true && (
+          <Chip
+            label="Popular Product"
+            color="primary"
+            size="small"
+            sx={{
+              position: "absolute",
+              top: 12,
+              left: 12,
+              fontWeight: "bold",
+              backgroundColor: "rgba(255, 255, 255, 0.74)",
+              color: "black",
+              zIndex: 2,
             }}
-          >
-            {categoryName}
-          </Typography>
+          />
         )}
 
-        {/* Product Name */}
-        <Typography
-          variant="h6"
-          fontWeight={700}
-          sx={{ 
-            mb: 1, 
-            color: "text.primary", 
-            minHeight: "48px",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            textOverflow: "ellipsis"
+        {/* Like & Share Icons */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            p: 1,
+            position: "absolute",
+            top: 8,
+            right: 8,
+            zIndex: 3,
           }}
-          title={name}
         >
-          {name || "Product Name"}
-        </Typography>
+          <IconButton
+            onClick={toggleFavorite}
+            sx={{ "&:hover": { background: "rgba(255,255,255,1)" } }}
+          >
+            {isFav ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+          </IconButton>
 
-        {/* Description */}
-        {description && (
+          <IconButton
+            onClick={handleShare}
+            sx={{ "&:hover": { background: "rgba(255,255,255,1)" } }}
+          >
+            <ShareIcon color="grey" />
+          </IconButton>
+        </Box>
+
+        {/* Product Image */}
+        <Box
+          sx={{
+            height: 260,
+            position: "relative",
+            overflow: "hidden",
+            "& img": { width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease", transform: "scale(1)" },
+            "&:hover img": { transform: "scale(1.1)" },
+          }}
+        >
+          <img
+            src={productImages[currentImageIndex]}
+            alt={name}
+            onError={(e) => (e.target.src = "/logo.jpg")}
+          />
+
+          {/* View Product Button */}
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: -60,
+              left: 0,
+              width: "100%",
+              textAlign: "center",
+              transition: "bottom 0.4s ease",
+              ".MuiCard-root:hover &": { bottom: 16 },
+            }}
+          >
+            <MuiButton
+              startIcon={<VisibilityIcon />}
+              onClick={() => setOpenModal(true)}
+              sx={{
+                background: "rgba(255, 255, 255, 0.74)",
+                color: "black",
+                "&:hover": { background: "rgba(247, 5, 5, 0.99)", color: "white" },
+                borderRadius: "24px",
+                px: 3,
+                fontWeight: 600,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+              }}
+            >
+              View Product
+            </MuiButton>
+          </Box>
+        </Box>
+
+        {/* Card Content */}
+        <CardContent sx={{ textAlign: "center" }}>
+          <Typography variant="caption" color="text.secondary" fontWeight={600}>
+            {brandName}
+          </Typography>
+          {categoryName && (
+            <Typography variant="caption" color="primary" sx={{ display: "block" }}>
+              {categoryName}
+            </Typography>
+          )}
           <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ 
-              mb: 2,
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
+            variant="h6"
+            fontWeight={700}
+            sx={{
+              minHeight: "48px",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              minHeight: "40px"
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical"
             }}
           >
-            {description}
+            {name}
           </Typography>
-        )}
 
-        {/* Price Section */}
-        <Box sx={{ 
-          display: "flex", 
-          justifyContent: "center", 
-          gap: 1, 
-          alignItems: "baseline",
-          mb: 2
-        }}>
-          {offer_price && offer_price < original_price && (
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                textDecoration: "line-through", 
-                color: "text.disabled"
-              }}
-            >
-              ₹{originalPrice}
+          {/* Price */}
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "baseline", gap: 1 }}>
+            <Typography variant="h6" color="primary" fontWeight={700}>
+              ₹{displayPrice}
             </Typography>
-          )}
-          <Typography variant="h6" color="primary" fontWeight={700}>
-            ₹{displayPrice}
-          </Typography>
-          {discountPercentage > 0 && (
-            <Typography 
-              variant="caption" 
-              sx={{ 
-                color: "success.main",
-                fontWeight: 600,
-                backgroundColor: "success.light",
-                px: 0.5,
-                py: 0.25,
-                borderRadius: 0.5
-              }}
-            >
-              Save {Math.round(discountPercentage)}%
-            </Typography>
-          )}
-        </Box>
+            {offer_price && (
+              <Typography variant="body2" sx={{ textDecoration: "line-through", color: "text.disabled" }}>
+                ₹{original_price}
+              </Typography>
+            )}
+            {discountPercentage > 0 && (
+              <Chip icon={<LocalOfferIcon sx={{ fontSize: 16 }} />} label={`Save ${Math.round(discountPercentage)}%`} color="success" size="small" sx={{ fontWeight: 600 }} />
+            )}
+          </Box>
 
-        {/* Quantity Selector */}
-        <Box sx={{ 
-          display: "flex", 
-          justifyContent: "center", 
-          alignItems: "center", 
-          gap: 2, 
-          mb: 2
-        }}>
-          <IconButton 
-            size="small" 
-            onClick={decreaseQuantity} 
-            sx={{ 
-              border: "1px solid #ddd",
-              "&:hover": {
-                backgroundColor: "rgba(0,0,0,0.04)",
-                borderColor: "#bbb"
-              }
-            }}
-            disabled={quantity <= 1}
-          >
-            <RemoveIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ minWidth: "24px", textAlign: "center" }}>
-            {quantity}
-          </Typography>
-          <IconButton 
-            size="small" 
-            onClick={increaseQuantity} 
-            sx={{ 
-              border: "1px solid #ddd",
-              "&:hover": {
-                backgroundColor: "rgba(0,0,0,0.04)",
-                borderColor: "#bbb"
-              }
-            }}
-          >
-            <AddIcon />
-          </IconButton>
-        </Box>
+          {/* Quantity */}
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 1, mb: 1 }}>
+            <IconButton size="small" onClick={decreaseQuantity} disabled={quantity <= 1}><RemoveIcon /></IconButton>
+            <Typography variant="h6">{quantity}</Typography>
+            <IconButton size="small" onClick={increaseQuantity}><AddIcon /></IconButton>
+          </Box>
 
-        {/* Action Buttons */}
-        <Box sx={{ display: "flex", gap: 1.5 }}>
-          <Button
-            variant="contained"
-            onClick={handleAddToCart}
-            fullWidth
-            sx={{
-              borderRadius: "12px",
-              textTransform: "none",
-              fontWeight: 600,
-              background: "linear-gradient(45deg,#ff9800,#f44336)",
-              "&:hover": { 
-                background: "linear-gradient(45deg,#f57c00,#d32f2f)",
-                transform: "translateY(-1px)"
-              },
-              "&:active": {
-                transform: "translateY(0px)"
-              }
-            }}
-          >
-            Add to Cart
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleBuyNow}
-            fullWidth
-            sx={{
-              borderRadius: "12px",
-              textTransform: "none",
-              fontWeight: 600,
-              background: "linear-gradient(45deg,#4caf50,#2e7d32)",
-              "&:hover": { 
-                background: "linear-gradient(45deg,#43a047,#1b5e20)",
-                transform: "translateY(-1px)"
-              },
-              "&:active": {
-                transform: "translateY(0px)"
-              }
-            }}
-          >
-            Buy Now
-          </Button>
-        </Box>
-      </CardContent>
-    </Card>
+          {/* Actions */}
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <MuiButton variant="contained" onClick={handleAddToCart} fullWidth sx={{ borderRadius: "10px", fontWeight: 100, fontSize:"12px", background: "linear-gradient(45deg,#ff9800,#f44336)" }}>
+              Add to Cart
+            </MuiButton>
+            <MuiButton variant="contained" onClick={handleBuyNow} fullWidth sx={{ borderRadius: "10px", fontWeight: 100,fontSize:"12px", background: "linear-gradient(45deg,#4caf50,#2e7d32)" }}>
+              Buy Now
+            </MuiButton>
+          </Box>
+        </CardContent>
+      </Card>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.type}>{snackbar.message}</Alert>
+      </Snackbar>
+
+      {/* Product Modal */}
+      {openModal && <ProductModal open={openModal} onClose={() => setOpenModal(false)} product={product} />}
+    </>
   );
 });
 
-// Separate skeleton component for better performance
 const ProductCardSkeleton = React.memo(() => (
-  <Card sx={{ 
-    maxWidth: 350, 
-    borderRadius: "20px", 
-    boxShadow: "0 8px 24px rgba(0,0,0,0.15)" 
-  }}>
-    <Skeleton 
-      variant="rectangular" 
-      height={300} 
-      sx={{ borderRadius: "20px 20px 0 0" }}
-    />
-    <CardContent sx={{ p: 2 }}>
-      <Skeleton variant="text" width="60%" height={16} sx={{ mb: 0.5 }} />
-      <Skeleton variant="text" width="40%" height={12} sx={{ mb: 1 }} />
-      <Skeleton variant="text" width="90%" height={24} sx={{ mb: 1 }} />
-      <Skeleton variant="text" width="100%" height={32} sx={{ mb: 2 }} />
-      <Skeleton variant="text" width="50%" height={20} sx={{ mb: 2, mx: "auto" }} />
-      <Skeleton variant="rectangular" width={120} height={40} sx={{ mx: "auto", mb: 2 }} />
-      <Box sx={{ display: 'flex', gap: 1 }}>
-        <Skeleton variant="rectangular" width="50%" height={40} />
-        <Skeleton variant="rectangular" width="50%" height={40} />
-      </Box>
+  <Card sx={{ width: 280, borderRadius: "24px", p: 1 }}>
+    <Skeleton variant="rectangular" height={260} sx={{ borderRadius: "16px" }} />
+    <CardContent>
+      <Skeleton variant="text" width="60%" />
+      <Skeleton variant="text" width="80%" />
+      <Skeleton variant="rectangular" height={32} sx={{ my: 1 }} />
+      <Skeleton variant="rectangular" height={40} />
     </CardContent>
   </Card>
 ));
-
-ProductCard.displayName = 'ProductCard';
-ProductCardSkeleton.displayName = 'ProductCardSkeleton';
 
 export default ProductCard;

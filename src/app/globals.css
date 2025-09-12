@@ -19,3 +19,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.zoom-image:hover {
+  transform: scale(1); /* zooms OUT slightly on hover */
+}

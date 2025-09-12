@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { Box, useTheme, useMediaQuery } from "@mui/material";
+import Image from "next/image";
 
 const bannerImages = [
   {
@@ -10,7 +11,7 @@ const bannerImages = [
   },
   {
     id: 2,
-    src: "footerbg.jpg",
+    src: "/footerbg.jpg",
     alt: "Festival Celebration",
   },
   {
@@ -20,7 +21,7 @@ const bannerImages = [
   },
   {
     id: 4,
-    src: "/api/placeholder/1200/600",
+    src: "/img1",
     alt: "Pooja Items",
   }
 ];
@@ -115,12 +116,12 @@ const PoojaBanner = () => {
               flexShrink: 0
             }}
           >
-            <img
+            <Image
               src={item.src}
               alt={item.alt}
-              style={{ 
-                width: "100%",
-                height: "100%",
+              width={100}
+              height={100}
+              style={{
                 objectFit: "cover",
                 filter: "brightness(0.9)"
               }}

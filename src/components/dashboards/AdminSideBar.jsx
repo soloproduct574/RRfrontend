@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import {
   HomeIcon,
@@ -10,22 +10,23 @@ import {
   PowerIcon,
 } from "@heroicons/react/24/outline";
 import { logout } from "@/Redux/Slice/AdminAuthSlice";
-import ProductRegisterPage from "../../app/dashboard/ManageProducts/page";
 
-const AdminSidebar = ({ onLogout }) => {
+const AdminSidebar = () => {
   const pathname = usePathname();
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const menuItems = [
     { name: "Dashboard Overview", icon: HomeIcon, href: "/admin-dashboard" },
-{ name: "Manage Products", icon: TableCellsIcon, href: "/dashboard/ManageProducts" },
-   { name: "Manage Users", icon: UsersIcon, href: "/admin-dashboard/users" },
+    { name: "Manage Products", icon: TableCellsIcon, href: "/dashboard/ManageProducts" },
+    { name: "Manage Users", icon: UsersIcon, href: "/admin-dashboard/users" },
     { name: "Settings", icon: Cog6ToothIcon, href: "/admin-dashboard/settings" },
   ];
 
   const handleLogout = () => {
     dispatch(logout());
-    if (onLogout) onLogout();
+    // Redirect to login page
+    router.push("/admin-login");
   };
 
   return (

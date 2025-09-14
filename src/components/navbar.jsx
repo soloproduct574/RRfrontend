@@ -166,7 +166,9 @@ export default function Navbar() {
               }}
             />
           </LogoContainer>
-          <HoverButton text="RR_Traders" />
+          {/* <HoverButton text="RR_Traders" /> */}
+
+          <Typography>RR Traders</Typography>
 
           {/* Desktop Menu */}
           <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 1 }}>

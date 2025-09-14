@@ -49,21 +49,21 @@ const ProductModal = ({ open, onClose, product }) => {
 
   const [selectedMedia, setSelectedMedia] = useState(mediaItems[0]);
 
-  // ✅ Get favorites from Redux (no localStorage direct calls)
+  // ✅ Get favorites from Redux
   const favoriteItems = useSelector((state) => state.favorites.favoriteItems);
-  const isLiked = favoriteItems.includes(id);
+  const isLiked = favoriteItems.some((p) => p._id === id);
 
   const handleLike = () => {
-    dispatch(toggleFavorite(id)); // ✅ Toggles Redux + persists in localStorage inside slice
+    dispatch(toggleFavorite(product)); // ✅ pass full product
   };
 
   const handleAddToCart = () => {
-    dispatch(addToCart({ id, name: product_name, quantity: 1, price: offer_price }));
+    dispatch(addToCart({ ...product, quantity: 1 })); // ✅ pass full product
   };
 
   const handleBuyNow = () => {
-    dispatch(addToCart({ id, name: product_name, quantity: 1, price: offer_price }));
-    // ✅ Navigate to checkout page if needed
+    dispatch(addToCart({ ...product, quantity: 1 })); // ✅ pass full product
+    // Navigate to checkout page if needed
   };
 
   return (

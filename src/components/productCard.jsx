@@ -36,9 +36,10 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
 
   // ✅ Get favorites safely from Redux
   const favoriteItems = useSelector((state) => state.favorites.favoriteItems) || [];
-  const isFav = Array.isArray(favoriteItems) && product?._id
-    ? favoriteItems.includes(product._id)
-    : false;
+  const isFav =
+    Array.isArray(favoriteItems) && product?._id
+      ? favoriteItems.some((p) => p._id === product._id)
+      : false;
 
   if (isLoading) return <ProductCardSkeleton />;
   if (!product) return null;
@@ -69,8 +70,8 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
 
   // ---------- Favorite Handler (Redux) ----------
   const handleToggleFavorite = useCallback(() => {
-    dispatch(toggleFavorite(id));
-  }, [dispatch, id]);
+    dispatch(toggleFavorite(product)); // ✅ pass full product object
+  }, [dispatch, product]);
 
   // ---------- Cart & Buy Handlers ----------
   const handleAddToCart = useCallback(() => {

@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    compiler: {
+  compiler: {
     styledComponents: true,
   },
   images: {
@@ -8,6 +8,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pub-ee5e7c3df23e4a63b3a50f9bf7f41118.r2.dev',
       },
     ],
   },

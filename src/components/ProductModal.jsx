@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+"use client";
+import React, { useState } from "react";
 import {
   Modal,
   Box,
@@ -16,11 +17,19 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ReactPlayer from "react-player";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 
+// ✅ Redux imports
+import { useDispatch, useSelector } from "react-redux";
+import { toggleFavorite } from "../Redux/Slice/favoritesSlice";
+import { addToCart } from "../Redux/Slice/cartSlice";
+
 const ProductModal = ({ open, onClose, product }) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
+
   if (!product) return null;
 
   const {
+    _id: id,
     product_name,
     description,
     percentage_discount,
@@ -30,39 +39,37 @@ const ProductModal = ({ open, onClose, product }) => {
     offer_price,
     categories = [],
     brands = [],
-    id,
   } = product;
 
+  // ✅ Build media array safely
   const mediaItems = [
     ...product_images.map((img) => ({ type: "image", src: img })),
     ...product_videos.map((vid) => ({ type: "video", src: vid })),
   ];
 
   const [selectedMedia, setSelectedMedia] = useState(mediaItems[0]);
-  const [liked, setLiked] = useState(false);
 
-  useEffect(() => {
-    const likedProducts = JSON.parse(localStorage.getItem("likedProducts") || "{}");
-    if (likedProducts[id]) setLiked(true);
-  }, [id]);
+  // ✅ Get favorites from Redux (no localStorage direct calls)
+  const favoriteItems = useSelector((state) => state.favorites.favoriteItems);
+  const isLiked = favoriteItems.includes(id);
 
   const handleLike = () => {
-    const likedProducts = JSON.parse(localStorage.getItem("likedProducts") || "{}");
-    if (!liked) {
-      likedProducts[id] = true;
-      localStorage.setItem("likedProducts", JSON.stringify(likedProducts));
-      setLiked(true);
-    } else {
-      delete likedProducts[id];
-      localStorage.setItem("likedProducts", JSON.stringify(likedProducts));
-      setLiked(false);
-    }
+    dispatch(toggleFavorite(id)); // ✅ Toggles Redux + persists in localStorage inside slice
+  };
+
+  const handleAddToCart = () => {
+    dispatch(addToCart({ id, name: product_name, quantity: 1, price: offer_price }));
+  };
+
+  const handleBuyNow = () => {
+    dispatch(addToCart({ id, name: product_name, quantity: 1, price: offer_price }));
+    // ✅ Navigate to checkout page if needed
   };
 
   return (
     <Modal open={open} onClose={onClose}>
       <Box>
-        {/* Close Button fixed at top-right of viewport */}
+        {/* Close Button */}
         <IconButton
           onClick={onClose}
           sx={{
@@ -82,7 +89,7 @@ const ProductModal = ({ open, onClose, product }) => {
           <CloseIcon />
         </IconButton>
 
-        {/* Modal Content Box */}
+        {/* Modal Content */}
         <Box
           sx={{
             backgroundColor: "white",
@@ -123,6 +130,7 @@ const ProductModal = ({ open, onClose, product }) => {
                         src={item.src}
                         alt={`Media ${i + 1}`}
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        onError={(e) => (e.target.src = "/logo.jpg")}
                       />
                     ) : (
                       <Box
@@ -158,12 +166,18 @@ const ProductModal = ({ open, onClose, product }) => {
                         borderRadius: 12,
                         objectFit: "contain",
                       }}
+                      onError={(e) => (e.target.src = "/logo.jpg")}
                     />
                   ) : (
                     <ReactPlayer
                       url={selectedMedia.src}
                       controls
-                      style={{ borderRadius: 12, overflow: "hidden", width: 400, height: 430 }}
+                      style={{
+                        borderRadius: 12,
+                        overflow: "hidden",
+                        width: 400,
+                        height: 430,
+                      }}
                     />
                   )}
                 </Box>
@@ -177,7 +191,7 @@ const ProductModal = ({ open, onClose, product }) => {
                   {product_name}
                 </Typography>
                 <IconButton onClick={handleLike} color="error">
-                  {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                  {isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                 </IconButton>
               </Box>
 
@@ -195,25 +209,47 @@ const ProductModal = ({ open, onClose, product }) => {
                 ))}
               </Box>
 
+              {/* Price */}
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <Typography variant="h6" color="primary" fontWeight={700}>
                   ₹{offer_price}
                 </Typography>
                 {original_price && (
-                  <Typography variant="body2" sx={{ textDecoration: "line-through", color: "gray" }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ textDecoration: "line-through", color: "gray" }}
+                  >
                     ₹{original_price}
                   </Typography>
                 )}
                 {percentage_discount > 0 && (
-                  <Chip label={`Save ${Math.round(percentage_discount)}%`} color="success" size="small" sx={{ fontWeight: 600 }} />
+                  <Chip
+                    label={`Save ${Math.round(percentage_discount)}%`}
+                    color="success"
+                    size="small"
+                    sx={{ fontWeight: 600 }}
+                  />
                 )}
               </Box>
 
+              {/* Actions */}
               <Box sx={{ display: "flex", gap: 2 }}>
-                <Button variant="contained" color="primary" fullWidth sx={{ borderRadius: 2, fontWeight: 600 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{ borderRadius: 2, fontWeight: 600 }}
+                  onClick={handleAddToCart}
+                >
                   Add to Cart
                 </Button>
-                <Button variant="contained" color="success" fullWidth sx={{ borderRadius: 2, fontWeight: 600 }}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  fullWidth
+                  sx={{ borderRadius: 2, fontWeight: 600 }}
+                  onClick={handleBuyNow}
+                >
                   Buy Now
                 </Button>
               </Box>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography, useTheme, IconButton } from "@mui/material";
 import Image from "next/image";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -19,8 +19,13 @@ const products = [
 
 const ProductsScroller = () => {
   const theme = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [startIndex, setStartIndex] = useState(0);
-  const visibleCount = 6; // show 5 at a time
+  const visibleCount = 6; // show 6 at a time
+
+  useEffect(() => {
+    setMounted(true); // ensures this part only renders on client
+  }, []);
 
   const handleNext = () => {
     if (startIndex < products.length - visibleCount) {
@@ -34,40 +39,39 @@ const ProductsScroller = () => {
     }
   };
 
-  const visibleProducts = products.slice(startIndex, startIndex + visibleCount);
+  // Only slice products on client
+  const visibleProducts = mounted ? products.slice(startIndex, startIndex + visibleCount) : [];
 
   return (
     <Box
       sx={{
         width: "100%",
         py: { xs: 4, md: 10 },
-        // background: "linear-gradient(135deg, #f9f9f9, #f0f0f0)",
         position: "relative",
         overflow: "hidden",
       }}
     >
       {/* Heading */}
-      <Typography
-      component={'div'}
-        display={"flex"}
-        justifyContent={"center"}
-        gap={3}
-      >
+      <Typography component="div" display="flex" justifyContent="center" gap={3}>
         <img
           src="/texticon.png"
           alt="icon"
           style={{ width: 50, height: 50, verticalAlign: "middle", marginRight: 10 }}
         />
-      <Typography variant="h4"
-        sx={{
-          textAlign: "center",
-          fontFamily: "Arial, sans-serif",
-          color:'#ff3838ff',
-          fontWeight: 600,
-          mb: { xs: 3, md: 10 },
-          letterSpacing: "1px",
-        }}>Shop By Product Categories</Typography>
-      <img
+        <Typography
+          variant="h4"
+          sx={{
+            textAlign: "center",
+            fontFamily: "Arial, sans-serif",
+            color: "#ff3838ff",
+            fontWeight: 600,
+            mb: { xs: 3, md: 10 },
+            letterSpacing: "1px",
+          }}
+        >
+          Shop By Product Categories
+        </Typography>
+        <img
           src="/texticon.png"
           alt="icon"
           style={{ width: 50, height: 50, verticalAlign: "middle", marginRight: 10 }}
@@ -75,90 +79,82 @@ const ProductsScroller = () => {
       </Typography>
 
       {/* Product row */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          gap: 7,
-        }}
-      >
-        {visibleProducts.map((product) => (
-          <Box
-            key={product.id}
+      {mounted && (
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 7 }}>
+          {visibleProducts.map((product) => (
+            <Box
+              key={product.id}
+              sx={{ flex: "0 0 auto", display: "flex", flexDirection: "column", alignItems: "center" }}
+            >
+              <Box
+                sx={{
+                  width: { xs: 90, sm: 120, md: 150 },
+                  height: { xs: 90, sm: 120, md: 150 },
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  mb: 1.5,
+                  boxShadow: "0 6px 15px rgba(0,0,0,0.1)",
+                  transition: "transform 0.3s",
+                  "&:hover": { transform: "scale(1.1)" },
+                }}
+              >
+                <Image
+                  src={product.src}
+                  alt={product.name}
+                  width={200}
+                  height={200}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, textAlign: "center" }}>
+                {product.name}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      )}
+
+      {/* Navigation */}
+      {mounted && (
+        <>
+          <IconButton
+            onClick={handlePrev}
+            disabled={startIndex === 0}
             sx={{
-              flex: "0 0 auto",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
+              position: "absolute",
+              top: "60%",
+              left: 56,
+              transform: "translateY(-50%)",
+              backgroundColor: "white",
+              boxShadow: 3,
+              "&:hover": {
+                backgroundColor: theme.palette.primary.main,
+                color: "white",
+              },
             }}
           >
-            <Box
-              sx={{
-                width: { xs: 90, sm: 120, md: 150 },
-                height: { xs: 90, sm: 120, md: 150 },
-                borderRadius: "50%",
-                overflow: "hidden",
-                mb: 1.5,
-                boxShadow: "0 6px 15px rgba(0,0,0,0.1)",
-                transition: "transform 0.3s",
-                "&:hover": { transform: "scale(1.1)" },
-              }}
-            >
-              <Image
-                src={product.src}
-                alt={product.name}
-                width={200}
-                height={200}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            </Box>
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: 600, textAlign: "center" }}
-            >
-              {product.name}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-
-      {/* Manual Navigation */}
-      <IconButton
-        onClick={handlePrev}
-        disabled={startIndex === 0}
-        sx={{
-          position: "absolute",
-          top: "60%",
-          left: 56,
-          transform: "translateY(-50%)",
-          backgroundColor: "white",
-          boxShadow: 3,
-          "&:hover": {
-            backgroundColor: theme.palette.primary.main,
-            color: "white",
-          },
-        }}
-      >
-        <ArrowBackIosNewIcon />
-      </IconButton>
-      <IconButton
-        onClick={handleNext}
-        disabled={startIndex >= products.length - visibleCount}
-        sx={{
-          position: "absolute",
-          top: "60%",
-          right: 56,
-          transform: "translateY(-50%)",
-          backgroundColor: "white",
-          boxShadow: 3,
-          "&:hover": {
-            backgroundColor: theme.palette.primary.main,
-            color: "white",
-          },
-        }}
-      >
-        <ArrowForwardIosIcon />
-      </IconButton>
+            <ArrowBackIosNewIcon />
+          </IconButton>
+          <IconButton
+            onClick={handleNext}
+            disabled={startIndex >= products.length - visibleCount}
+            sx={{
+              position: "absolute",
+              top: "60%",
+              right: 56,
+              transform: "translateY(-50%)",
+              backgroundColor: "white",
+              boxShadow: 3,
+              "&:hover": {
+                backgroundColor: theme.palette.primary.main,
+                color: "white",
+              },
+            }}
+          >
+            <ArrowForwardIosIcon />
+          </IconButton>
+        </>
+      )}
     </Box>
   );
 };

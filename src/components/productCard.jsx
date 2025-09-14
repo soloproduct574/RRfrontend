@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -19,19 +19,26 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import ShareIcon from "@mui/icons-material/Share";
-import ProductModal from "./ProductModal";
+import ProductModal from "./ProductModal.jsx";
 
-const ProductCard = React.memo(({ 
-  product,
-  isLoading = false,
-  onAddToCart,
-  onBuyNow,
-}) => {
+// ✅ Redux imports
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "../Redux/Slice/cartSlice.jsx";
+import { toggleFavorite } from "../Redux/Slice/favoritesSlice.jsx";
+
+const ProductCard = React.memo(({ product, isLoading = false }) => {
+  const dispatch = useDispatch();
+
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex] = useState(0);
-  const [isFav, setIsFav] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", type: "success" });
   const [openModal, setOpenModal] = useState(false);
+
+  // ✅ Get favorites safely from Redux
+  const favoriteItems = useSelector((state) => state.favorites.favoriteItems) || [];
+  const isFav = Array.isArray(favoriteItems) && product?._id
+    ? favoriteItems.includes(product._id)
+    : false;
 
   if (isLoading) return <ProductCardSkeleton />;
   if (!product) return null;
@@ -47,48 +54,69 @@ const ProductCard = React.memo(({
     product_images = [],
   } = product;
 
-  const productImages = useMemo(() => product_images.length > 0 ? product_images : ["/logo.jpg"], [product_images]);
+  const productImages = useMemo(
+    () => (product_images.length > 0 ? product_images : ["/logo.jpg"]),
+    [product_images]
+  );
   const brandName = brands[0]?.name || brands[0] || "Divine Brand";
   const categoryName = categories[0]?.name || categories[0] || "";
   const displayPrice = offer_price || original_price || 0;
   const discountPercentage = discount || 0;
 
   // ---------- Quantity Handlers ----------
-  const increaseQuantity = useCallback(() => setQuantity(prev => prev + 1), []);
-  const decreaseQuantity = useCallback(() => setQuantity(prev => prev > 1 ? prev - 1 : 1), []);
+  const increaseQuantity = useCallback(() => setQuantity((prev) => prev + 1), []);
+  const decreaseQuantity = useCallback(() => setQuantity((prev) => (prev > 1 ? prev - 1 : 1)), []);
 
-  // ---------- Persistent Favorite using localStorage ----------
-  useEffect(() => {
-    const favs = JSON.parse(localStorage.getItem("favProducts") || "{}");
-    setIsFav(favs[id] || false);
-  }, [id]);
-
-  const toggleFavorite = () => {
-    setIsFav(prev => {
-      const newFav = !prev;
-      const favs = JSON.parse(localStorage.getItem("favProducts") || "{}");
-      favs[id] = newFav;
-      localStorage.setItem("favProducts", JSON.stringify(favs));
-      return newFav;
-    });
-  };
+  // ---------- Favorite Handler (Redux) ----------
+  const handleToggleFavorite = useCallback(() => {
+    dispatch(toggleFavorite(id));
+  }, [dispatch, id]);
 
   // ---------- Cart & Buy Handlers ----------
   const handleAddToCart = useCallback(() => {
-    const cartData = { id, name, quantity, price: displayPrice };
-    if (onAddToCart) onAddToCart(cartData);
-    setSnackbar({ open: true, message: `${quantity} x ${name} added to cart 🛒`, type: "success" });
-  }, [id, name, quantity, displayPrice, onAddToCart]);
+    dispatch(
+      addToCart({
+        _id: id,
+        product_name: name,
+        quantity,
+        offer_price: displayPrice,
+        product_images,
+        brands,
+        categories,
+      })
+    );
+    setSnackbar({
+      open: true,
+      message: `${quantity} x ${name} added to cart 🛒`,
+      type: "success",
+    });
+  }, [dispatch, id, name, quantity, displayPrice, product_images, brands, categories]);
 
   const handleBuyNow = useCallback(() => {
-    const purchaseData = { id, name, quantity, price: displayPrice };
-    if (onBuyNow) onBuyNow(purchaseData);
-    setSnackbar({ open: true, message: `Proceeding to buy ${quantity} x ${name} 💳`, type: "info" });
-  }, [id, name, quantity, displayPrice, onBuyNow]);
+    dispatch(
+      addToCart({
+        _id: id,
+        product_name: name,
+        quantity,
+        offer_price: displayPrice,
+        product_images,
+        brands,
+        categories,
+      })
+    );
+    setSnackbar({
+      open: true,
+      message: `Proceeding to buy ${quantity} x ${name} 💳`,
+      type: "info",
+    });
+    // ✅ You can navigate to checkout page here if needed
+  }, [dispatch, id, name, quantity, displayPrice, product_images, brands, categories]);
 
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setSnackbar({ open: true, message: "Product link copied to clipboard 📋", type: "info" });
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href);
+      setSnackbar({ open: true, message: "Product link copied to clipboard 📋", type: "info" });
+    }
   };
 
   return (
@@ -104,29 +132,27 @@ const ProductCard = React.memo(({
           "&:hover": { boxShadow: "0 12px 40px rgba(0,0,0,0.25)" },
         }}
       >
-        {true && (
-          <Chip
-            label="Popular Product"
-            color="primary"
-            size="small"
-            sx={{
-              position: "absolute",
-              top: 12,
-              left: 12,
-              fontWeight: "bold",
-              backgroundColor: "rgba(255, 255, 255, 0.74)",
-              color: "black",
-              zIndex: 2,
-            }}
-          />
-        )}
+        {/* Popular Tag */}
+        <Chip
+          label="Popular Product"
+          color="primary"
+          size="small"
+          sx={{
+            position: "absolute",
+            top: 12,
+            left: 12,
+            fontWeight: "bold",
+            backgroundColor: "rgba(255, 255, 255, 0.74)",
+            color: "black",
+            zIndex: 2,
+          }}
+        />
 
-        {/* Like & Share Icons */}
+        {/* Like & Share */}
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "flex-start",
             p: 1,
             position: "absolute",
             top: 8,
@@ -134,17 +160,11 @@ const ProductCard = React.memo(({
             zIndex: 3,
           }}
         >
-          <IconButton
-            onClick={toggleFavorite}
-            sx={{ "&:hover": { background: "rgba(255,255,255,1)" } }}
-          >
+          <IconButton onClick={handleToggleFavorite}>
             {isFav ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
           </IconButton>
 
-          <IconButton
-            onClick={handleShare}
-            sx={{ "&:hover": { background: "rgba(255,255,255,1)" } }}
-          >
+          <IconButton onClick={handleShare}>
             <ShareIcon color="grey" />
           </IconButton>
         </Box>
@@ -155,7 +175,13 @@ const ProductCard = React.memo(({
             height: 260,
             position: "relative",
             overflow: "hidden",
-            "& img": { width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease", transform: "scale(1)" },
+            "& img": {
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: "transform 0.5s ease",
+              transform: "scale(1)",
+            },
             "&:hover img": { transform: "scale(1.1)" },
           }}
         >
@@ -214,7 +240,7 @@ const ProductCard = React.memo(({
               textOverflow: "ellipsis",
               display: "-webkit-box",
               WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical"
+              WebkitBoxOrient: "vertical",
             }}
           >
             {name}
@@ -226,28 +252,69 @@ const ProductCard = React.memo(({
               ₹{displayPrice}
             </Typography>
             {offer_price && (
-              <Typography variant="body2" sx={{ textDecoration: "line-through", color: "text.disabled" }}>
+              <Typography
+                variant="body2"
+                sx={{ textDecoration: "line-through", color: "text.disabled" }}
+              >
                 ₹{original_price}
               </Typography>
             )}
             {discountPercentage > 0 && (
-              <Chip icon={<LocalOfferIcon sx={{ fontSize: 16 }} />} label={`Save ${Math.round(discountPercentage)}%`} color="success" size="small" sx={{ fontWeight: 600 }} />
+              <Chip
+                icon={<LocalOfferIcon sx={{ fontSize: 16 }} />}
+                label={`Save ${Math.round(discountPercentage)}%`}
+                color="success"
+                size="small"
+                sx={{ fontWeight: 600 }}
+              />
             )}
           </Box>
 
           {/* Quantity */}
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 1, mb: 1 }}>
-            <IconButton size="small" onClick={decreaseQuantity} disabled={quantity <= 1}><RemoveIcon /></IconButton>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 1,
+              mb: 1,
+            }}
+          >
+            <IconButton size="small" onClick={decreaseQuantity} disabled={quantity <= 1}>
+              <RemoveIcon />
+            </IconButton>
             <Typography variant="h6">{quantity}</Typography>
-            <IconButton size="small" onClick={increaseQuantity}><AddIcon /></IconButton>
+            <IconButton size="small" onClick={increaseQuantity}>
+              <AddIcon />
+            </IconButton>
           </Box>
 
           {/* Actions */}
           <Box sx={{ display: "flex", gap: 1 }}>
-            <MuiButton variant="contained" onClick={handleAddToCart} fullWidth sx={{ borderRadius: "10px", fontWeight: 100, fontSize:"12px", background: "linear-gradient(45deg,#ff9800,#f44336)" }}>
+            <MuiButton
+              variant="contained"
+              onClick={handleAddToCart}
+              fullWidth
+              sx={{
+                borderRadius: "10px",
+                fontWeight: 100,
+                fontSize: "12px",
+                background: "linear-gradient(45deg,#ff9800,#f44336)",
+              }}
+            >
               Add to Cart
             </MuiButton>
-            <MuiButton variant="contained" onClick={handleBuyNow} fullWidth sx={{ borderRadius: "10px", fontWeight: 100,fontSize:"12px", background: "linear-gradient(45deg,#4caf50,#2e7d32)" }}>
+            <MuiButton
+              variant="contained"
+              onClick={handleBuyNow}
+              fullWidth
+              sx={{
+                borderRadius: "10px",
+                fontWeight: 100,
+                fontSize: "12px",
+                background: "linear-gradient(45deg,#4caf50,#2e7d32)",
+              }}
+            >
               Buy Now
             </MuiButton>
           </Box>
@@ -264,7 +331,9 @@ const ProductCard = React.memo(({
       </Snackbar>
 
       {/* Product Modal */}
-      {openModal && <ProductModal open={openModal} onClose={() => setOpenModal(false)} product={product} />}
+      {openModal && (
+        <ProductModal open={openModal} onClose={() => setOpenModal(false)} product={product} />
+      )}
     </>
   );
 });

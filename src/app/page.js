@@ -6,6 +6,7 @@ import RotatingOffers from "@/components/rotatingtext";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import FeaturesSection from "@/components/featuresContact";
+import ProductList from "./products/page";
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
     <RotatingOffers />
     <PoojaBanner/>
     <ProductsCarousel/>
+    <ProductList/>
     <FeaturesSection/>
     <Footer/>
     </>

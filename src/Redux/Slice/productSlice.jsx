@@ -15,7 +15,6 @@ export const fetchProducts = createAsyncThunk(
       const data = await response.json();
       console.log('✅ Products fetched successfully:', data);
       
-      // ✅ Handle different API response structures
       if (data.success && data.data) {
         return data.data; // If API returns { success: true, data: [...] }
       } else if (Array.isArray(data)) {

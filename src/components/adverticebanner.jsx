@@ -6,22 +6,22 @@ import Image from "next/image";
 const bannerImages = [
   {
     id: 1,
-    src: "/herobaner.jpg",
+    src: "/banner1.jpg",
     alt: "Traditional Pooja Setup",
   },
   {
     id: 2,
-    src: "/footerbg.jpg",
+    src: "/banner2.jpg",
     alt: "Festival Celebration",
   },
   {
     id: 3,
-    src: "/herobaner.jpg",
+    src: "/banner3.jpg",
     alt: "Temple Pooja",
   },
   {
     id: 4,
-    src: "/img1",
+    src: "/banner4.jpg",
     alt: "Pooja Items",
   }
 ];
@@ -32,6 +32,7 @@ const PoojaBanner = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [paused, setPaused] = useState(false);
   const progressRef = useRef(null);
+  const [imagesLoaded, setImagesLoaded] = useState({});
 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
@@ -80,6 +81,11 @@ const PoojaBanner = () => {
     if (touchEndX.current - touchStartX.current > 75) prevSlide();
   };
 
+  // Handle image loading
+  const handleImageLoad = (id) => {
+    setImagesLoaded(prev => ({ ...prev, [id]: true }));
+  };
+
   return (
     <Box
       sx={{
@@ -88,8 +94,8 @@ const PoojaBanner = () => {
         width: "100%",
         height: { xs: "40vh", sm: "50vh", md: "60vh" },
         overflow: "hidden",
-        // borderRadius: { xs: 1, sm: 2 },
-        boxShadow: 3
+        boxShadow: 3,
+        backgroundColor: "#000"
       }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -111,61 +117,80 @@ const PoojaBanner = () => {
             key={item.id}
             sx={{
               minWidth: "100%",
-              height: "100%",
               position: "relative",
-              flexShrink: 0
+              height: "100%",
+              flexShrink: 0,
+              backgroundColor: "#000",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
             }}
           >
+            {!imagesLoaded[item.id] && (
+              <Box 
+                sx={{ 
+                  position: "relative", width: "100%", aspectRatio: "16/9" ,
+                  color: "#fff", 
+                  position: "absolute",
+                  zIndex: 1
+                }}
+              >
+                Loading...
+              </Box>
+            )}
             <Image
               src={item.src}
               alt={item.alt}
-              width={100}
-              height={100}
+              fill
               style={{
-                objectFit: "cover",
-                filter: "brightness(0.9)"
+                objectFit: "cover", 
               }}
               priority={index === 0}
+              onLoadingComplete={() => handleImageLoad(item.id)}
             />
           </Box>
         ))}
       </Box>
 
-      {/* Navigation Arrows */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: 16,
-          transform: "translateY(-50%)",
-          zIndex: 10,
-          opacity: 0.7,
-          transition: "opacity 0.3s",
-          "&:hover": { opacity: 1 }
-        }}
-      >
-        <Box onClick={prevSlide} sx={navButtonStyle}>
-          ←
-        </Box>
-      </Box>
-      <Box
-        sx={{
-          position: "absolute",
-          top: "50%",
-          right: 16,
-          transform: "translateY(-50%)",
-          zIndex: 10,
-          opacity: 0.7,
-          transition: "opacity 0.3s",
-          "&:hover": { opacity: 1 }
-        }}
-      >
-        <Box onClick={nextSlide} sx={navButtonStyle}>
-          →
-        </Box>
-      </Box>
+      {/* Navigation Arrows - Only show on larger screens */}
+      {!isMobile && (
+        <>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: 16,
+              transform: "translateY(-50%)",
+              zIndex: 10,
+              opacity: 0.7,
+              transition: "opacity 0.3s",
+              "&:hover": { opacity: 1 }
+            }}
+          >
+            <Box onClick={prevSlide} sx={navButtonStyle}>
+              ←
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              right: 16,
+              transform: "translateY(-50%)",
+              zIndex: 10,
+              opacity: 0.7,
+              transition: "opacity 0.3s",
+              "&:hover": { opacity: 1 }
+            }}
+          >
+            <Box onClick={nextSlide} sx={navButtonStyle}>
+              →
+            </Box>
+          </Box>
+        </>
+      )}
 
-      {/* Minimal Dots Indicator */}
+      {/* Dots Indicator */}
       <Box
         sx={{
           position: "absolute",
@@ -196,33 +221,6 @@ const PoojaBanner = () => {
           />
         ))}
       </Box>
-
-      {/* Progress Bar */}
-      {/* <Box
-        sx={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          width: "100%",
-          height: 3,
-          backgroundColor: "rgba(255,255,255,0.3)",
-          overflow: "hidden"
-        }}
-      >
-        <Box
-          ref={progressRef}
-          sx={{
-            height: "100%",
-            width: "100%",
-            backgroundColor: "#fff",
-            animation: "progress 5s linear forwards",
-            "@keyframes progress": {
-              "0%": { transform: "translateX(-100%)" },
-              "100%": { transform: "translateX(0%)" }
-            }
-          }}
-        />
-      </Box> */}
     </Box>
   );
 };

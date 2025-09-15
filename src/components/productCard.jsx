@@ -34,7 +34,6 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
   const [snackbar, setSnackbar] = useState({ open: false, message: "", type: "success" });
   const [openModal, setOpenModal] = useState(false);
 
-  // ✅ Get favorites safely from Redux
   const favoriteItems = useSelector((state) => state.favorites.favoriteItems) || [];
   const isFav =
     Array.isArray(favoriteItems) && product?._id
@@ -64,16 +63,13 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
   const displayPrice = offer_price || original_price || 0;
   const discountPercentage = discount || 0;
 
-  // ---------- Quantity Handlers ----------
   const increaseQuantity = useCallback(() => setQuantity((prev) => prev + 1), []);
   const decreaseQuantity = useCallback(() => setQuantity((prev) => (prev > 1 ? prev - 1 : 1)), []);
 
-  // ---------- Favorite Handler (Redux) ----------
   const handleToggleFavorite = useCallback(() => {
     dispatch(toggleFavorite(product)); // ✅ pass full product object
   }, [dispatch, product]);
 
-  // ---------- Cart & Buy Handlers ----------
   const handleAddToCart = useCallback(() => {
     dispatch(
       addToCart({

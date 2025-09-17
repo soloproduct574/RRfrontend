@@ -16,7 +16,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Avatar from "@mui/material/Avatar";
 import { styled, alpha } from "@mui/material/styles";
 import { usePathname } from "next/navigation";
-import HoverButton from "./logohead";
 import LoginModal from "../app/auth/login/page.jsx";
 import RegisterModal from "../app/auth/register/page";
 
@@ -166,7 +165,9 @@ export default function Navbar() {
               }}
             />
           </LogoContainer>
-          <HoverButton text="RR_Traders" />
+          {/* <HoverButton text="RR_Traders" /> */}
+
+          <Typography>RR Traders</Typography>
 
           {/* Desktop Menu */}
           <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 1 }}>

@@ -41,7 +41,6 @@ const ProductModal = ({ open, onClose, product }) => {
     brands = [],
   } = product;
 
-  // ✅ Build media array safely
   const mediaItems = [
     ...product_images.map((img) => ({ type: "image", src: img })),
     ...product_videos.map((vid) => ({ type: "video", src: vid })),
@@ -49,7 +48,6 @@ const ProductModal = ({ open, onClose, product }) => {
 
   const [selectedMedia, setSelectedMedia] = useState(mediaItems[0]);
 
-  // ✅ Get favorites from Redux
   const favoriteItems = useSelector((state) => state.favorites.favoriteItems);
   const isLiked = favoriteItems.some((p) => p._id === id);
 
@@ -187,71 +185,243 @@ const ProductModal = ({ open, onClose, product }) => {
             {/* Right Column: Product Info */}
             <Grid item xs={12} md={5} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography variant="h5" fontWeight={700}>
-                  {product_name}
-                </Typography>
-                <IconButton onClick={handleLike} color="error">
-                  {isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                </IconButton>
+               <Typography
+  variant="h5"
+  fontWeight={700}
+  sx={{
+    background: "linear-gradient(90deg, #ff6f61, #e91e63)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    textShadow: "0px 1px 2px rgba(0,0,0,0.15)",
+    letterSpacing: "0.5px",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      transform: "scale(1.05)",
+      textShadow: "0px 2px 6px rgba(0,0,0,0.25)",
+    },
+  }}
+>
+  {product_name}
+</Typography>
+
+               <IconButton
+  onClick={handleLike}
+  sx={{
+    background: isLiked
+      ? "linear-gradient(135deg, #ff4b2b, #ff416c)"
+      : "linear-gradient(135deg, #e0e0e0, #bdbdbd)",
+    color: "#fff",
+    borderRadius: "50%",
+    width: 48,
+    height: 48,
+    boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      transform: "scale(1.2)",
+      boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
+    },
+    "&:active": {
+      transform: "scale(0.9)", // bounce effect on click
+    },
+  }}
+>
+  {isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+</IconButton>
+
               </Box>
 
-              <Typography variant="body1" color="text.secondary">
-                {description}
-              </Typography>
+             <Typography
+  variant="body1"
+  sx={{
+    color: "text.secondary",
+    lineHeight: 1.7,
+    letterSpacing: "0.3px",
+    fontSize: "1rem",
+    px: 1,
+    // borderLeft: "4px solid #ff6f61",
+    // pl: 2,
+      // transition: "all 0.3s ease",
+    "&:hover": {
+      color: "#333",
+    //   textShadow: "0px 1px 4px rgba(0,0,0,0.2)",
+    //   transform: "translateX(4px)",
+    },
+  }}
+>
+  {description}
+</Typography>
+
               <Divider />
 
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {categories.map((cat, i) => (
-                  <Chip key={i} label={cat.name} color="primary" size="small" />
-                ))}
-                {brands.map((brand, i) => (
-                  <Chip key={i} label={brand.name} color="secondary" size="small" />
-                ))}
-              </Box>
+              <Box
+  sx={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 1.2,
+    p: 2,
+    borderRadius: 3,
+    // background: "linear-gradient(135deg, #fafafa, #f5f5f5)",
+      // boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      // background: "linear-gradient(135deg, #ffffff, #f9f9f9)",
+      // boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
+    },
+  }}
+>
+  {categories.map((cat, i) => (
+    <Chip
+      key={i}
+      label={cat.name}
+      size="small"
+      sx={{
+        fontWeight: 600,
+        background: "linear-gradient(135deg, #2196f3, #21cbf3)",
+        color: "#fff",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+        transition: "all 0.3s ease",
+        "&:hover": {
+          transform: "scale(1.08)",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+        },
+      }}
+    />
+  ))}
+
+  {brands.map((brand, i) => (
+    <Chip
+      key={i}
+      label={brand.name}
+      size="small"
+      sx={{
+        fontWeight: 600,
+        background: "linear-gradient(135deg, #9c27b0, #e040fb)",
+        color: "#fff",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+        transition: "all 0.3s ease",
+        "&:hover": {
+          transform: "scale(1.08)",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+        },
+      }}
+    />
+  ))}
+</Box>
+
 
               {/* Price */}
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <Typography variant="h6" color="primary" fontWeight={700}>
-                  ₹{offer_price}
-                </Typography>
-                {original_price && (
-                  <Typography
-                    variant="body2"
-                    sx={{ textDecoration: "line-through", color: "gray" }}
-                  >
-                    ₹{original_price}
-                  </Typography>
-                )}
-                {percentage_discount > 0 && (
-                  <Chip
-                    label={`Save ${Math.round(percentage_discount)}%`}
-                    color="success"
-                    size="small"
-                    sx={{ fontWeight: 600 }}
-                  />
-                )}
-              </Box>
+             <Box
+  sx={{
+    display: "flex",
+    alignItems: "center",
+    gap: 2,
+    p: 1.5,
+    borderRadius: 3,
+    background: "linear-gradient(135deg, #fafafa, #fdfdfd)",
+    boxShadow: "0 3px 10px rgba(0,0,0,0.08)",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      transform: "translateY(-2px)",
+      boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
+    },
+  }}
+>
+  {/* Offer Price */}
+  <Typography
+    variant="h6"
+    sx={{
+      fontWeight: 800,
+      fontSize: "1.4rem",
+      color: "#e53935", // red tone for urgency
+      textShadow: "0px 1px 3px rgba(229,57,53,0.3)",
+    }}
+  >
+    ₹{offer_price}
+  </Typography>
+
+  {/* Original Price */}
+  {original_price && (
+    <Typography
+      variant="body2"
+      sx={{
+        textDecoration: "line-through",
+        color: "gray",
+        fontSize: "0.9rem",
+      }}
+    >
+      ₹{original_price}
+    </Typography>
+  )}
+
+  {/* Discount Chip */}
+  {percentage_discount > 0 && (
+    <Chip
+      label={`Save ${Math.round(percentage_discount)}%`}
+      size="small"
+      sx={{
+        fontWeight: 700,
+        background: "linear-gradient(135deg, #43a047, #66bb6a)",
+        color: "#fff",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+        "&:hover": {
+          transform: "scale(1.08)",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.25)",
+        },
+      }}
+    />
+  )}
+</Box>
+
 
               {/* Actions */}
               <Box sx={{ display: "flex", gap: 2 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  sx={{ borderRadius: 2, fontWeight: 600 }}
-                  onClick={handleAddToCart}
-                >
-                  Add to Cart
-                </Button>
-                <Button
-                  variant="contained"
-                  color="success"
-                  fullWidth
-                  sx={{ borderRadius: 2, fontWeight: 600 }}
-                  onClick={handleBuyNow}
-                >
-                  Buy Now
-                </Button>
+         <Button
+  onClick={handleAddToCart}
+  sx={{
+    borderRadius: 2,
+    fontWeight: 600,
+    py: 0.8,
+    px: 2,
+    fontSize: "0.9rem",
+    minWidth: 120,
+    background: "linear-gradient(135deg, #e91e63, #ff5722)",
+    color: "#fff",
+    boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      background: "linear-gradient(135deg, #ff5722, #e91e63)",
+      transform: "scale(1.05)",
+      boxShadow: "0 5px 14px rgba(0,0,0,0.25)",
+    },
+  }}
+>
+  Add to Cart
+</Button>
+
+<Button
+  onClick={handleBuyNow}
+  sx={{
+    borderRadius: 2,
+    fontWeight: 600,
+    py: 0.8,
+    px: 2,
+    fontSize: "0.9rem",
+    minWidth: 120,
+    background: "linear-gradient(135deg, #2196f3, #673ab7)",
+    color: "#fff",
+    boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      background: "linear-gradient(135deg, #673ab7, #2196f3)",
+      transform: "scale(1.05)",
+      boxShadow: "0 5px 14px rgba(0,0,0,0.25)",
+    },
+  }}
+>
+  Buy Now
+</Button>
+
+
               </Box>
             </Grid>
           </Grid>

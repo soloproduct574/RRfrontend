@@ -19,29 +19,22 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import ShareIcon from "@mui/icons-material/Share";
-import ProductModal from "./ProductModal.jsx";
 
-// ✅ Redux imports
+import ProductModal from "./ProductModal.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../Redux/Slice/cartSlice.jsx";
 import { toggleFavorite } from "../Redux/Slice/favoritesSlice.jsx";
 
-const ProductCard = React.memo(({ product, isLoading = false }) => {
+// ✅ Inner card component for a single product
+const ProductCardInner = React.memo(({ product }) => {
   const dispatch = useDispatch();
-
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex] = useState(0);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", type: "success" });
   const [openModal, setOpenModal] = useState(false);
 
   const favoriteItems = useSelector((state) => state.favorites.favoriteItems) || [];
-  const isFav =
-    Array.isArray(favoriteItems) && product?._id
-      ? favoriteItems.some((p) => p._id === product._id)
-      : false;
-
-  if (isLoading) return <ProductCardSkeleton />;
-  if (!product) return null;
+  const isFav = favoriteItems.some((p) => p._id === product._id);
 
   const {
     _id: id,
@@ -67,7 +60,7 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
   const decreaseQuantity = useCallback(() => setQuantity((prev) => (prev > 1 ? prev - 1 : 1)), []);
 
   const handleToggleFavorite = useCallback(() => {
-    dispatch(toggleFavorite(product)); // ✅ pass full product object
+    dispatch(toggleFavorite(product));
   }, [dispatch, product]);
 
   const handleAddToCart = useCallback(() => {
@@ -106,7 +99,6 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
       message: `Proceeding to buy ${quantity} x ${name} 💳`,
       type: "info",
     });
-    // ✅ You can navigate to checkout page here if needed
   }, [dispatch, id, name, quantity, displayPrice, product_images, brands, categories]);
 
   const handleShare = () => {
@@ -129,7 +121,6 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
           "&:hover": { boxShadow: "0 12px 40px rgba(0,0,0,0.25)" },
         }}
       >
-        {/* Popular Tag */}
         <Chip
           label="Popular Product"
           color="primary"
@@ -145,7 +136,6 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
           }}
         />
 
-        {/* Like & Share */}
         <Box
           sx={{
             display: "flex",
@@ -160,35 +150,21 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
           <IconButton onClick={handleToggleFavorite}>
             {isFav ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
           </IconButton>
-
           <IconButton onClick={handleShare}>
             <ShareIcon color="grey" />
           </IconButton>
         </Box>
 
-        {/* Product Image */}
         <Box
           sx={{
             height: 260,
             position: "relative",
             overflow: "hidden",
-            "& img": {
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              transition: "transform 0.5s ease",
-              transform: "scale(1)",
-            },
+            "& img": { width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease", transform: "scale(1)" },
             "&:hover img": { transform: "scale(1.1)" },
           }}
         >
-          <img
-            src={productImages[currentImageIndex]}
-            alt={name}
-            onError={(e) => (e.target.src = "/logo.jpg")}
-          />
-
-          {/* View Product Button */}
+          <img src={productImages[currentImageIndex]} alt={name} onError={(e) => (e.target.src = "/logo.jpg")} />
           <Box
             sx={{
               position: "absolute",
@@ -218,7 +194,6 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
           </Box>
         </Box>
 
-        {/* Card Content */}
         <CardContent sx={{ textAlign: "center" }}>
           <Typography variant="caption" color="text.secondary" fontWeight={600}>
             {brandName}
@@ -231,52 +206,24 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
           <Typography
             variant="h6"
             fontWeight={700}
-            sx={{
-              minHeight: "48px",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-            }}
+            sx={{ minHeight: "48px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
           >
             {name}
           </Typography>
 
-          {/* Price */}
           <Box sx={{ display: "flex", justifyContent: "center", alignItems: "baseline", gap: 1 }}>
             <Typography variant="h6" color="primary" fontWeight={700}>
               ₹{displayPrice}
             </Typography>
             {offer_price && (
-              <Typography
-                variant="body2"
-                sx={{ textDecoration: "line-through", color: "text.disabled" }}
-              >
+              <Typography variant="body2" sx={{ textDecoration: "line-through", color: "text.disabled" }}>
                 ₹{original_price}
               </Typography>
             )}
-            {discountPercentage > 0 && (
-              <Chip
-                icon={<LocalOfferIcon sx={{ fontSize: 16 }} />}
-                label={`Save ${Math.round(discountPercentage)}%`}
-                color="success"
-                size="small"
-                sx={{ fontWeight: 600 }}
-              />
-            )}
+            {discountPercentage > 0 && <Chip icon={<LocalOfferIcon sx={{ fontSize: 16 }} />} label={`Save ${Math.round(discountPercentage)}%`} color="success" size="small" sx={{ fontWeight: 600 }} />}
           </Box>
 
-          {/* Quantity */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 1,
-              mb: 1,
-            }}
-          >
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 1, mb: 1 }}>
             <IconButton size="small" onClick={decreaseQuantity} disabled={quantity <= 1}>
               <RemoveIcon />
             </IconButton>
@@ -286,18 +233,12 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
             </IconButton>
           </Box>
 
-          {/* Actions */}
           <Box sx={{ display: "flex", gap: 1 }}>
             <MuiButton
               variant="contained"
               onClick={handleAddToCart}
               fullWidth
-              sx={{
-                borderRadius: "10px",
-                fontWeight: 100,
-                fontSize: "12px",
-                background: "linear-gradient(45deg,#ff9800,#f44336)",
-              }}
+              sx={{ borderRadius: "10px", fontWeight: 100, fontSize: "12px", background: "linear-gradient(45deg,#ff9800,#f44336)" }}
             >
               Add to Cart
             </MuiButton>
@@ -305,12 +246,7 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
               variant="contained"
               onClick={handleBuyNow}
               fullWidth
-              sx={{
-                borderRadius: "10px",
-                fontWeight: 100,
-                fontSize: "12px",
-                background: "linear-gradient(45deg,#4caf50,#2e7d32)",
-              }}
+              sx={{ borderRadius: "10px", fontWeight: 100, fontSize: "12px", background: "linear-gradient(45deg,#4caf50,#2e7d32)" }}
             >
               Buy Now
             </MuiButton>
@@ -318,23 +254,16 @@ const ProductCard = React.memo(({ product, isLoading = false }) => {
         </CardContent>
       </Card>
 
-      {/* Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
         <Alert severity={snackbar.type}>{snackbar.message}</Alert>
       </Snackbar>
 
-      {/* Product Modal */}
-      {openModal && (
-        <ProductModal open={openModal} onClose={() => setOpenModal(false)} product={product} />
-      )}
+      {openModal && <ProductModal open={openModal} onClose={() => setOpenModal(false)} product={product} />}
     </>
   );
 });
 
+// ✅ Skeleton loader
 const ProductCardSkeleton = React.memo(() => (
   <Card sx={{ width: 280, borderRadius: "24px", p: 1 }}>
     <Skeleton variant="rectangular" height={260} sx={{ borderRadius: "16px" }} />
@@ -346,5 +275,73 @@ const ProductCardSkeleton = React.memo(() => (
     </CardContent>
   </Card>
 ));
+
+// ✅ Main wrapper: fetch products from Redux
+const ProductCard = () => {
+  const products = useSelector((state) => state.products.items) || [];
+  const isLoading = useSelector((state) => state.products.loading);
+  console.log("Products: ", products);
+
+  return (
+    <Box>
+       <Box sx={{ textAlign: "center", mb: 4 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontFamily: "Arial, sans-serif",
+              color: "#ff3838ff",
+              fontWeight: 600,
+              letterSpacing: "1px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 2,
+            }}
+          >
+            <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50 }} />
+            Top Trending Products
+            <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50 }} />
+          </Typography>
+        </Box>
+    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 , justifyContent: "center", mb: 2}}>
+      {isLoading
+        ? Array.from({ length: 4 }).map((_, idx) => <ProductCardSkeleton key={idx} />)
+        : products.map((product) => <ProductCardInner key={product._id} product={product} />)}
+    </Box>
+   <Box sx={{ display: "flex", justifyContent: "center" }}>
+  <MuiButton
+    variant="contained"
+    onClick={() => (window.location.href = "/products")}
+    sx={{
+      borderRadius: "30px",
+      fontWeight: 700,
+      fontSize: "16px",
+      textTransform: "uppercase",
+      letterSpacing: "1px",
+      background: "linear-gradient(45deg, #8e2de2, #ff6a00)", // Purple → Orange
+      color: "white",
+      px: 3,
+      py: 1,
+      mb: 4,
+      boxShadow: "0 6px 20px rgba(255, 106, 0, 0.4)",
+      transition: "all 0.35s ease-in-out",
+      "&:hover": {
+        background: "linear-gradient(45deg, #ff6a00, #8e2de2)", // reverse gradient on hover
+        transform: "scale(1.08)",
+        boxShadow: "0 10px 25px rgba(142, 45, 226, 0.6)",
+      },
+      "&:active": {
+        transform: "scale(0.95)",
+      },
+    }}
+  >
+    View More
+  </MuiButton>
+</Box>
+
+
+    </Box>
+  );
+};
 
 export default ProductCard;

@@ -7,8 +7,10 @@ import Image from "next/image";
 export default function HeroBanner() {
   // Array of banner images to rotate through
   const bannerImages = [
-    "/footerbg.jpg", // You'll need to add these images to your public folder
-    "/logo.jpg",
+    "/banner1.jpg", 
+    "/banner2.jpg",
+    "/banner3.jpg",
+    "/banner4.jpg",
   ];
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -28,14 +30,15 @@ export default function HeroBanner() {
     <Box
       sx={{
         width: "100%",
-        minHeight: "30vh",
+        minHeight: "50vh",
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         alignItems: "center",
         justifyContent: "center",
-        background: "url('/herobaner1.jpg')",
-        backgroundSize: "cover",
+        background: "url('/mainbanner.jpg')",
+        backgroundSize: "contain",
         backgroundPosition: "center",
+          
         backgroundRepeat: "no-repeat",
         overflow: "hidden",
         position: "relative",
@@ -59,6 +62,7 @@ export default function HeroBanner() {
         <Box
           sx={{
             flex: 1,
+            ml: { xs: 0, md: -8 },
             textAlign: { xs: "center", md: "left" },
             mb: { xs: 4, md: 0 },
             zIndex: 2,
@@ -68,7 +72,7 @@ export default function HeroBanner() {
             variant="h4"
             sx={{
               fontWeight: 700,
-              color: "white",
+              color: "black",
               fontSize: { xs: "2rem", md: "2.5rem" },
               textAlign: { xs: "center", md: "left" },
               textShadow: "0 2px 4px rgba(0,0,0,0.3)",
@@ -82,7 +86,7 @@ export default function HeroBanner() {
             variant="body1"
             sx={{
               mb: 3,
-              color: "rgba(255,255,255,0.85)",
+              color: "rgba(0, 0, 0, 0.85)",
               fontWeight: 400,
               textAlign: { xs: "center", md: "left" },
               fontSize: { xs: "1rem", md: "1.1rem" },
@@ -114,7 +118,7 @@ export default function HeroBanner() {
                 disableUnderline: true,
                 startAdornment: (
                   <InputAdornment position="start" sx={{ ml: 1 }}>
-                    <SearchIcon color="primary" />
+                    <SearchIcon color="warning" />
                   </InputAdornment>
                 ),
                 sx: { py: 1, px: 2 }
@@ -122,7 +126,7 @@ export default function HeroBanner() {
             />
             <Button
               variant="contained"
-              color="primary"
+              color="warning"
               sx={{
                 borderRadius: "0",
                 px: 3,
@@ -141,21 +145,22 @@ export default function HeroBanner() {
         <Box
           sx={{
             flex: 1,
+            mr: { xs: 0, md: -8 },
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             position: "relative",
-            height: { xs: "250px", md: "300px" },
-            width: "100%",
+            height: { xs: "250px", md: "250px" },
+            maxWidth: "500px",
           }}
         >
-          {bannerImages.map((image, index) => (
+           {bannerImages.map((image, index) => (
             <Box
               key={index}
               sx={{
                 position: "absolute",
                 top: 0,
-                left: 0,
+                left: 55,
                 width: "100%",
                 height: "100%",
                 opacity: currentImageIndex === index ? 1 : 0,
@@ -188,7 +193,7 @@ export default function HeroBanner() {
                 />
               </Box>
             </Box>
-          ))}
+          ))} 
           
           {/* Indicator dots */}
           <Box
@@ -213,8 +218,8 @@ export default function HeroBanner() {
                 onClick={() => setCurrentImageIndex(index)}
               />
             ))}
-          </Box>
-        </Box>
+          </Box> 
+        </Box> 
       </Box>
     </Box>
   );

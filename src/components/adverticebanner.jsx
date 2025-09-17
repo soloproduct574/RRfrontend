@@ -28,28 +28,27 @@ const bannerImages = [
 
 const PoojaBanner = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [paused, setPaused] = useState(false);
-  const progressRef = useRef(null);
   const [imagesLoaded, setImagesLoaded] = useState({});
-
+  const progressRef = useRef(null);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  // Reset animation on slide change
+  // Reset animation on slide change - if using any CSS animation on progress/loader
   useEffect(() => {
     if (progressRef.current) {
-      progressRef.current.style.animation = 'none';
+      progressRef.current.style.animation = "none";
       setTimeout(() => {
         if (progressRef.current) {
-          progressRef.current.style.animation = '';
+          progressRef.current.style.animation = "";
         }
       }, 10);
     }
   }, [currentIndex]);
 
-  // Auto slide
+  // Auto slide every 5 seconds (unless paused)
   useEffect(() => {
     if (paused) return;
     const interval = setInterval(() => {
@@ -68,7 +67,7 @@ const PoojaBanner = () => {
       prev === 0 ? bannerImages.length - 1 : prev - 1
     );
 
-  // Touch swipe handling
+  // Touch swipe handlers for mobile
   const handleTouchStart = (e) => {
     touchStartX.current = e.changedTouches[0].screenX;
   };
@@ -81,9 +80,9 @@ const PoojaBanner = () => {
     if (touchEndX.current - touchStartX.current > 75) prevSlide();
   };
 
-  // Handle image loading
+  // When image is loaded, update state to hide the loader overlay.
   const handleImageLoad = (id) => {
-    setImagesLoaded(prev => ({ ...prev, [id]: true }));
+    setImagesLoaded((prev) => ({ ...prev, [id]: true }));
   };
 
   return (
@@ -95,44 +94,53 @@ const PoojaBanner = () => {
         height: { xs: "40vh", sm: "50vh", md: "60vh" },
         overflow: "hidden",
         boxShadow: 3,
-        backgroundColor: "#000"
+        backgroundColor: "#000",
       }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Slide Container */}
+
+      {/* Slides Container */}
       <Box
         sx={{
           display: "flex",
           transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
           transform: `translateX(-${currentIndex * 100}%)`,
           height: "100%",
-          width: `${bannerImages.length * 100}%`
+          width: `${bannerImages.length * 100}%`,
         }}
       >
         {bannerImages.map((item, index) => (
           <Box
             key={item.id}
             sx={{
-              minWidth: "100%",
               position: "relative",
+              minWidth: "100%",
               height: "100%",
               flexShrink: 0,
               backgroundColor: "#000",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center"
+              justifyContent: "center",
             }}
           >
+            {/* Loading overlay while the image is loading */}
             {!imagesLoaded[item.id] && (
-              <Box 
-                sx={{ 
-                  position: "relative", width: "100%", aspectRatio: "16/9" ,
-                  color: "#fff", 
+              <Box
+                sx={{
                   position: "absolute",
-                  zIndex: 1
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#fff",
+                  backgroundColor: "rgba(0,0,0,0.6)",
+                  zIndex: 1,
                 }}
               >
                 Loading...
@@ -142,8 +150,9 @@ const PoojaBanner = () => {
               src={item.src}
               alt={item.alt}
               fill
+              // Using cover so image fills container; switch to "contain" if you want all image content visible
               style={{
-                objectFit: "cover", 
+                objectFit: "fill",
               }}
               priority={index === 0}
               onLoadingComplete={() => handleImageLoad(item.id)}
@@ -152,7 +161,7 @@ const PoojaBanner = () => {
         ))}
       </Box>
 
-      {/* Navigation Arrows - Only show on larger screens */}
+      {/* Navigation Arrows for larger screens */}
       {!isMobile && (
         <>
           <Box
@@ -164,7 +173,7 @@ const PoojaBanner = () => {
               zIndex: 10,
               opacity: 0.7,
               transition: "opacity 0.3s",
-              "&:hover": { opacity: 1 }
+              "&:hover": { opacity: 1 },
             }}
           >
             <Box onClick={prevSlide} sx={navButtonStyle}>
@@ -180,7 +189,7 @@ const PoojaBanner = () => {
               zIndex: 10,
               opacity: 0.7,
               transition: "opacity 0.3s",
-              "&:hover": { opacity: 1 }
+              "&:hover": { opacity: 1 },
             }}
           >
             <Box onClick={nextSlide} sx={navButtonStyle}>
@@ -199,7 +208,7 @@ const PoojaBanner = () => {
           transform: "translateX(-50%)",
           display: "flex",
           gap: 1,
-          zIndex: 10
+          zIndex: 10,
         }}
       >
         {bannerImages.map((_, index) => (
@@ -215,8 +224,8 @@ const PoojaBanner = () => {
               transition: "all 0.3s ease",
               "&:hover": {
                 transform: "scale(1.2)",
-                backgroundColor: "#fff"
-              }
+                backgroundColor: "#fff",
+              },
             }}
           />
         ))}
@@ -236,9 +245,8 @@ const navButtonStyle = {
   justifyContent: "center",
   cursor: "pointer",
   transition: "all 0.3s",
-  "&:hover": {
-    backgroundColor: "rgba(0,0,0,0.7)",
-  },
+  fontSize: "1.2rem",
+  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.7)" },
 };
 
 export default PoojaBanner;

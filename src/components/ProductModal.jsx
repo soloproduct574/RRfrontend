@@ -52,16 +52,15 @@ const ProductModal = ({ open, onClose, product }) => {
   const isLiked = favoriteItems.some((p) => p._id === id);
 
   const handleLike = () => {
-    dispatch(toggleFavorite(product)); // ✅ pass full product
+    dispatch(toggleFavorite(product)); 
   };
 
   const handleAddToCart = () => {
-    dispatch(addToCart({ ...product, quantity: 1 })); // ✅ pass full product
+    dispatch(addToCart({ ...product, quantity: 1 })); 
   };
 
   const handleBuyNow = () => {
-    dispatch(addToCart({ ...product, quantity: 1 })); // ✅ pass full product
-    // Navigate to checkout page if needed
+    dispatch(addToCart({ ...product, quantity: 1 })); 
   };
 
   return (
@@ -159,7 +158,7 @@ const ProductModal = ({ open, onClose, product }) => {
                       src={selectedMedia.src}
                       alt="Selected"
                       style={{
-                        width: 400,
+                        width: 300,
                         height: 430,
                         borderRadius: 12,
                         objectFit: "contain",
@@ -185,25 +184,20 @@ const ProductModal = ({ open, onClose, product }) => {
             {/* Right Column: Product Info */}
             <Grid item xs={12} md={5} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-               <Typography
+              <Typography
   variant="h5"
   fontWeight={700}
   sx={{
-    background: "linear-gradient(90deg, #ff6f61, #e91e63)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    textShadow: "0px 1px 2px rgba(0,0,0,0.15)",
-    letterSpacing: "0.5px",
-    transition: "all 0.3s ease",
-    "&:hover": {
-      transform: "scale(1.05)",
-      textShadow: "0px 2px 6px rgba(0,0,0,0.25)",
-    },
+    fontFamily: "'Poppins', sans-serif",         
+    letterSpacing: "1px",                         
+    textTransform: "capitalize",                  
+    textShadow: "1px 1px 4px rgba(0,0,0,0.25)",  
+    lineHeight: 1.2,
+    fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.5rem" },
   }}
 >
   {product_name}
 </Typography>
-
                <IconButton
   onClick={handleLike}
   sx={{

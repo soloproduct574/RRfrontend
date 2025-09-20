@@ -27,7 +27,7 @@ import { addToCart } from "@/Redux/Slice/cartSlice.jsx";
 import { toggleFavorite } from "@/Redux/Slice/favoritesSlice.jsx";
 import Navbar from "@/components/navbar.jsx";
 import Footer from "@/components/footer";
-
+import SocialShare from "@/components/SocialMedia/SocialShare.jsx";
 const ProductCardInner = React.memo(({ product }) => {
   const dispatch = useDispatch();
   const [quantity, setQuantity] = useState(1);
@@ -138,24 +138,13 @@ const ProductCardInner = React.memo(({ product }) => {
           }}
         />
 
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            p: 1,
-            position: "absolute",
-            top: 8,
-            right: 8,
-            zIndex: 3,
-          }}
-        >
-          <IconButton onClick={handleToggleFavorite}>
-            {isFav ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
-          </IconButton>
-          <IconButton onClick={handleShare}>
-            <ShareIcon color="grey" />
-          </IconButton>
-        </Box>
+      <Box sx={{ display: "flex", flexDirection: "column", p: 1, position: "absolute", top: 8, right: 8, zIndex: 3, gap: 1 }}>
+  <IconButton onClick={handleToggleFavorite}>
+    {isFav ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+  </IconButton>
+
+  <SocialShare productName={name} />
+</Box>
 
         <Box
           sx={{
@@ -291,7 +280,7 @@ export default function ProductList() {
           }}
         >
           <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50 }} />
-          Top Trending Products
+          All Products
           <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50 }} />
         </Typography>
       </Box>

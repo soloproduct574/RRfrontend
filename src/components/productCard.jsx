@@ -19,7 +19,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import ShareIcon from "@mui/icons-material/Share";
-
+import SocialShare from "./SocialMedia/SocialShare.jsx";
 import ProductModal from "./ProductModal.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../Redux/Slice/cartSlice.jsx";
@@ -136,24 +136,15 @@ const ProductCardInner = React.memo(({ product }) => {
           }}
         />
 
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            p: 1,
-            position: "absolute",
-            top: 8,
-            right: 8,
-            zIndex: 3,
-          }}
-        >
-          <IconButton onClick={handleToggleFavorite}>
-            {isFav ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
-          </IconButton>
-          <IconButton onClick={handleShare}>
-            <ShareIcon color="grey" />
-          </IconButton>
-        </Box>
+        
+          <Box sx={{ display: "flex", flexDirection: "column", p: 1, position: "absolute", top: 8, right: 8, zIndex: 3, gap: 1 }}>
+  <IconButton onClick={handleToggleFavorite}>
+    {isFav ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+  </IconButton>
+
+  <SocialShare productName={name} />
+</Box>
+      
 
         <Box
           sx={{

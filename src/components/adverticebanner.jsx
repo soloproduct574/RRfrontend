@@ -1,32 +1,14 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { Box, useTheme, useMediaQuery } from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
+import { Box, useTheme, useMediaQuery, CircularProgress } from "@mui/material";
 import Image from "next/image";
-
-const bannerImages = [
-  {
-    id: 1,
-    src: "/banner1.jpg",
-    alt: "Traditional Pooja Setup",
-  },
-  {
-    id: 2,
-    src: "/banner2.jpg",
-    alt: "Festival Celebration",
-  },
-  {
-    id: 3,
-    src: "/banner3.jpg",
-    alt: "Temple Pooja",
-  },
-  {
-    id: 4,
-    src: "/banner4.jpg",
-    alt: "Pooja Items",
-  }
-];
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBannersMedia } from "../Redux/Slice/BannerSlice";
 
 const PoojaBanner = () => {
+  const dispatch = useDispatch();
+  const { items: banners, status } = useSelector((state) => state.banners);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -37,54 +19,72 @@ const PoojaBanner = () => {
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
+  // Fetch banners on mount
+  useEffect(() => {
+    if (status === "idle") dispatch(fetchBannersMedia());
+  }, [dispatch, status]);
+
   // Reset animation on slide change
   useEffect(() => {
     if (progressRef.current) {
-      progressRef.current.style.animation = 'none';
+      progressRef.current.style.animation = "none";
       setTimeout(() => {
-        if (progressRef.current) {
-          progressRef.current.style.animation = '';
-        }
+        if (progressRef.current) progressRef.current.style.animation = "";
       }, 10);
     }
   }, [currentIndex]);
 
   // Auto slide
   useEffect(() => {
-    if (paused) return;
+    if (paused || banners.length === 0) return;
     const interval = setInterval(() => {
       nextSlide();
     }, 5000);
     return () => clearInterval(interval);
-  }, [currentIndex, paused]);
+  }, [currentIndex, paused, banners.length]);
 
   const goToSlide = (index) => setCurrentIndex(index);
   const nextSlide = () =>
-    setCurrentIndex((prev) =>
-      prev === bannerImages.length - 1 ? 0 : prev + 1
-    );
+    setCurrentIndex((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
   const prevSlide = () =>
-    setCurrentIndex((prev) =>
-      prev === 0 ? bannerImages.length - 1 : prev - 1
-    );
+    setCurrentIndex((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
 
-  // Touch swipe handling
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.changedTouches[0].screenX;
-  };
+  // Touch swipe
+  const handleTouchStart = (e) => (touchStartX.current = e.changedTouches[0].screenX);
   const handleTouchEnd = (e) => {
     touchEndX.current = e.changedTouches[0].screenX;
-    handleSwipe();
-  };
-  const handleSwipe = () => {
     if (touchStartX.current - touchEndX.current > 75) nextSlide();
     if (touchEndX.current - touchStartX.current > 75) prevSlide();
   };
 
-  // Handle image loading
   const handleImageLoad = (id) => {
-    setImagesLoaded(prev => ({ ...prev, [id]: true }));
+    setImagesLoaded((prev) => ({ ...prev, [id]: true }));
   };
+
+  if (status === "loading") {
+    return (
+      <Box
+        sx={{
+          mt: 4,
+          height: { xs: "40vh", sm: "50vh", md: "60vh" },
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#000",
+        }}
+      >
+        <CircularProgress color="inherit" />
+      </Box>
+    );
+  }
+
+  if (!banners || banners.length === 0) {
+    return (
+      <Box sx={{ mt: 4, textAlign: "center", color: "#555" }}>
+        No Banners Found
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -95,94 +95,71 @@ const PoojaBanner = () => {
         height: { xs: "40vh", sm: "50vh", md: "60vh" },
         overflow: "hidden",
         boxShadow: 3,
-        backgroundColor: "#000"
+        backgroundColor: "#000",
       }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Slide Container */}
+      {/* Slides */}
       <Box
         sx={{
           display: "flex",
           transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
           transform: `translateX(-${currentIndex * 100}%)`,
           height: "100%",
-          width: `${bannerImages.length * 100}%`
+          width: `${banners.length * 100}%`,
         }}
       >
-        {bannerImages.map((item, index) => (
+        {banners.map((banner, index) => (
           <Box
-            key={item.id}
+            key={banner._id}
             sx={{
               minWidth: "100%",
               position: "relative",
               height: "100%",
               flexShrink: 0,
               backgroundColor: "#000",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
             }}
           >
-            {!imagesLoaded[item.id] && (
-              <Box 
-                sx={{ 
-                  position: "relative", width: "100%", aspectRatio: "16/9" ,
-                  color: "#fff", 
+            {!imagesLoaded[banner._id] && (
+              <Box
+                sx={{
                   position: "absolute",
-                  zIndex: 1
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#fff",
+                  zIndex: 1,
                 }}
               >
                 Loading...
               </Box>
             )}
             <Image
-              src={item.src}
-              alt={item.alt}
+              src={banner.banner_images[0]} // ✅ show first image from API
+              alt={banner.title}
               fill
-              style={{
-                objectFit: "cover", 
-              }}
+              sizes="100vw"
+              style={{ objectFit: "cover" }}
               priority={index === 0}
-              onLoadingComplete={() => handleImageLoad(item.id)}
+              onLoadingComplete={() => handleImageLoad(banner._id)}
             />
           </Box>
         ))}
       </Box>
 
-      {/* Navigation Arrows - Only show on larger screens */}
-      {!isMobile && (
+      {/* Navigation Arrows */}
+      {!isMobile && banners.length > 1 && (
         <>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: 16,
-              transform: "translateY(-50%)",
-              zIndex: 10,
-              opacity: 0.7,
-              transition: "opacity 0.3s",
-              "&:hover": { opacity: 1 }
-            }}
-          >
+          <Box sx={{ ...navButtonPos, left: 16 }}>
             <Box onClick={prevSlide} sx={navButtonStyle}>
               ←
             </Box>
           </Box>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              right: 16,
-              transform: "translateY(-50%)",
-              zIndex: 10,
-              opacity: 0.7,
-              transition: "opacity 0.3s",
-              "&:hover": { opacity: 1 }
-            }}
-          >
+          <Box sx={{ ...navButtonPos, right: 16 }}>
             <Box onClick={nextSlide} sx={navButtonStyle}>
               →
             </Box>
@@ -190,7 +167,7 @@ const PoojaBanner = () => {
         </>
       )}
 
-      {/* Dots Indicator */}
+      {/* Dots */}
       <Box
         sx={{
           position: "absolute",
@@ -199,30 +176,37 @@ const PoojaBanner = () => {
           transform: "translateX(-50%)",
           display: "flex",
           gap: 1,
-          zIndex: 10
+          zIndex: 10,
         }}
       >
-        {bannerImages.map((_, index) => (
+        {banners.map((_, index) => (
           <Box
             key={index}
             onClick={() => goToSlide(index)}
             sx={{
-              width: 8,
-              height: 8,
+              width: 10,
+              height: 10,
               borderRadius: "50%",
-              backgroundColor: currentIndex === index ? "#fff" : "rgba(255,255,255,0.5)",
+              backgroundColor:
+                currentIndex === index ? "#fff" : "rgba(255,255,255,0.5)",
               cursor: "pointer",
               transition: "all 0.3s ease",
-              "&:hover": {
-                transform: "scale(1.2)",
-                backgroundColor: "#fff"
-              }
             }}
           />
         ))}
       </Box>
     </Box>
   );
+};
+
+const navButtonPos = {
+  position: "absolute",
+  top: "50%",
+  transform: "translateY(-50%)",
+  zIndex: 10,
+  opacity: 0.7,
+  transition: "opacity 0.3s",
+  "&:hover": { opacity: 1 },
 };
 
 const navButtonStyle = {
@@ -236,9 +220,7 @@ const navButtonStyle = {
   justifyContent: "center",
   cursor: "pointer",
   transition: "all 0.3s",
-  "&:hover": {
-    backgroundColor: "rgba(0,0,0,0.7)",
-  },
+  "&:hover": { backgroundColor: "rgba(0,0,0,0.7)" },
 };
 
 export default PoojaBanner;

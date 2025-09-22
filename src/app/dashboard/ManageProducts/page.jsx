@@ -582,4 +582,4 @@ export default function ProductRegisterPage() {
       </Dialog>
     </Box>
   );
-}
+} 

@@ -45,7 +45,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
     setServerMsg(null);
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register", data);
+      await axios.post("https://rrbackend-49lt.onrender.com/api/auth/register", data);
       setServerMsg({ type: "success", text: "🎉 Registered successfully!" });
 
       // Auto-close after success

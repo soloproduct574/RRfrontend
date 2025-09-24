@@ -275,7 +275,7 @@ const ProductCard = () => {
 
   return (
     <Box>
-       <Box sx={{ textAlign: "center", mb: 4 }}>
+       <Box sx={{ textAlign: "center", mb: 10 ,mt:5}}>
           <Typography
             variant="h4"
             sx={{
@@ -294,12 +294,12 @@ const ProductCard = () => {
             <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50 }} />
           </Typography>
         </Box>
-    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 , justifyContent: "center", mb: 2}}>
+    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 8 , justifyContent: "center", mb: 2}}>
       {isLoading
         ? Array.from({ length: 4 }).map((_, idx) => <ProductCardSkeleton key={idx} />)
         : products.map((product) => <ProductCardInner key={product._id} product={product} />)}
     </Box>
-   <Box sx={{ display: "flex", justifyContent: "center" }}>
+   <Box sx={{ display: "flex", justifyContent: "center" }} mt={10}>
   <MuiButton
     variant="contained"
     onClick={() => (window.location.href = "/products")}
@@ -313,7 +313,6 @@ const ProductCard = () => {
       color: "white",
       px: 3,
       py: 1,
-      mb: 4,
       boxShadow: "0 6px 20px rgba(255, 106, 0, 0.4)",
       transition: "all 0.35s ease-in-out",
       "&:hover": {

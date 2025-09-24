@@ -6,27 +6,25 @@ export const fetchProducts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       console.log('🔄 Fetching products from API...');
-      const response = await fetch('https://rrbackend-49lt.onrender.com/api/products');
-      
+      const response = await fetch('https://rrbackend-49lt.onrender.com/api/products', {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        mode: "cors", // 👈 ensure CORS mode
+      });
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      console.log('✅ Products fetched successfully:', data);
-      
-      if (data.success && data.data) {
-        return data.data; // If API returns { success: true, data: [...] }
-      } else if (Array.isArray(data)) {
-        return data; // If API returns array directly
-      } else if (data.products) {
-        return data.products; // If API returns { products: [...] }
-      } else {
-        return data; // Return as is
-      }
+      console.log("✅ Products fetched successfully:", data);
+
+      return data?.data || data?.products || data;
     } catch (error) {
-      console.error('❌ Error fetching products:', error.message);
-      return rejectWithValue(error.message);
+      console.error("❌ Full fetch error:", error);
+      return rejectWithValue(error.toString());
     }
   }
 );

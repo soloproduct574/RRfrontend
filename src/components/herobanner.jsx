@@ -5,7 +5,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import Image from "next/image";
 
 export default function HeroBanner() {
-  // Array of banner images to rotate through
   const bannerImages = [
     "/banner1.jpg", 
     "/banner2.jpg",
@@ -15,14 +14,12 @@ export default function HeroBanner() {
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Effect to rotate images every 2 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => 
         prevIndex === bannerImages.length - 1 ? 0 : prevIndex + 1
       );
     }, 3000);
-
     return () => clearInterval(interval);
   }, [bannerImages.length]);
 
@@ -30,196 +27,161 @@ export default function HeroBanner() {
     <Box
       sx={{
         width: "100%",
-        minHeight: "50vh",
+        minHeight: "60vh",
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         alignItems: "center",
         justifyContent: "center",
-        background: "url('/mainbanner.jpg')",
-        backgroundSize: "contain",
-        backgroundPosition: "center",
-          
-        backgroundRepeat: "no-repeat",
-        overflow: "hidden",
+        background: "url('/mainbanner.jpg') no-repeat center",
+        backgroundSize: "contain", // ✅ Make background responsive
         position: "relative",
-        py: 4,
+        py: { xs: 2, md: 4 },
+        px: { xs: 2, md: 6 },
       }}
     >
-      {/* Content container */}
+      {/* LEFT SIDE: TEXT + SEARCH */}
       <Box
         sx={{
-          position: "relative",
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "100%",
-          maxWidth: "1200px",
-          px: { xs: 2, md: 4 },
+          flex: 1,
+          textAlign: { xs: "center", md: "left" },
+          mb: { xs: 3, md: 0 },
+          zIndex: 2,
         }}
       >
-        {/* LEFT SIDE: TEXT + SEARCH */}
-        <Box
+        <Typography
+          variant="h3"
           sx={{
-            flex: 1,
-            ml: { xs: 0, md: -8 },
-            textAlign: { xs: "center", md: "left" },
-            mb: { xs: 4, md: 0 },
-            zIndex: 2,
+            fontWeight: 700,
+            color: "#ff6600",
+            fontSize: { xs: "1.8rem", md: "2.5rem" },
+            // textShadow: "0 2px 6px rgba(0,0,0,0.5)",
+            mb: 1,
           }}
         >
-          <Typography
-            variant="h4"
+          RR Traders
+        </Typography>
+
+        <Typography
+          variant="body1"
+          sx={{
+            mb: 3,
+            color: "#ff6600",
+            // textShadow: "0 1px 3px rgba(0,0,0,0.6)",
+            fontSize: { xs: "0.95rem", md: "1.1rem" },
+          }}
+        >
+          Find your favorite products with us today!
+        </Typography>
+
+        {/* SEARCH BAR */}
+        <Box
+          component="form"
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "row", sm: "row" },
+            alignItems: "center",
+            maxWidth: "500px",
+            mx: { xs: "auto", md: "0" },
+            background: "#fff",
+            borderRadius: "50px",
+            boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
+            overflow: "hidden",
+          }}
+        >
+          <TextField
+            placeholder="Search products..."
+            variant="standard"
+            fullWidth
+            InputProps={{
+              disableUnderline: true,
+              startAdornment: (
+                <InputAdornment position="start" sx={{ ml: 1 }}>
+                  <SearchIcon color="warning" />
+                </InputAdornment>
+              ),
+              sx: { py: 1, px: 2 }
+            }}
+          />
+          <Button
+            variant="contained"
+            color="warning"
             sx={{
-              fontWeight: 700,
-              color: "black",
-              fontSize: { xs: "2rem", md: "2.5rem" },
-              textAlign: { xs: "center", md: "left" },
-              textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-              mb: 1,
+              borderRadius: 0,
+              px: 3,
+              py: 1.5,
+              textTransform: "capitalize",
+              fontWeight: 600,
+              width: { xs: "50%", sm: "auto" },
             }}
           >
-            RR Traders
-          </Typography>
+            Search
+          </Button>
+        </Box>
+      </Box>
 
-          <Typography
-            variant="body1"
-            sx={{
-              mb: 3,
-              color: "rgba(0, 0, 0, 0.85)",
-              fontWeight: 400,
-              textAlign: { xs: "center", md: "left" },
-              fontSize: { xs: "1rem", md: "1.1rem" },
-            }}
-          >
-            Find your favorite products with us today!
-          </Typography>
-
-          {/* SEARCH BAR */}
+      {/* RIGHT SIDE: ROTATING BANNER IMAGES */}
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "relative",
+          width: "100%",
+          maxWidth: { xs: "100%", md: "500px" },
+          height: { xs: "200px", md: "300px" }, // ✅ Responsive height
+          mt: { xs: 2, md: 0 },
+        }}
+      >
+        {bannerImages.map((image, index) => (
           <Box
-            component="form"
+            key={index}
             sx={{
-              display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
-              alignItems: "center",
-              maxWidth: "500px",
-              margin: { xs: "0 auto", md: "0" },
-              background: "#fff",
-              borderRadius: "50px",
-              boxShadow: "0 8px 25px rgba(0,0,0,0.2)",
+              position: "absolute",
+              inset: 0,
+              opacity: currentImageIndex === index ? 1 : 0,
+              transition: "opacity 0.8s ease-in-out",
+              borderRadius: "16px",
               overflow: "hidden",
             }}
           >
-            <TextField
-              placeholder="Search products..."
-              variant="standard"
-              fullWidth
-              InputProps={{
-                disableUnderline: true,
-                startAdornment: (
-                  <InputAdornment position="start" sx={{ ml: 1 }}>
-                    <SearchIcon color="warning" />
-                  </InputAdornment>
-                ),
-                sx: { py: 1, px: 2 }
+            {/* ✅ Use Next.js Image for optimization */}
+            <Image
+              src={image}
+              alt={`Banner ${index + 1}`}
+              fill
+              priority={index === 0}
+              style={{
+                objectFit: "contain", // ✅ better for banners
               }}
             />
-            <Button
-              variant="contained"
-              color="warning"
-              sx={{
-                borderRadius: "0",
-                px: 3,
-                py: 1.5,
-                textTransform: "capitalize",
-                fontWeight: 600,
-                width: { xs: "100%", sm: "auto" },
-              }}
-            >
-              Search
-            </Button>
           </Box>
-        </Box>
+        ))}
 
-        {/* RIGHT SIDE: ROTATING BANNER IMAGES */}
+        {/* Dots Indicator */}
         <Box
           sx={{
-            flex: 1,
-            mr: { xs: 0, md: -8 },
+            position: "absolute",
+            bottom: "10px",
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            position: "relative",
-            height: { xs: "250px", md: "250px" },
-            maxWidth: "500px",
+            gap: 1,
+            zIndex: 3,
           }}
         >
-           {bannerImages.map((image, index) => (
+          {bannerImages.map((_, index) => (
             <Box
               key={index}
               sx={{
-                position: "absolute",
-                top: 0,
-                left: 55,
-                width: "100%",
-                height: "100%",
-                opacity: currentImageIndex === index ? 1 : 0,
-                transition: "opacity 0.5s ease-in-out",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+                width: "10px",
+                height: "10px",
+                borderRadius: "50%",
+                backgroundColor: currentImageIndex === index ? "warning.main" : "rgba(255,255,255,0.5)",
+                cursor: "pointer",
               }}
-            >
-              <Box
-                sx={{
-                  position: "relative",
-                  width: "100%",
-                  maxWidth: "900px",
-                  height: "100%",
-                
-                }}
-              >
-                <img
-                  src={image}
-                  alt={`Products Banner ${index + 1}`}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: "16px",
-                    objectFit: "contain",
-                    position: "relative",
-                    zIndex: 1,
-                  }}
-                />
-              </Box>
-            </Box>
-          ))} 
-          
-          {/* Indicator dots */}
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: "10px",
-              display: "flex",
-              gap: 1,
-              zIndex: 3,
-            }}
-          >
-            {bannerImages.map((_, index) => (
-              <Box
-                key={index}
-                sx={{
-                  width: "10px",
-                  height: "10px",
-                  borderRadius: "50%",
-                  backgroundColor: currentImageIndex === index ? "primary.main" : "rgba(255,255,255,0.5)",
-                  cursor: "pointer",
-                }}
-                onClick={() => setCurrentImageIndex(index)}
-              />
-            ))}
-          </Box> 
-        </Box> 
+              onClick={() => setCurrentImageIndex(index)}
+            />
+          ))}
+        </Box>
       </Box>
     </Box>
   );

@@ -139,7 +139,7 @@ export default function BannerForm() {
     bannerFiles.forEach((file) => formData.append("banner_images", file));
     advertiseFiles.forEach((file) => formData.append("advertise_images", file));
 
-    const res = await fetch("http://localhost:5000/api/media/banner", {
+    const res = await fetch("https://rrbackend-49lt.onrender.com/api/media/banner", {
       method: "POST",
       body: formData,
     });

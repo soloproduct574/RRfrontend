@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { Box, useTheme, useMediaQuery, CircularProgress } from "@mui/material";
+import { Box, useTheme, useMediaQuery, CircularProgress, Typography } from "@mui/material";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBannersMedia } from "../Redux/Slice/BannerSlice";
@@ -87,6 +87,26 @@ const PoojaBanner = () => {
   }
 
   return (
+    <>
+    <Box sx={{ textAlign: "center", mb: 8, mt: 7 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontFamily: "Arial, sans-serif",
+              color: "#ff3838ff",
+              fontWeight: 600,
+              letterSpacing: "1px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 2,
+            }}
+          >
+            <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50 }} />
+            RR New Updates
+            <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50 }} />
+          </Typography>
+        </Box>
     <Box
       sx={{
         mt: 4,
@@ -196,6 +216,7 @@ const PoojaBanner = () => {
         ))}
       </Box>
     </Box>
+    </>
   );
 };
 

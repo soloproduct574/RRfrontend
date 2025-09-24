@@ -285,7 +285,7 @@ export default function ProductList() {
         </Typography>
       </Box>
 
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, justifyContent: "center", mb: 2 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center", mb: 2 }}>
         {loading ? (
           Array.from({ length: 4 }).map((_, idx) => (
             <Card key={idx} sx={{ width: 280, borderRadius: "24px", p: 1 }}>

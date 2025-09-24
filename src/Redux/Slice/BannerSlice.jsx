@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 // Fetch banners from backend API
 export const fetchBannersMedia = createAsyncThunk("banners/fetch", async () => {
-  const res = await fetch("http://localhost:5000/api/media/banners"); // your API route
+  const res = await fetch("https://rrbackend-49lt.onrender.com/api/media/banners"); // your API route
   const data = await res.json();
   return data.banners || [];
 });

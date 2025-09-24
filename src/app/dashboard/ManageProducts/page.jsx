@@ -165,7 +165,7 @@ export default function ProductRegisterPage() {
         formDataToSend.append("videos", vid.file);
       });
 
-      await axios.post("http://localhost:5000/api/products/", formDataToSend, {
+      await axios.post("https://rrbackend-49lt.onrender.com/api/products/", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

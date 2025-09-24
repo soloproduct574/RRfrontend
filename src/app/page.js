@@ -10,6 +10,7 @@ import Footer from "@/components/footer";
 import FeaturesSection from "@/components/featuresContact";
 import ProductCard from "@/components/productCard";
 import { fetchProducts } from "../Redux/Slice/productSlice";
+import VideoCards from "@/components/YoutubeVideo";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -33,7 +34,7 @@ export default function Home() {
       {error && <p style={{ color: "red" }}>{error}</p>}
       
       <ProductCard /> 
-      
+      <VideoCards/>
       <FeaturesSection />
       <Footer />
     </>

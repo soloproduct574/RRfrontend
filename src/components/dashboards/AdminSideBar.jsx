@@ -19,26 +19,34 @@ const AdminSidebar = () => {
   const menuItems = [
     { name: "Dashboard Overview", icon: HomeIcon, href: "/admin-dashboard" },
     { name: "Manage Products", icon: TableCellsIcon, href: "/dashboard/ManageProducts" },
-    {name:"Manage Advertise",icon:TableCellsIcon,href:"/dashboard/ManageAdvertise"},
+    { name: "Manage Advertise", icon: TableCellsIcon, href: "/dashboard/ManageAdvertise" },
     { name: "Manage Users", icon: UsersIcon, href: "/admin-dashboard/users" },
     { name: "Settings", icon: Cog6ToothIcon, href: "/admin-dashboard/settings" },
   ];
 
-  const handleLogout = () => {
+ const handleLogout = () => {
+  if (confirm("Are you sure you want to logout?")) {
     dispatch(logout());
-    // Redirect to login page
-    router.push("/admin-login");
-  };
+    router.push("/dashboard");
+  }
+};
+
 
   return (
-    <div className="h-screen w-64 bg-gradient-to-b from-gray-900 to-gray-800 text-white flex flex-col fixed left-0 top-0 shadow-lg">
+    <div
+      className="fixed top-0 left-0 h-screen w-64 bg-gradient-to-b from-gray-900 to-gray-800 text-white flex flex-col shadow-lg"
+      style={{ overflow: "hidden" }} // prevents scrolling inside sidebar
+    >
       {/* LOGO */}
       <div className="p-6 text-2xl font-bold border-b border-gray-700 flex items-center gap-2">
         ⚡ <span>Admin Panel</span>
       </div>
 
       {/* MENU ITEMS */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav
+        className="flex-1 p-4 space-y-2"
+        style={{ overflow: "hidden" }} // prevent scroll for menu items
+      >
         {menuItems.map((item) => {
           const isActive = pathname === item.href;
           return (

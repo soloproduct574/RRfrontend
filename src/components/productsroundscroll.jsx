@@ -1,11 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Box, Typography, useTheme, IconButton } from "@mui/material";
+import { Box, Typography, useTheme, IconButton, useMediaQuery } from "@mui/material";
 import Image from "next/image";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
-// Example product data
 const products = [
   { id: 1, src: "/img1.jpg", name: "Incense Sticks" },
   { id: 2, src: "/img1.jpg", name: "Diya Lamps" },
@@ -21,10 +20,18 @@ const ProductsScroller = () => {
   const theme = useTheme();
   const [mounted, setMounted] = useState(false);
   const [startIndex, setStartIndex] = useState(0);
-  const visibleCount = 6; // show 6 at a time
+
+  // Breakpoints
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // <600px
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md")); // 600px - 900px
+  const isLaptop = useMediaQuery(theme.breakpoints.between("md", "lg")); // 900px - 1200px
+  const isDesktop = useMediaQuery(theme.breakpoints.up("lg")); // >1200px
+
+  // Determine visible products
+  const visibleCount = isMobile ? 2 : isTablet ? 4 : isLaptop ? 5 : 6;
 
   useEffect(() => {
-    setMounted(true); // ensures this part only renders on client
+    setMounted(true);
   }, []);
 
   const handleNext = () => {
@@ -39,57 +46,53 @@ const ProductsScroller = () => {
     }
   };
 
-  // Only slice products on client
   const visibleProducts = mounted ? products.slice(startIndex, startIndex + visibleCount) : [];
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        py: { xs: 4, md: 10 },
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
+    <Box sx={{ width: "100%", py: { xs: 2, md: 8 }, position: "relative", overflow: "hidden" }}>
       {/* Heading */}
-      <Typography component="div" display="flex" justifyContent="center" gap={3}>
-        <img
-          src="/texticon.png"
-          alt="icon"
-          style={{ width: 50, height: 50, verticalAlign: "middle", marginRight: 10 }}
-        />
+      <Box display="flex" justifyContent="center" alignItems="center" gap={2} flexWrap="wrap" mb={{ xs: 2, md: 6 }}>
+        <Image src="/texticon.png" alt="icon" width={40} height={40} />
         <Typography
-          variant="h4"
+          variant={isMobile ? "h6" : isTablet ? "h5" : "h4"}
           sx={{
             textAlign: "center",
             fontFamily: "Arial, sans-serif",
-            color: "#ff3838ff",
+            color: "#ff3838",
             fontWeight: 600,
-            mb: { xs: 3, md: 10 },
-            letterSpacing: "1px",
           }}
         >
           Shop By Product Categories
         </Typography>
-        <img
-          src="/texticon.png"
-          alt="icon"
-          style={{ width: 50, height: 50, verticalAlign: "middle", marginRight: 10 }}
-        />
-      </Typography>
+        <Image src="/texticon.png" alt="icon" width={40} height={40} />
+      </Box>
 
       {/* Product row */}
       {mounted && (
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 7 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            gap: { xs: 2, sm: 3, md: 5 },
+            overflowX: "hidden",
+            px: { xs: 2, md: 0 },
+          }}
+        >
           {visibleProducts.map((product) => (
             <Box
               key={product.id}
-              sx={{ flex: "0 0 auto", display: "flex", flexDirection: "column", alignItems: "center" }}
+              sx={{
+                flex: "0 0 auto",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+              }}
             >
               <Box
                 sx={{
-                  width: { xs: 90, sm: 120, md: 150 },
-                  height: { xs: 90, sm: 120, md: 150 },
+                  width: { xs: 80, sm: 100, md: 130, lg: 150 },
+                  height: { xs: 80, sm: 100, md: 130, lg: 150 },
                   borderRadius: "50%",
                   overflow: "hidden",
                   mb: 1.5,
@@ -106,7 +109,7 @@ const ProductsScroller = () => {
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               </Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, textAlign: "center" }}>
+              <Typography variant={isMobile ? "body2" : "subtitle1"} sx={{ fontWeight: 600 }}>
                 {product.name}
               </Typography>
             </Box>
@@ -114,7 +117,7 @@ const ProductsScroller = () => {
         </Box>
       )}
 
-      {/* Navigation */}
+      {/* Navigation Buttons */}
       {mounted && (
         <>
           <IconButton
@@ -122,36 +125,31 @@ const ProductsScroller = () => {
             disabled={startIndex === 0}
             sx={{
               position: "absolute",
-              top: "60%",
-              left: 56,
+              top: "50%",
+              left: { xs: 10, sm: 20, md: 40, lg: 60 },
               transform: "translateY(-50%)",
               backgroundColor: "white",
               boxShadow: 3,
-              "&:hover": {
-                backgroundColor: theme.palette.primary.main,
-                color: "white",
-              },
+              "&:hover": { backgroundColor: theme.palette.primary.main, color: "white" },
             }}
           >
-            <ArrowBackIosNewIcon />
+            <ArrowBackIosNewIcon fontSize={isMobile ? "small" : "medium"} />
           </IconButton>
+
           <IconButton
             onClick={handleNext}
             disabled={startIndex >= products.length - visibleCount}
             sx={{
               position: "absolute",
-              top: "60%",
-              right: 56,
+              top: "50%",
+              right: { xs: 10, sm: 20, md: 40, lg: 60 },
               transform: "translateY(-50%)",
               backgroundColor: "white",
               boxShadow: 3,
-              "&:hover": {
-                backgroundColor: theme.palette.primary.main,
-                color: "white",
-              },
+              "&:hover": { backgroundColor: theme.palette.primary.main, color: "white" },
             }}
           >
-            <ArrowForwardIosIcon />
+            <ArrowForwardIosIcon fontSize={isMobile ? "small" : "medium"} />
           </IconButton>
         </>
       )}

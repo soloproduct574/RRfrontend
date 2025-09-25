@@ -139,15 +139,15 @@ export default function Footer() {
             }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Room sx={{ mr: 1.5, color: '#f1c40f' }} />
-                <Typography variant="body2">123 Temple Street, Pune, India</Typography>
+                <Typography variant="body2">TV.malai road, kR.Palayam Thirukanur,Pondicherry - 605 501</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Phone sx={{ mr: 1.5, color: '#f1c40f' }} />
-                <Typography variant="body2">+91 98765 43210</Typography>
+                <Typography variant="body2">+91 9363132151</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Email sx={{ mr: 1.5, color: '#f1c40f' }} />
-                <Typography variant="body2">support@rrtraders.com</Typography>
+                <Typography variant="body2">anbu77661@gmail.com , anburad86388@gmail.com</Typography>
               </Box>
             </Box>
 

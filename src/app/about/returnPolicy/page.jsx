@@ -78,7 +78,7 @@ const ReturnPolicy = () => {
           </Typography>
 
           <Typography variant="body1" paragraph>
-            📩 For return requests: support@rrtraders.com
+            📩 For return requests: anbu77661@gmail.com , anburad86388@gmail.com
           </Typography>
         </motion.div>
       </Container>

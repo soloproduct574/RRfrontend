@@ -25,7 +25,7 @@ const colors = {
   primary: '#2C3E50',
   secondary: '#34495E',
   accent: '#E67E22',
-  gold: '#F1C40F',
+  gold: '#ffcc00ff',
   sage: '#95A5A6',
   cream: '#ECF0F1',
   darkGray: '#2C3E50',
@@ -40,11 +40,6 @@ const HeroSection = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   overflow: 'hidden',
-  background: `linear-gradient(135deg, 
-    rgba(44, 62, 80, 0.95) 0%, 
-    rgba(52, 73, 94, 0.9) 50%, 
-    rgba(44, 62, 80, 0.95) 100%), 
-    url('https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover fixed`,
   '&::before': {
     content: '""',
     position: 'absolute',
@@ -52,8 +47,8 @@ const HeroSection = styled(Box)(({ theme }) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'radial-gradient(circle at 30% 70%, rgba(230, 126, 34, 0.1) 0%, transparent 50%)',
-    zIndex: 1,
+    background: 'url("/aboutbg.jpg") center/cover no-repeat',
+    zIndex: -1,
   }
 }));
 
@@ -312,20 +307,7 @@ const AboutUsPage = () => {
             variants={staggerContainer}
           >
             <Box textAlign="center">
-              <motion.div variants={fadeInUp}>
-                <Chip 
-                  label="Est. 2008 • Premium Incense Crafters"
-                  sx={{ 
-                    mb: 3,
-                    bgcolor: alpha('#FFFFFF', 0.2),
-                    color: '#FFFFFF',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255,255,255,0.3)',
-                    fontSize: '0.9rem',
-                    fontWeight: 500
-                  }}
-                />
-              </motion.div>
+              
               
               <motion.div variants={fadeInUp}>
                 <Typography 

@@ -102,7 +102,7 @@ const PoojaBanner = () => {
               gap: 2,
             }}
           >
-            <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50 }} />
+            <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50, }}  />
             RR New Updates
             <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50 }} />
           </Typography>

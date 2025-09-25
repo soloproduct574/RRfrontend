@@ -130,22 +130,22 @@ const ContactPage = () => {
   const branches = [
     {
       id: 1,
-      name: "Main Store",
-      address: "123 Temple Street, Sacred City, India - 560001",
-      phone: "+91 98765 43210",
-      email: "main@poojaitems.com",
+      name: "RR Traders",
+      address: "TV malai road,kR Palayam Thirukanur ,pondicherry - 605 501",
+      phone: "+91 9363132151",
+      email: "anbu77661@gmail.com , anburad86388@gmail.com",
       hours: "9:00 AM - 8:00 PM",
-      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.931292112852!2d77.59431431482133!3d12.93469019089225!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae15c49c040309%3A0x6553433f72187b01!2sBangalore%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1660122358352!5m2!1sen!2sin"
+      mapUrl: "https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d2889.047769255197!2d79.63857117104654!3d11.993141925709379!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1758795223575!5m2!1sen!2sin",
     },
-    {
-      id: 2,
-      name: "City Center Branch",
-      address: "456 Devotion Road, Spiritual Nagar, India - 560002",
-      phone: "+91 97654 32109",
-      email: "citycenter@poojaitems.com",
-      hours: "10:00 AM - 9:00 PM",
-      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3889.036268637448!2d77.6127603148212!3d12.919718390904897!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae15c49c040309%3A0x6553433f72187b01!2sBangalore%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1660122358352!5m2!1sen!2sin"
-    },
+    // {
+    //   id: 2,
+    //   name: "City Center Branch",
+    //   address: "456 Devotion Road, Spiritual Nagar, India - 560002",
+    //   phone: "+91 97654 32109",
+    //   email: "citycenter@poojaitems.com",
+    //   hours: "10:00 AM - 9:00 PM",
+    //   mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3889.036268637448!2d77.6127603148212!3d12.919718390904897!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae15c49c040309%3A0x6553433f72187b01!2sBangalore%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1660122358352!5m2!1sen!2sin"
+    // },
   ];
 
   const [selectedBranch, setSelectedBranch] = useState(branches[0]);
@@ -170,7 +170,7 @@ const ContactPage = () => {
                   justifyContent={"center"}
                   alignItems={"center"}
                   gap={2}
-                  mt={18}
+                  mt={{ xs: 0, md: 8 }}
                 >
                   <motion.img 
                     src="/texticon.png" 
@@ -220,7 +220,7 @@ const ContactPage = () => {
                 justifyContent={"center"}
                 alignItems={"center"}
                 gap={4}
-                bgcolor={"rgba(255, 153, 29, 0.29)"}
+                bgcolor={"rgba(255, 153, 29, 0.62)"}
                 p={2}
                 borderRadius={2}
                 mb={4}
@@ -229,16 +229,18 @@ const ContactPage = () => {
                   src="/texticon.png" 
                   alt="icon" 
                   style={{ width: 40, height: 40 }} 
-                  whileHover={{ scale: 1.2 }}
+                  whileHover={{ rotate: -360 }}
+                  transition={{ duration: 0.5 }}
                 />
-                <Typography variant="h3" sx={{ fontWeight: 600, letterSpacing: "1px", color: "#ffffffff" }}>
+                <Typography variant={{ xs: "h5", sm: "h4"}} sx={{ fontWeight: 600, letterSpacing: "1px", color: "#ffffffff" }}>
                   Send Us a Message
                 </Typography>
                 <motion.img 
                   src="/texticon.png" 
                   alt="icon" 
                   style={{ width: 40, height: 40 }} 
-                  whileHover={{ scale: 1.2 }}
+                 whileHover={{ rotate: -360 }}
+                  transition={{ duration: 0.5 }}
                 />
               </Typography>
             </motion.div>
@@ -461,7 +463,7 @@ const ContactPage = () => {
               justifyContent="center"
               alignItems="center"
               gap={2}
-              bgcolor="#FF8E53"
+              // bgcolor="#FF8E53"
               color="white"
               p={2}
               borderRadius={2}
@@ -474,7 +476,7 @@ const ContactPage = () => {
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
               />
-              <Typography variant="h3" sx={{ fontWeight: 600, letterSpacing: "1px" }}>
+              <Typography variant={{ xs: "h1", md: "h4" }} sx={{ fontWeight: 600, letterSpacing: "1px",color:'black' }}>
                 Our Branches
               </Typography>
               <motion.img 
@@ -607,8 +609,8 @@ const ContactPage = () => {
               }}
             >
               <Typography
-                variant="h4"
-                component="h3"
+                variant={{ xs: "h5", md: "h4" }}
+                component="div"
                 gutterBottom
                 sx={{ mb: 3, fontWeight: 700, textAlign: "center", color: "warning.main" }}
               >

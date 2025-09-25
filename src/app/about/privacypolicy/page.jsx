@@ -109,7 +109,7 @@ const PrivacyPolicy = () => {
             <ListItem>
               <ListItemText
                 primary="8. Contact Us"
-                secondary="If you have any questions about our Privacy Policy, please email us at support@rrtraders.com."
+                secondary="If you have any questions about our Privacy Policy, please email us at anbu77661@gmail.com , anburad86388@gmail.com."
               />
             </ListItem>
           </List>

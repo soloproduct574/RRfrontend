@@ -11,6 +11,9 @@ import {
   Skeleton,
   Snackbar,
   Alert,
+  Grid,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -18,7 +21,6 @@ import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import ShareIcon from "@mui/icons-material/Share";
 import SocialShare from "./SocialMedia/SocialShare.jsx";
 import ProductModal from "./ProductModal.jsx";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,10 +32,15 @@ const ProductCardInner = React.memo(({ product }) => {
   const dispatch = useDispatch();
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex] = useState(0);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", type: "success" });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    type: "success",
+  });
   const [openModal, setOpenModal] = useState(false);
 
-  const favoriteItems = useSelector((state) => state.favorites.favoriteItems) || [];
+  const favoriteItems =
+    useSelector((state) => state.favorites.favoriteItems) || [];
   const isFav = favoriteItems.some((p) => p._id === product._id);
 
   const {
@@ -56,8 +63,14 @@ const ProductCardInner = React.memo(({ product }) => {
   const displayPrice = offer_price || original_price || 0;
   const discountPercentage = discount || 0;
 
-  const increaseQuantity = useCallback(() => setQuantity((prev) => prev + 1), []);
-  const decreaseQuantity = useCallback(() => setQuantity((prev) => (prev > 1 ? prev - 1 : 1)), []);
+  const increaseQuantity = useCallback(
+    () => setQuantity((prev) => prev + 1),
+    []
+  );
+  const decreaseQuantity = useCallback(
+    () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1)),
+    []
+  );
 
   const handleToggleFavorite = useCallback(() => {
     dispatch(toggleFavorite(product));
@@ -80,7 +93,16 @@ const ProductCardInner = React.memo(({ product }) => {
       message: `${quantity} x ${name} added to cart 🛒`,
       type: "success",
     });
-  }, [dispatch, id, name, quantity, displayPrice, product_images, brands, categories]);
+  }, [
+    dispatch,
+    id,
+    name,
+    quantity,
+    displayPrice,
+    product_images,
+    brands,
+    categories,
+  ]);
 
   const handleBuyNow = useCallback(() => {
     dispatch(
@@ -99,12 +121,25 @@ const ProductCardInner = React.memo(({ product }) => {
       message: `Proceeding to buy ${quantity} x ${name} 💳`,
       type: "info",
     });
-  }, [dispatch, id, name, quantity, displayPrice, product_images, brands, categories]);
+  }, [
+    dispatch,
+    id,
+    name,
+    quantity,
+    displayPrice,
+    product_images,
+    brands,
+    categories,
+  ]);
 
   const handleShare = () => {
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
-      setSnackbar({ open: true, message: "Product link copied to clipboard 📋", type: "info" });
+      setSnackbar({
+        open: true,
+        message: "Product link copied to clipboard 📋",
+        type: "info",
+      });
     }
   };
 
@@ -136,26 +171,45 @@ const ProductCardInner = React.memo(({ product }) => {
           }}
         />
 
-        
-          <Box sx={{ display: "flex", flexDirection: "column", p: 1, position: "absolute", top: 8, right: 8, zIndex: 3, gap: 1 }}>
-  <IconButton onClick={handleToggleFavorite}>
-    {isFav ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
-  </IconButton>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            p: 1,
+            position: "absolute",
+            top: 8,
+            right: 8,
+            zIndex: 3,
+            gap: 1,
+          }}
+        >
+          <IconButton onClick={handleToggleFavorite}>
+            {isFav ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+          </IconButton>
 
-  <SocialShare productName={name} />
-</Box>
-      
+          <SocialShare productName={name} />
+        </Box>
 
         <Box
           sx={{
             height: 260,
             position: "relative",
             overflow: "hidden",
-            "& img": { width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease", transform: "scale(1)" },
+            "& img": {
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: "transform 0.5s ease",
+              transform: "scale(1)",
+            },
             "&:hover img": { transform: "scale(1.1)" },
           }}
         >
-          <img src={productImages[currentImageIndex]} alt={name} onError={(e) => (e.target.src = "/logo.jpg")} />
+          <img
+            src={productImages[currentImageIndex]}
+            alt={name}
+            onError={(e) => (e.target.src = "/logo.jpg")}
+          />
           <Box
             sx={{
               position: "absolute",
@@ -173,7 +227,10 @@ const ProductCardInner = React.memo(({ product }) => {
               sx={{
                 background: "rgba(255, 255, 255, 0.74)",
                 color: "black",
-                "&:hover": { background: "rgba(247, 5, 5, 0.99)", color: "white" },
+                "&:hover": {
+                  background: "rgba(247, 5, 5, 0.99)",
+                  color: "white",
+                },
                 borderRadius: "24px",
                 px: 3,
                 fontWeight: 600,
@@ -190,32 +247,73 @@ const ProductCardInner = React.memo(({ product }) => {
             {brandName}
           </Typography>
           {categoryName && (
-            <Typography variant="caption" color="primary" sx={{ display: "block" }}>
+            <Typography
+              variant="caption"
+              color="primary"
+              sx={{ display: "block" }}
+            >
               {categoryName}
             </Typography>
           )}
           <Typography
             variant="h6"
             fontWeight={700}
-            sx={{ minHeight: "48px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
+            sx={{
+              minHeight: "48px",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+            }}
           >
             {name}
           </Typography>
 
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "baseline", gap: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "baseline",
+              gap: 1,
+            }}
+          >
             <Typography variant="h6" color="primary" fontWeight={700}>
               ₹{displayPrice}
             </Typography>
             {offer_price && (
-              <Typography variant="body2" sx={{ textDecoration: "line-through", color: "text.disabled" }}>
+              <Typography
+                variant="body2"
+                sx={{ textDecoration: "line-through", color: "text.disabled" }}
+              >
                 ₹{original_price}
               </Typography>
             )}
-            {discountPercentage > 0 && <Chip icon={<LocalOfferIcon sx={{ fontSize: 16 }} />} label={`Save ${Math.round(discountPercentage)}%`} color="success" size="small" sx={{ fontWeight: 600 }} />}
+            {discountPercentage > 0 && (
+              <Chip
+                icon={<LocalOfferIcon sx={{ fontSize: 16 }} />}
+                label={`Save ${Math.round(discountPercentage)}%`}
+                color="success"
+                size="small"
+                sx={{ fontWeight: 600 }}
+              />
+            )}
           </Box>
 
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 1, mb: 1 }}>
-            <IconButton size="small" onClick={decreaseQuantity} disabled={quantity <= 1}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 1,
+              mb: 1,
+            }}
+          >
+            <IconButton
+              size="small"
+              onClick={decreaseQuantity}
+              disabled={quantity <= 1}
+            >
               <RemoveIcon />
             </IconButton>
             <Typography variant="h6">{quantity}</Typography>
@@ -229,7 +327,12 @@ const ProductCardInner = React.memo(({ product }) => {
               variant="contained"
               onClick={handleAddToCart}
               fullWidth
-              sx={{ borderRadius: "10px", fontWeight: 100, fontSize: "12px", background: "linear-gradient(45deg,#ff9800,#f44336)" }}
+              sx={{
+                borderRadius: "10px",
+                fontWeight: 100,
+                fontSize: "12px",
+                background: "linear-gradient(45deg,#ff9800,#f44336)",
+              }}
             >
               Add to Cart
             </MuiButton>
@@ -237,7 +340,12 @@ const ProductCardInner = React.memo(({ product }) => {
               variant="contained"
               onClick={handleBuyNow}
               fullWidth
-              sx={{ borderRadius: "10px", fontWeight: 100, fontSize: "12px", background: "linear-gradient(45deg,#4caf50,#2e7d32)" }}
+              sx={{
+                borderRadius: "10px",
+                fontWeight: 100,
+                fontSize: "12px",
+                background: "linear-gradient(45deg,#4caf50,#2e7d32)",
+              }}
             >
               Buy Now
             </MuiButton>
@@ -245,11 +353,21 @@ const ProductCardInner = React.memo(({ product }) => {
         </CardContent>
       </Card>
 
-      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
         <Alert severity={snackbar.type}>{snackbar.message}</Alert>
       </Snackbar>
 
-      {openModal && <ProductModal open={openModal} onClose={() => setOpenModal(false)} product={product} />}
+      {openModal && (
+        <ProductModal
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          product={product}
+        />
+      )}
     </>
   );
 });
@@ -271,65 +389,107 @@ const ProductCardSkeleton = React.memo(() => (
 const ProductCard = () => {
   const products = useSelector((state) => state.products.items) || [];
   const isLoading = useSelector((state) => state.products.loading);
-  console.log("Products: ", products);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
     <Box>
-       <Box sx={{ textAlign: "center", mb: 10 ,mt:5}}>
-          <Typography
-            variant="h4"
-            sx={{
-              fontFamily: "Arial, sans-serif",
-              color: "#ff3838ff",
-              fontWeight: 600,
-              letterSpacing: "1px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 2,
-            }}
-          >
-            <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50 }} />
-            Top Trending Products
-            <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50 }} />
-          </Typography>
+      <Box sx={{ textAlign: "center", mb: 3, mt: 5 }}>
+       <Typography
+  variant="h4"
+  sx={{
+    fontFamily: "Arial, sans-serif",
+    color: "#ff3838ff",
+    fontWeight: 600,
+    letterSpacing: "1px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 2,
+    fontSize: {
+      xs: "1.4rem", // 📱 Mobile
+      sm: "1.5rem", // 📲 Small tablets
+      md: "2rem",   // 💻 Desktop
+      lg: "2.5rem", // 🖥️ Large screens
+    },
+  }}
+>
+  <img src="/texticon.png" alt="icon" style={{ width: 40, height: 40 }} />
+  Top Trending Products
+  <img src="/texticon.png" alt="icon" style={{ width: 40, height: 40 }} />
+</Typography>
+
+      </Box>
+
+      {isMobile ? (
+        // 👉 Mobile view: horizontal scroll
+        <Box
+          sx={{
+            display: "flex",
+            overflowX: "auto",
+            gap: 2,
+            px: 2,
+            "&::-webkit-scrollbar": { display: "none" },
+          }}
+        >
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, idx) => (
+                <Box key={idx} sx={{ flex: "0 0 auto", width: 280 }}>
+                  <ProductCardSkeleton />
+                </Box>
+              ))
+            : products.map((product) => (
+                <Box key={product._id} sx={{ flex: "0 0 auto", width: 280 }}>
+                  <ProductCardInner product={product} />
+                </Box>
+              ))}
         </Box>
-    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 8 , justifyContent: "center", mb: 2}}>
-      {isLoading
-        ? Array.from({ length: 4 }).map((_, idx) => <ProductCardSkeleton key={idx} />)
-        : products.map((product) => <ProductCardInner key={product._id} product={product} />)}
-    </Box>
-   <Box sx={{ display: "flex", justifyContent: "center" }} mt={10}>
-  <MuiButton
-    variant="contained"
-    onClick={() => (window.location.href = "/products")}
-    sx={{
-      borderRadius: "30px",
-      fontWeight: 700,
-      fontSize: "16px",
-      textTransform: "uppercase",
-      letterSpacing: "1px",
-      background: "linear-gradient(45deg, #8e2de2, #ff6a00)", // Purple → Orange
-      color: "white",
-      px: 3,
-      py: 1,
-      boxShadow: "0 6px 20px rgba(255, 106, 0, 0.4)",
-      transition: "all 0.35s ease-in-out",
-      "&:hover": {
-        background: "linear-gradient(45deg, #ff6a00, #8e2de2)", // reverse gradient on hover
-        transform: "scale(1.08)",
-        boxShadow: "0 10px 25px rgba(142, 45, 226, 0.6)",
-      },
-      "&:active": {
-        transform: "scale(0.95)",
-      },
-    }}
-  >
-    View More
-  </MuiButton>
-</Box>
+      ) : (
+        // 👉 Desktop & tablet: grid
+        <Grid container spacing={4} justifyContent="center" mb={2}>
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, idx) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={idx}>
+                  <ProductCardSkeleton />
+                </Grid>
+              ))
+            : products.map((product) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
+                  <ProductCardInner product={product} />
+                </Grid>
+              ))}
+        </Grid>
+      )}
 
-
+      <Box sx={{ display: "flex", justifyContent: "center" }} mt={3}>
+        <MuiButton
+          variant="contained"
+          onClick={() => (window.location.href = "/products")}
+          sx={{
+            borderRadius: "30px",
+            fontWeight: 700,
+            fontSize: "16px",
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+            background: "linear-gradient(45deg, #8e2de2, #ff6a00)", // Purple → Orange
+            color: "white",
+            px: 3,
+            py: 1,
+            boxShadow: "0 6px 20px rgba(255, 106, 0, 0.4)",
+            transition: "all 0.35s ease-in-out",
+            "&:hover": {
+              background: "linear-gradient(45deg, #ff6a00, #8e2de2)",
+              transform: "scale(1.08)",
+              boxShadow: "0 10px 25px rgba(142, 45, 226, 0.6)",
+            },
+            "&:active": {
+              transform: "scale(0.95)",
+            },
+          }}
+        >
+          View More
+        </MuiButton>
+      </Box>
     </Box>
   );
 };

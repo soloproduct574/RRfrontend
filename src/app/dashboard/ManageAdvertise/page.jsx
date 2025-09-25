@@ -1,245 +1,222 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
-  TextField,
   Button,
+  CircularProgress,
+  Container,
+  TextField,
   Typography,
   Paper,
-  Snackbar,
-  Alert,
-  IconButton,
-  Grid,
-  Card,
-  CardMedia,
-  Container,
   Divider,
   Chip,
-  useTheme,
+  Grid,
+  IconButton,
+  Card,
+  CardMedia,
   useMediaQuery,
-  AppBar,
-  Toolbar,
-  Menu,
-  Drawer,
-  CircularProgress
 } from "@mui/material";
-import AdminSidebar from "@/components/dashboards/AdminSideBar";
 import {
-  Delete,
-  Add,
-  Upload,
-  YouTube,
-  TextFields,
-  Image,
-  Campaign,
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Image as ImageIcon,
+  Menu as MenuIcon,
+  Close as CloseIcon,
+  Power as PowerIcon,
 } from "@mui/icons-material";
+import { motion } from "framer-motion";
+import { useTheme } from "@mui/material/styles";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import {
+  Home as HomeIcon,
+  TableRows as TableCellsIcon,
+  Group as UsersIcon,
+  Settings as Cog6ToothIcon,
+} from "@mui/icons-material";
+import { logout } from "@/Redux/Slice/AdminAuthSlice";
 
-export default function BannerForm() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const isSmallMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
-    title: "",
-    rotating_texts: [""],
-    redirect_urls: [""],
-  });
+const AdminSidebar = ({ isMobile, sidebarOpen, setSidebarOpen }) => {
+  const pathname = usePathname();
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-  const [bannerFiles, setBannerFiles] = useState([]);
-  const [advertiseFiles, setAdvertiseFiles] = useState([]);
-  const [previewBanners, setPreviewBanners] = useState([]);
-  const [previewAds, setPreviewAds] = useState([]);
+  const menuItems = [
+    { name: "Dashboard Overview", icon: HomeIcon, href: "/admin-dashboard" },
+    { name: "Manage Products", icon: TableCellsIcon, href: "/dashboard/ManageProducts" },
+    { name: "Manage Advertise", icon: TableCellsIcon, href: "/dashboard/ManageAdvertise" },
+    { name: "Manage Users", icon: UsersIcon, href: "/admin-dashboard/users" },
+    { name: "Settings", icon: Cog6ToothIcon, href: "/admin-dashboard/settings" },
+  ];
 
-  const [message, setMessage] = useState({ text: "", type: "" });
-  const [open, setOpen] = useState(false);
-
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push("/admin-login");
   };
 
-  const handleRotatingChange = (index, value) => {
-    const texts = [...form.rotating_texts];
-    texts[index] = value;
-    setForm({ ...form, rotating_texts: texts });
-  };
+  const SidebarContent = (
+    <div className="h-full w-64 bg-gradient-to-b from-gray-900 to-gray-800 text-white flex flex-col shadow-lg">
+      <div className="p-6 text-2xl font-bold border-b border-gray-700 flex items-center gap-2">
+        ⚡ Admin Panel
+      </div>
 
-  const addRotatingText = () => {
-    setForm({ ...form, rotating_texts: [...form.rotating_texts, ""] });
-  };
+      <nav className="flex-1 p-4 space-y-2">
+        {menuItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={`flex items-center w-full px-4 py-2 rounded-lg transition ease-in-out ${
+                isActive ? "bg-gray-700 text-yellow-400 font-semibold" : "hover:bg-gray-700 text-gray-300"
+              }`}
+              onClick={() => isMobile && setSidebarOpen(false)}
+            >
+              <item.icon className="h-5 w-5 mr-3" />
+              {item.name}
+            </Link>
+          );
+        })}
+      </nav>
 
-  const removeRotatingText = (index) => {
-    setForm({
-      ...form,
-      rotating_texts: form.rotating_texts.filter((_, i) => i !== index),
-    });
-  };
-
-  const handleUrlChange = (index, value) => {
-    const urls = [...form.redirect_urls];
-    urls[index] = value;
-    setForm({ ...form, redirect_urls: urls });
-  };
-
-  const addRedirectUrl = () => {
-    setForm({ ...form, redirect_urls: [...form.redirect_urls, ""] });
-  };
-
-  const removeRedirectUrl = (index) => {
-    setForm({
-      ...form,
-      redirect_urls: form.redirect_urls.filter((_, i) => i !== index),
-    });
-  };
-
-  const handleBannerFilesChange = (e) => {
-    const files = Array.from(e.target.files);
-    const combined = [...bannerFiles, ...files];
-    setBannerFiles(combined);
-    setPreviewBanners(combined.map((file) => URL.createObjectURL(file)));
-  };
-
-  const removeBannerFile = (index) => {
-    const updated = bannerFiles.filter((_, i) => i !== index);
-    setBannerFiles(updated);
-    setPreviewBanners(updated.map((file) => URL.createObjectURL(file)));
-  };
-
-  const handleAdvertiseFilesChange = (e) => {
-    const files = Array.from(e.target.files);
-    const combined = [...advertiseFiles, ...files];
-    setAdvertiseFiles(combined);
-    setPreviewAds(combined.map((file) => URL.createObjectURL(file)));
-  };
-
-  const removeAdvertiseFile = (index) => {
-    const updated = advertiseFiles.filter((_, i) => i !== index);
-    setAdvertiseFiles(updated);
-    setPreviewAds(updated.map((file) => URL.createObjectURL(file)));
-  };
-
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-
-  try {
-    const formData = new FormData();
-    formData.append("title", form.title);
-
-    // ✅ Send arrays as JSON strings
-    formData.append("rotating_texts", JSON.stringify(form.rotating_texts));
-    formData.append("redirect_urls", JSON.stringify(form.redirect_urls));
-
-    // ✅ Append files
-    bannerFiles.forEach((file) => formData.append("banner_images", file));
-    advertiseFiles.forEach((file) => formData.append("advertise_images", file));
-
-    const res = await fetch("https://rrbackend-49lt.onrender.com/api/media/banner", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-
-    if (res.ok && data.success) {
-      setMessage({ text: "✅ Banner created successfully!", type: "success" });
-      // Reset form
-      setForm({ title: "", rotating_texts: [""], redirect_urls: [""] });
-      setBannerFiles([]);
-      setAdvertiseFiles([]);
-      setPreviewBanners([]);
-      setPreviewAds([]);
-    } else {
-      setMessage({ text: `❌ ${data.message || "Something went wrong"}`, type: "error" });
-    }
-  } catch (error) {
-    console.error(error);
-    setMessage({ text: "❌ Server error, please try again.", type: "error" });
-  }
-
-  // ✅ Show Snackbar after async is fully resolved
-  setOpen(true);
-
-  setLoading(false);
-};
-
-
-  const handleClose = () => setOpen(false);
+      <div className="p-4 border-t border-gray-700">
+        <Button
+          variant="contained"
+          color="error"
+          startIcon={<PowerIcon />}
+          fullWidth
+          onClick={handleLogout}
+        >
+          Logout
+        </Button>
+      </div>
+    </div>
+  );
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#f8fafc" }}>
-        {isMobile && (
-        <AppBar position="fixed" sx={{ backgroundColor: 'rgba(255, 0, 0, 0.7)', backdropFilter: 'blur(10px)' }}>
-          <Toolbar>
-            <IconButton
-              color="black"
-              aria-label="open drawer"
-              edge="start"
-              sx={{ mr: 2 }}
-            >
-              <Menu />
-            </IconButton>
-            <Typography variant="h6" noWrap component="div"               onClick={() => setMobileDrawerOpen(true)}
->
-              Admin Panel
-            </Typography>
-          </Toolbar>
-        </AppBar>
+    <>
+      {/* Sidebar for mobile */}
+      {isMobile ? (
+        <>
+          <Box
+            sx={{
+              position: "fixed",
+              left: sidebarOpen ? 0 : "-280px",
+              top: 0,
+              width: 280,
+              height: "100vh",
+              zIndex: 40,
+              transition: "left 0.3s ease-in-out",
+            }}
+          >
+            {SidebarContent}
+          </Box>
+          {sidebarOpen && (
+            <Box
+              onClick={() => setSidebarOpen(false)}
+              sx={{
+                position: "fixed",
+                inset: 0,
+                backgroundColor: "rgba(0,0,0,0.5)",
+                zIndex: 30,
+              }}
+            />
+          )}
+        </>
+      ) : (
+        <Box sx={{ width: 280, flexShrink: 0 }}>
+          {SidebarContent}
+        </Box>
+      )}
+    </>
+  );
+};
+
+const BannerForm = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md")); // mobile/tablet
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [form, setForm] = useState({
+    title: "",
+    runningText: [""],
+    redirectUrls: [""],
+    bannerFiles: [],
+    advertiseFiles: [],
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e, index, field) => {
+    if (field === "runningText" || field === "redirectUrls") {
+      const updated = [...form[field]];
+      updated[index] = e.target.value;
+      setForm({ ...form, [field]: updated });
+    } else {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    }
+  };
+
+  const addField = (field) => setForm({ ...form, [field]: [...form[field], ""] });
+  const removeField = (field, index) => setForm({ ...form, [field]: form[field].filter((_, i) => i !== index) });
+  const handleFileChange = (e, field) => setForm({ ...form, [field]: [...form[field], ...Array.from(e.target.files)] });
+  const removeFile = (field, index) => setForm({ ...form, [field]: form[field].filter((_, i) => i !== index) });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setTimeout(() => setLoading(false), 2000); // simulate API
+  };
+
+  return (
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+      {/* Hamburger menu for mobile */}
+      {isMobile && (
+        <IconButton
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          sx={{
+            position: "fixed",
+            top: 16,
+            left: 16,
+            zIndex: 50,
+            background: "#1e293b",
+            color: "white",
+            "&:hover": { background: "#334155" },
+          }}
+        >
+          {sidebarOpen ? <CloseIcon /> : <MenuIcon />}
+        </IconButton>
       )}
 
-      {/* Mobile Drawer */}
-      <Drawer
-        variant={isMobile ? "temporary" : "permanent"}
-        open={isMobile ? mobileDrawerOpen : true}
-        onClose={() => setMobileDrawerOpen(false)}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
-        }}
+      {/* Sidebar */}
+      <AdminSidebar isMobile={isMobile} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+
+      {/* Main Content */}
+      <Box
         sx={{
-          '& .MuiDrawer-paper': { 
-            boxSizing: 'border-box', 
-            width: isMobile ? 240 : (isTablet ? 200 : 250),
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
-            backdropFilter: 'blur(10px)',
-              height: '100vh',          // full height
-    overflow: isMobile ? 'auto' : 'hidden', // allow scroll only on mobile
-    position: 'fixed',
-          },
+          flexGrow: 1,
+          p: isMobile ? 2 : 4,
+          background: "linear-gradient(135deg, #f9fafb, #f1f5f9)",
         }}
       >
-        <AdminSidebar onLogout={() => setMobileDrawerOpen(false)} />
-      </Drawer>
-      
-      <Box sx={{ flexGrow: 1, p: isMobile ? 2 : 3, ml: isMobile ? 0 : "280px" }}>
         <Container maxWidth="lg" sx={{ p: 0 }}>
-          <Typography
-            variant={isMobile ? "h5" : "h4"}
-            fontWeight="700"
-            gutterBottom
-            sx={{ 
-              color: "#1e293b",
-              mb: 3,
-            }}
-          >
-            Create New Banner
-          </Typography>
-          
-          <Paper
-            elevation={0}
-            sx={{
-              p: { xs: 2, sm: 4 },
-              borderRadius: 3,
-              background: "white",
-              boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-            }}
-          >
-            <Box component="form" onSubmit={handleSubmit} noValidate encType="multipart/form-data">
-              {/* Title Field */}
+          {/* Page Title */}
+          <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }}>
+            <Typography
+              variant={isMobile ? "h5" : "h4"}
+              fontWeight="700"
+              gutterBottom
+              sx={{ color: "#0f172a", mb: 3, textAlign: "center" }}
+            >
+              🚀 Create New Banner
+            </Typography>
+          </motion.div>
+
+          {/* Main Form */}
+          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }}>
+            <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, borderRadius: 4, background: "white", boxShadow: "0 8px 30px rgba(0,0,0,0.06)" }}>
+              {/* Title */}
               <TextField
                 label="Banner Title"
                 name="title"
@@ -249,350 +226,132 @@ export default function BannerForm() {
                 required
                 margin="normal"
                 variant="outlined"
-                sx={{
-                  mb: 3,
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: 2,
-                  }
-                }}
+                sx={{ mb: 4, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }}
               />
 
-              <Grid container spacing={3}>
-                {/* Rotating Texts Section */}
-                <Grid item xs={12} md={6}>
-                  <Box sx={{ 
-                    p: 3, 
-                    borderRadius: 2, 
-                    backgroundColor: "#f8fafc",
-                    height: "100%",
-                    border: "1px solid #e2e8f0"
-                  }}>
-                    <Box display="flex" alignItems="center" mb={2}>
-                      <TextFields sx={{ mr: 1, color: "#475569" }} />
-                      <Typography variant="h6" fontWeight="600" color="#1e293b">
-                        Rotating Texts
-                      </Typography>
-                    </Box>
-                    
-                    {form.rotating_texts.map((text, idx) => (
-                      <Box
-                        key={idx}
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                        mt={idx > 0 ? 2 : 0}
-                      >
-                        <TextField
-                          label={`Text ${idx + 1}`}
-                          value={text}
-                          onChange={(e) => handleRotatingChange(idx, e.target.value)}
-                          fullWidth
-                          size="small"
-                        />
-                        {idx > 0 && (
-                          <IconButton 
-                            onClick={() => removeRotatingText(idx)}
-                            size="small"
-                            sx={{ color: "#ef4444" }}
-                          >
-                            <Delete fontSize="small" />
-                          </IconButton>
-                        )}
-                      </Box>
-                    ))}
-                    
-                    <Button 
-                      onClick={addRotatingText} 
-                      startIcon={<Add />}
-                      sx={{ mt: 2, color: "#475569" }}
-                      size="small"
-                    >
-                      Add Text
-                    </Button>
-                  </Box>
-                </Grid>
+              {/* Running Texts */}
+              <Divider sx={{ my: 4 }}>
+                <Chip label="🏃 Running Texts" color="primary" variant="outlined" />
+              </Divider>
+              {form.runningText.map((text, i) => (
+                <Box key={i} sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <TextField
+                    label={`Text ${i + 1}`}
+                    value={text}
+                    onChange={(e) => handleChange(e, i, "runningText")}
+                    fullWidth
+                  />
+                  <IconButton onClick={() => removeField("runningText", i)} sx={{ ml: 1, color: "error.main" }}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              ))}
+              <Button startIcon={<AddIcon />} onClick={() => addField("runningText")} sx={{ mt: 1 }}>
+                Add More
+              </Button>
 
-                {/* Redirect URLs Section */}
-                <Grid item xs={12} md={6}>
-                  <Box sx={{ 
-                    p: 3, 
-                    borderRadius: 2, 
-                    backgroundColor: "#f8fafc",
-                    height: "100%",
-                    border: "1px solid #e2e8f0"
-                  }}>
-                    <Box display="flex" alignItems="center" mb={2}>
-                      <YouTube sx={{ mr: 1, color: "#475569" }} />
-                      <Typography variant="h6" fontWeight="600" color="#1e293b">
-                        YouTube Links
-                      </Typography>
-                    </Box>
-                    
-                    {form.redirect_urls.map((url, idx) => (
-                      <Box
-                        key={idx}
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                        mt={idx > 0 ? 2 : 0}
-                      >
-                        <TextField
-                          label={`URL ${idx + 1}`}
-                          value={url}
-                          onChange={(e) => handleUrlChange(idx, e.target.value)}
-                          fullWidth
+              {/* Redirect URLs */}
+              <Divider sx={{ my: 4 }}>
+                <Chip label="🔗 Redirect URLs" color="secondary" variant="outlined" />
+              </Divider>
+              {form.redirectUrls.map((url, i) => (
+                <Box key={i} sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <TextField
+                    label={`URL ${i + 1}`}
+                    value={url}
+                    onChange={(e) => handleChange(e, i, "redirectUrls")}
+                    fullWidth
+                  />
+                  <IconButton onClick={() => removeField("redirectUrls", i)} sx={{ ml: 1, color: "error.main" }}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              ))}
+              <Button startIcon={<AddIcon />} onClick={() => addField("redirectUrls")} sx={{ mt: 1 }}>
+                Add More
+              </Button>
+
+              {/* Banner Images */}
+              <Divider sx={{ my: 4 }}>
+                <Chip label="🖼 Banner Images" color="success" variant="outlined" />
+              </Divider>
+              <Button variant="outlined" component="label" startIcon={<ImageIcon />} sx={{ mb: 2 }}>
+                Upload Banner
+                <input type="file" hidden multiple onChange={(e) => handleFileChange(e, "bannerFiles")} />
+              </Button>
+              <Grid container spacing={2}>
+                {form.bannerFiles.map((file, i) => (
+                  <Grid item xs={6} sm={4} md={3} key={i}>
+                    <motion.div whileHover={{ scale: 1.05 }}>
+                      <Card sx={{ borderRadius: 3, overflow: "hidden", position: "relative", height: 160, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                        <CardMedia component="img" image={URL.createObjectURL(file)} alt={`banner-${i}`} sx={{ objectFit: "cover", height: "100%" }} />
+                        <IconButton
+                          onClick={() => removeFile("bannerFiles", i)}
                           size="small"
-                        />
-                        {idx > 0 && (
-                          <IconButton 
-                            onClick={() => removeRedirectUrl(idx)}
-                            size="small"
-                            sx={{ color: "#ef4444" }}
-                          >
-                            <Delete fontSize="small" />
-                          </IconButton>
-                        )}
-                      </Box>
-                    ))}
-                    
-                    <Button 
-                      onClick={addRedirectUrl} 
-                      startIcon={<Add />}
-                      sx={{ mt: 2, color: "#475569" }}
-                      size="small"
-                    >
-                      Add URL
-                    </Button>
-                  </Box>
-                </Grid>
+                          sx={{ position: "absolute", top: 6, right: 6, backgroundColor: "rgba(255,255,255,0.9)", "&:hover": { backgroundColor: "white" } }}
+                        >
+                          <DeleteIcon fontSize="small" sx={{ color: "#ef4444" }} />
+                        </IconButton>
+                      </Card>
+                    </motion.div>
+                  </Grid>
+                ))}
               </Grid>
 
-              <Divider sx={{ my: 4, borderColor: "#e2e8f0" }} />
-
-              {/* Banner Images Section */}
-              <Box sx={{ mb: 4 }}>
-                <Box display="flex" alignItems="center" mb={2}>
-                  <Image sx={{ mr: 1, color: "#475569" }} />
-                  <Typography variant="h6" fontWeight="600" color="#1e293b">
-                    Banner Images
-                  </Typography>
-                  <Chip 
-                    label={`${bannerFiles.length} uploaded`} 
-                    size="small" 
-                    sx={{ 
-                      ml: 2, 
-                      backgroundColor: "#f1f5f9",
-                      color: "#475569"
-                    }}
-                  />
-                </Box>
-                
-                <Button
-                  component="label"
-                  variant="outlined"
-                  startIcon={<Upload />}
-                  sx={{ 
-                    mb: 2, 
-                    color: "#475569",
-                    borderColor: "#cbd5e1",
-                    '&:hover': {
-                      borderColor: "#94a3b8",
-                      backgroundColor: "#f8fafc"
-                    }
-                  }}
-                >
-                  Upload Banner Images
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleBannerFilesChange}
-                    hidden
-                  />
-                </Button>
-                
-                <Grid container spacing={2} mt={1}>
-                  {previewBanners.map((src, i) => (
-                    <Grid key={i} item xs={6} sm={4} md={3} lg={2.4}>
-                      <Card 
-                        sx={{ 
-                          borderRadius: 2, 
-                          overflow: 'hidden',
-                          position: 'relative',
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                          height: 140
-                        }}
-                      >
-                        <CardMedia
-                          component="img"
-                          height="140"
-                          image={src}
-                          alt="banner preview"
-                          sx={{ 
-                            objectFit: "cover",
-                            width: "100%",
-                            height: "100%"
-                          }}
-                        />
-                        <IconButton
-                          onClick={() => removeBannerFile(i)}
-                          size="small"
-                          sx={{
-                            position: "absolute",
-                            top: 4,
-                            right: 4,
-                            backgroundColor: "white",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                            "&:hover": {
-                              backgroundColor: "white",
-                            }
-                          }}
-                        >
-                          <Delete fontSize="small" sx={{ color: "#475569" }} />
-                        </IconButton>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-
-              {/* Advertise Images Section */}
-              <Box sx={{ mb: 4 }}>
-                <Box display="flex" alignItems="center" mb={2}>
-                  <Campaign sx={{ mr: 1, color: "#475569" }} />
-                  <Typography variant="h6" fontWeight="600" color="#1e293b">
-                    Advertise Images
-                  </Typography>
-                  <Chip 
-                    label={`${advertiseFiles.length} uploaded`} 
-                    size="small" 
-                    sx={{ 
-                      ml: 2, 
-                      backgroundColor: "#f1f5f9",
-                      color: "#475569"
-                    }}
-                  />
-                </Box>
-                
-                <Button
-                  component="label"
-                  variant="outlined"
-                  startIcon={<Upload />}
-                  sx={{ 
-                    mb: 2, 
-                    color: "#475569",
-                    borderColor: "#cbd5e1",
-                    '&:hover': {
-                      borderColor: "#94a3b8",
-                      backgroundColor: "#f8fafc"
-                    }
-                  }}
-                >
-                  Upload Ad Images
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleAdvertiseFilesChange}
-                    hidden
-                  />
-                </Button>
-                
-                <Grid container spacing={2} mt={1}>
-                  {previewAds.map((src, i) => (
-                    <Grid key={i} item xs={6} sm={4} md={3} lg={2.4}>
-                      <Card 
-                        sx={{ 
-                          borderRadius: 2, 
-                          overflow: 'hidden',
-                          position: 'relative',
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                          height: 140
-                        }}
-                      >
-                        <CardMedia
-                          component="img"
-                          height="140"
-                          image={src}
-                          alt="advertise preview"
-                          sx={{ 
-                            objectFit: "cover",
-                            width: "100%",
-                            height: "100%"
-                          }}
-                        />
-                        <IconButton
-                          onClick={() => removeAdvertiseFile(i)}
-                          size="small"
-                          sx={{
-                            position: "absolute",
-                            top: 4,
-                            right: 4,
-                            backgroundColor: "white",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                            "&:hover": {
-                              backgroundColor: "white",
-                            }
-                          }}
-                        >
-                          <Delete fontSize="small" sx={{ color: "#475569" }} />
-                        </IconButton>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                variant="contained"
-                size="large"
-                fullWidth
-                disabled={loading}
-                sx={{ 
-                  mt: 2, 
-                  py: 1.5, 
-                  borderRadius: 2,
-                  fontSize: "16px", 
-                  fontWeight: "bold",
-                  backgroundColor: "#1e293b",
-                  '&:hover': {
-                    backgroundColor: "#334155",
-                  }
-                }}
-              >
-                {loading?(
-                  <CircularProgress size={24} color="inherit" />
-                ):(
-                  "SAVE"
-                )}
+              {/* Advertise Images */}
+              <Divider sx={{ my: 4 }}>
+                <Chip label="📢 Advertise Images" color="warning" variant="outlined" />
+              </Divider>
+              <Button variant="outlined" component="label" startIcon={<ImageIcon />} sx={{ mb: 2 }}>
+                Upload Advertise
+                <input type="file" hidden multiple onChange={(e) => handleFileChange(e, "advertiseFiles")} />
               </Button>
-            </Box>
-          </Paper>
-        </Container>
+              <Grid container spacing={2}>
+                {form.advertiseFiles.map((file, i) => (
+                  <Grid item xs={6} sm={4} md={3} key={i}>
+                    <motion.div whileHover={{ scale: 1.05 }}>
+                      <Card sx={{ borderRadius: 3, overflow: "hidden", position: "relative", height: 160, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                        <CardMedia component="img" image={URL.createObjectURL(file)} alt={`advertise-${i}`} sx={{ objectFit: "cover", height: "100%" }} />
+                        <IconButton
+                          onClick={() => removeFile("advertiseFiles", i)}
+                          size="small"
+                          sx={{ position: "absolute", top: 6, right: 6, backgroundColor: "rgba(255,255,255,0.9)", "&:hover": { backgroundColor: "white" } }}
+                        >
+                          <DeleteIcon fontSize="small" sx={{ color: "#ef4444" }} />
+                        </IconButton>
+                      </Card>
+                    </motion.div>
+                  </Grid>
+                ))}
+              </Grid>
+            </Paper>
+          </motion.div>
 
-        {/* Snackbar */}
-        <Snackbar
-          open={open}
-          autoHideDuration={4000}
-          onClose={handleClose}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        >
-          <Alert
-            onClose={handleClose}
-            severity={message.type || "info"}
-            sx={{ 
-              width: "100%", 
-              borderRadius: 2,
-              backgroundColor: message.type === "success" ? "#f0fdf4" : "#fef2f2",
-              color: message.type === "success" ? "#166534" : "#991b1b"
-            }}
-          >
-            {message.text}
-          </Alert>
-        </Snackbar>
+          {/* Sticky Save Button */}
+          <Box sx={{ position: "sticky", bottom: 0, background: "white", py: 2, borderTop: "1px solid #e2e8f0", mt: 4 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              fullWidth
+              disabled={loading}
+              onClick={handleSubmit}
+              sx={{
+                py: 1.5,
+                borderRadius: 3,
+                fontSize: "16px",
+                fontWeight: "bold",
+                background: "linear-gradient(90deg, #1e293b, #0f172a)",
+                "&:hover": { background: "linear-gradient(90deg, #334155, #1e293b)" },
+              }}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : "SAVE"}
+            </Button>
+          </Box>
+        </Container>
       </Box>
     </Box>
   );
-}
+};
+
+export default BannerForm;

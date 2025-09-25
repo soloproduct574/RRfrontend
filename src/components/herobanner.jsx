@@ -130,7 +130,7 @@ export default function HeroBanner() {
           width: "100%",
           maxWidth: { xs: "100%", md: "500px" },
           height: { xs: "200px", md: "300px" }, // ✅ Responsive height
-          mt: { xs: 2, md: 0 },
+          mt: { xs: 12, md: 0 },
         }}
       >
         {bannerImages.map((image, index) => (

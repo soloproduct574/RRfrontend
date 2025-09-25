@@ -11,7 +11,8 @@ const PoojaBanner = () => {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const [paused, setPaused] = useState(false);
   const progressRef = useRef(null);
   const [imagesLoaded, setImagesLoaded] = useState({});
@@ -19,12 +20,10 @@ const PoojaBanner = () => {
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
-  // Fetch banners on mount
   useEffect(() => {
     if (status === "idle") dispatch(fetchBannersMedia());
   }, [dispatch, status]);
 
-  // Reset animation on slide change
   useEffect(() => {
     if (progressRef.current) {
       progressRef.current.style.animation = "none";
@@ -34,7 +33,6 @@ const PoojaBanner = () => {
     }
   }, [currentIndex]);
 
-  // Auto slide
   useEffect(() => {
     if (paused || banners.length === 0) return;
     const interval = setInterval(() => {
@@ -49,7 +47,6 @@ const PoojaBanner = () => {
   const prevSlide = () =>
     setCurrentIndex((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
 
-  // Touch swipe
   const handleTouchStart = (e) => (touchStartX.current = e.changedTouches[0].screenX);
   const handleTouchEnd = (e) => {
     touchEndX.current = e.changedTouches[0].screenX;
@@ -66,7 +63,7 @@ const PoojaBanner = () => {
       <Box
         sx={{
           mt: 4,
-          height: { xs: "40vh", sm: "50vh", md: "60vh" },
+          height: { xs: "35vh", sm: "45vh", md: "55vh", lg: "60vh" },
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -88,134 +85,143 @@ const PoojaBanner = () => {
 
   return (
     <>
-    <Box sx={{ textAlign: "center", mb: 8, mt: 7 }}>
-          <Typography
-            variant="h4"
-            sx={{
-              fontFamily: "Arial, sans-serif",
-              color: "#ff3838ff",
-              fontWeight: 600,
-              letterSpacing: "1px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 2,
-            }}
-          >
-            <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50, }}  />
-            RR New Updates
-            <img src="/texticon.png" alt="icon" style={{ width: 50, height: 50 }} />
-          </Typography>
-        </Box>
-    <Box
-      sx={{
-        mt: 4,
-        position: "relative",
-        width: "100%",
-        height: { xs: "40vh", sm: "50vh", md: "60vh" },
-        overflow: "hidden",
-        boxShadow: 3,
-        backgroundColor: "#000",
-      }}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* Slides */}
-      <Box
-        sx={{
-          display: "flex",
-          transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-          transform: `translateX(-${currentIndex * 100}%)`,
-          height: "100%",
-          width: `${banners.length * 100}%`,
-        }}
-      >
-        {banners.map((banner, index) => (
-          <Box
-            key={banner._id}
-            sx={{
-              minWidth: "100%",
-              position: "relative",
-              height: "100%",
-              flexShrink: 0,
-              backgroundColor: "#000",
-            }}
-          >
-            {!imagesLoaded[banner._id] && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#fff",
-                  zIndex: 1,
-                }}
-              >
-                Loading...
-              </Box>
-            )}
-            <Image
-              src={banner.banner_images[0]} // ✅ show first image from API
-              alt={banner.title}
-              fill
-              sizes="100vw"
-              style={{ objectFit: "cover" }}
-              priority={index === 0}
-              onLoadingComplete={() => handleImageLoad(banner._id)}
-            />
-          </Box>
-        ))}
-      </Box>
-
-      {/* Navigation Arrows */}
-      {!isMobile && banners.length > 1 && (
-        <>
-          <Box sx={{ ...navButtonPos, left: 16 }}>
-            <Box onClick={prevSlide} sx={navButtonStyle}>
-              ←
-            </Box>
-          </Box>
-          <Box sx={{ ...navButtonPos, right: 16 }}>
-            <Box onClick={nextSlide} sx={navButtonStyle}>
-              →
-            </Box>
-          </Box>
-        </>
-      )}
-
-      {/* Dots */}
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: 16,
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          gap: 1,
-          zIndex: 10,
-        }}
-      >
-        {banners.map((_, index) => (
-          <Box
-            key={index}
-            onClick={() => goToSlide(index)}
-            sx={{
-              width: 10,
-              height: 10,
-              borderRadius: "50%",
-              backgroundColor:
-                currentIndex === index ? "#fff" : "rgba(255,255,255,0.5)",
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-            }}
+      <Box sx={{ textAlign: "center", mb: 8, mt: 7 }}>
+        <Typography
+          variant={isMobile ? "h5" : "h4"}
+          sx={{
+            fontFamily: "Arial, sans-serif",
+            color: "#ff3838ff",
+            fontWeight: 600,
+            letterSpacing: "1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: isMobile ? 1 : 2,
+          }}
+        >
+          <img
+            src="/texticon.png"
+            alt="icon"
+            style={{ width: isMobile ? 30 : 50, height: isMobile ? 30 : 50 }}
           />
-        ))}
+          RR New Updates
+          <img
+            src="/texticon.png"
+            alt="icon"
+            style={{ width: isMobile ? 30 : 50, height: isMobile ? 30 : 50 }}
+          />
+        </Typography>
       </Box>
-    </Box>
+
+      <Box
+        sx={{
+          mt: 4,
+          position: "relative",
+          width: "100%",
+          height: { xs: "35vh", sm: "45vh", md: "55vh", lg: "60vh" },
+          overflow: "hidden",
+          boxShadow: 3,
+          backgroundColor: "#000",
+        }}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Slides */}
+        <Box
+          sx={{
+            display: "flex",
+            transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+            transform: `translateX(-${currentIndex * 100}%)`,
+            height: "100%",
+            width: `${banners.length * 100}%`,
+          }}
+        >
+          {banners.map((banner, index) => (
+            <Box
+              key={banner._id}
+              sx={{
+                minWidth: "100%",
+                position: "relative",
+                height: "100%",
+                flexShrink: 0,
+                backgroundColor: "#000",
+              }}
+            >
+              {!imagesLoaded[banner._id] && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#fff",
+                    zIndex: 1,
+                  }}
+                >
+                  Loading...
+                </Box>
+              )}
+              <Image
+                src={banner.banner_images[0]}
+                alt={banner.title}
+                fill
+                sizes="100vw"
+                style={{ objectFit: "cover" }}
+                priority={index === 0}
+                onLoadingComplete={() => handleImageLoad(banner._id)}
+              />
+            </Box>
+          ))}
+        </Box>
+
+        {/* Navigation Arrows */}
+        {!isMobile && banners.length > 1 && (
+          <>
+            <Box sx={{ ...navButtonPos, left: isTablet ? 8 : 16 }}>
+              <Box onClick={prevSlide} sx={navButtonStyle}>
+                ←
+              </Box>
+            </Box>
+            <Box sx={{ ...navButtonPos, right: isTablet ? 8 : 16 }}>
+              <Box onClick={nextSlide} sx={navButtonStyle}>
+                →
+              </Box>
+            </Box>
+          </>
+        )}
+
+        {/* Dots */}
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 16,
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            gap: isMobile ? 0.5 : 1,
+            zIndex: 10,
+          }}
+        >
+          {banners.map((_, index) => (
+            <Box
+              key={index}
+              onClick={() => goToSlide(index)}
+              sx={{
+                width: isMobile ? 8 : 10,
+                height: isMobile ? 8 : 10,
+                borderRadius: "50%",
+                backgroundColor:
+                  currentIndex === index ? "#fff" : "rgba(255,255,255,0.5)",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+            />
+          ))}
+        </Box>
+      </Box>
     </>
   );
 };

@@ -33,7 +33,7 @@ export const fetchAdminDashboard = createAsyncThunk(
       });
 
       console.log("✅ Admin dashboard response:", res.data);
-      return res.data; // { success, message, admin }
+      return res.data; 
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Unauthorized");
     }

@@ -33,32 +33,41 @@ export default function VideoCards() {
   return (
     <>
       {/* Section Title */}
-      <Box sx={{ textAlign: "center", mb: 3, mt: 5 }}>
-      <Typography
-  variant="h4"
-  sx={{
-    fontFamily: "Arial, sans-serif",
-    color: "#ff3838ff",
-    fontWeight: 600,
-    letterSpacing: "1px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 2,
-    fontSize: {
-      xs: "1.4rem", // 📱 Mobile
-      sm: "1.5rem", // 📱➡💻 Tablet
-      md: "2rem",   // 💻 Laptop
-      lg: "2.5rem", // 🖥️ Large screens
-    },
-  }}
->
-  <img src="/texticon.png" alt="icon" style={{ width: 40, height: 40 }} />
-  Top Trending Products
-  <img src="/texticon.png" alt="icon" style={{ width: 40, height: 40 }} />
-</Typography>
-
-      </Box>
+       <Box sx={{ textAlign: "center", mb: 1, mt: 7 }}>
+              <Typography
+                component={motion.div}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1 }}
+                variant={isMobile ? "h5" : "h4"}
+                sx={{
+                  fontFamily: "Arial, sans-serif",
+                  color: "#ff3838ff",
+                  fontWeight: 600,
+                  letterSpacing: "1px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: isMobile ? 1 : 2,
+                }}
+              >
+                <motion.img
+                  src="/texticon.png"
+                  alt="icon"
+                  style={{ width: isMobile ? 30 : 50, height: isMobile ? 30 : 50 }}
+                  animate={{ y: [0, -6, 0] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                />
+               Top Trending Products
+                <motion.img
+                  src="/texticon.png"
+                  alt="icon"
+                  style={{ width: isMobile ? 30 : 50, height: isMobile ? 30 : 50 }}
+                  animate={{ y: [0, -6, 0] }}
+                  transition={{ repeat: Infinity, duration: 2, delay: 0.5 }}
+                />
+              </Typography>
+            </Box>
 
       {/* Cards Section */}
       {isMobile ? (
@@ -67,7 +76,7 @@ export default function VideoCards() {
           sx={{
             display: "flex",
             gap: 2,
-            px: 2,
+            px: 1,
             py: 3,
             overflowX: "auto",
             overflowY: "hidden",
@@ -92,7 +101,7 @@ export default function VideoCards() {
                 sx={{
                   borderRadius: 3,
                   overflow: "hidden",
-                  minWidth: 280, // ✅ ensures visible card width in scroll
+                  minWidth: 280, 
                   maxWidth: 320,
                   boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
                   backgroundColor: "#fff",

@@ -33,7 +33,7 @@ const favoritesSlice = createSlice({
       localStorage.setItem("favoriteItems", JSON.stringify(state.favoriteItems));
     },
     toggleFavorite: (state, action) => {
-      const product = action.payload; // full product object
+      const product = action.payload; 
       const index = state.favoriteItems.findIndex((p) => p._id === product._id);
       if (index > -1) {
         state.favoriteItems.splice(index, 1);

@@ -1,9 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Box, Typography, useTheme, IconButton, useMediaQuery } from "@mui/material";
+import { Box, Typography, useTheme, IconButton, useMediaQuery, } from "@mui/material";
 import Image from "next/image";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import { motion } from "framer-motion"; // ✅ added
 
 const products = [
   { id: 1, src: "/img1.jpg", name: "Incense Sticks" },
@@ -51,20 +52,40 @@ const ProductsScroller = () => {
   return (
     <Box sx={{ width: "100%", py: { xs: 2, md: 8 }, position: "relative", overflow: "hidden" }}>
       {/* Heading */}
-      <Box display="flex" justifyContent="center" alignItems="center" gap={2} flexWrap="wrap" mb={{ xs: 2, md: 6 }}>
-        <Image src="/texticon.png" alt="icon" width={40} height={40} />
+      <Box sx={{ textAlign: "center", mb: 2 , mt: 7 }}>
         <Typography
-          variant={isMobile ? "h6" : isTablet ? "h5" : "h4"}
+          component={motion.div}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          variant={isMobile ? "h5" : "h4"}
           sx={{
-            textAlign: "center",
             fontFamily: "Arial, sans-serif",
-            color: "#ff3838",
+            color: "#ff3838ff",
             fontWeight: 600,
+            letterSpacing: "1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: isMobile ? 1 : 2,
           }}
         >
-          Shop By Product Categories
+          <motion.img
+            src="/texticon.png"
+            alt="icon"
+            style={{ width: isMobile ? 30 : 50, height: isMobile ? 30 : 50 }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+          />
+         Shop By Product Categories
+          <motion.img
+            src="/texticon.png"
+            alt="icon"
+            style={{ width: isMobile ? 30 : 50, height: isMobile ? 30 : 50 }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ repeat: Infinity, duration: 2, delay: 0.5 }}
+          />
         </Typography>
-        <Image src="/texticon.png" alt="icon" width={40} height={40} />
       </Box>
 
       {/* Product row */}

@@ -50,7 +50,7 @@ export default function Sidebar() {
         sx={{
           borderBottom: "1px solid #ddd",
           textAlign: "center",
-          background: "linear-gradient(90deg, #1976d2, #42a5f5)",
+          background: "linear-gradient(90deg, #464a4eff, #455969ff)",
           color: "#fff",
           boxShadow: "0px 2px 6px rgba(0,0,0,0.1)",
         }}
@@ -77,6 +77,7 @@ export default function Sidebar() {
               "&:hover": { backgroundColor: "#bbdefb" },
             },
             "&:hover": { backgroundColor: "#f5f5f5" },
+           
           }}
         >
           <ListItemIcon>

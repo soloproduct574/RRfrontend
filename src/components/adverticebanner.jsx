@@ -87,7 +87,7 @@ const PoojaBanner = () => {
   return (
     <>
       {/* ✅ Animated Heading */}
-      <Box sx={{ textAlign: "center", mb: 8, mt: 7 }}>
+      <Box sx={{ textAlign: "center", mb: 2, mt: 7 }}>
         <Typography
           component={motion.div}
           initial={{ opacity: 0, y: 30 }}

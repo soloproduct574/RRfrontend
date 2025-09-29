@@ -11,7 +11,7 @@ export const fetchProducts = createAsyncThunk(
         headers: {
           "Content-Type": "application/json"
         },
-        mode: "cors", // 👈 ensure CORS mode
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -20,7 +20,6 @@ export const fetchProducts = createAsyncThunk(
 
       const data = await response.json();
       console.log("✅ Products fetched successfully:", data);
-
       return data?.data || data?.products || data;
     } catch (error) {
       console.error("❌ Full fetch error:", error);
@@ -65,6 +64,5 @@ const productSlice = createSlice({
       });
   },
 });
-
 export const { clearError, clearProducts } = productSlice.actions;
 export default productSlice.reducer;

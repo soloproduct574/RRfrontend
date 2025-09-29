@@ -26,6 +26,7 @@ import ProductModal from "./ProductModal.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../Redux/Slice/cartSlice.jsx";
 import { toggleFavorite } from "../Redux/Slice/favoritesSlice.jsx";
+import { motion } from "framer-motion"; 
 
 // ✅ Inner card component for a single product
 const ProductCardInner = React.memo(({ product }) => {
@@ -394,35 +395,43 @@ const ProductCard = () => {
 
   return (
     <Box>
-      <Box sx={{ textAlign: "center", mb: 3, mt: 5 }}>
-       <Typography
-  variant="h4"
-  sx={{
-    fontFamily: "Arial, sans-serif",
-    color: "#ff3838ff",
-    fontWeight: 600,
-    letterSpacing: "1px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 2,
-    fontSize: {
-      xs: "1.4rem", // 📱 Mobile
-      sm: "1.5rem", // 📲 Small tablets
-      md: "2rem",   // 💻 Desktop
-      lg: "2.5rem", // 🖥️ Large screens
-    },
-  }}
->
-  <img src="/texticon.png" alt="icon" style={{ width: 40, height: 40 }} />
-  Top Trending Products
-  <img src="/texticon.png" alt="icon" style={{ width: 40, height: 40 }} />
-</Typography>
-
+       <Box sx={{ textAlign: "center", mb: 1, mt: 7 }}>
+        <Typography
+          component={motion.div}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          variant={isMobile ? "h5" : "h4"}
+          sx={{
+            fontFamily: "Arial, sans-serif",
+            color: "#ff3838ff",
+            fontWeight: 600,
+            letterSpacing: "1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: isMobile ? 1 : 2,
+          }}
+        >
+          <motion.img
+            src="/texticon.png"
+            alt="icon"
+            style={{ width: isMobile ? 30 : 50, height: isMobile ? 30 : 50 }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+          />
+         Top Trending Products
+          <motion.img
+            src="/texticon.png"
+            alt="icon"
+            style={{ width: isMobile ? 30 : 50, height: isMobile ? 30 : 50 }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ repeat: Infinity, duration: 2, delay: 0.5 }}
+          />
+        </Typography>
       </Box>
 
       {isMobile ? (
-        // 👉 Mobile view: horizontal scroll
         <Box
           sx={{
             display: "flex",
@@ -471,7 +480,7 @@ const ProductCard = () => {
             fontSize: "16px",
             textTransform: "uppercase",
             letterSpacing: "1px",
-            background: "linear-gradient(45deg, #8e2de2, #ff6a00)", // Purple → Orange
+            background: "linear-gradient(45deg, #8e2de2, #ff6a00)", 
             color: "white",
             px: 3,
             py: 1,

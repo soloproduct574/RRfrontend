@@ -126,7 +126,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
               textAlign="center"
               sx={{ mb: 3 }}
             >
-              Create Your Account
+              Connect To Us
             </Typography>
 
             {/* Alerts */}
@@ -173,7 +173,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
               />
 
               {/* Password Field with Eye Icon */}
-              <TextField
+              {/* <TextField
                 label="Password"
                 type={showPassword ? "text" : "password"}
                 fullWidth
@@ -199,10 +199,10 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                     </InputAdornment>
                   ),
                 }}
-              />
+              /> */}
 
               {/* Confirm Password Field with Eye Icon */}
-              <TextField
+              {/* <TextField
                 label="Confirm Password"
                 type={showConfirmPassword ? "text" : "password"}
                 fullWidth
@@ -232,7 +232,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                     </InputAdornment>
                   ),
                 }}
-              />
+              /> */}
 
               {/* Submit Button */}
               <Button
@@ -274,9 +274,9 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                   cursor: "pointer",
                   "&:hover": { textDecoration: "underline" },
                 }}
-                onClick={onSwitchToLogin}
+                onClick={()=> router.push('/dashboard')}
               >
-                Login
+                RR _Login
               </Link>
             </Typography>
           </Paper>

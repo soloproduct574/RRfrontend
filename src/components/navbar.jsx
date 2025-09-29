@@ -194,7 +194,7 @@ export default function Navbar() {
                   },
                 }}
               >
-                <Avatar alt="Profile" src="/profile.png" sx={{ width: 36, height: 36 }} />
+                <Avatar alt="Profile" src="/user.png" sx={{ width: 36, height: 36 }} />
               </IconButton>
               <ProfileMenu
                 anchorEl={anchorElUser}
@@ -203,7 +203,7 @@ export default function Navbar() {
                 transformOrigin={{ horizontal: "right", vertical: "top" }}
                 anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
               >
-                <MenuItem onClick={handleOpenLoginModal}>Login</MenuItem>
+                {/* <MenuItem onClick={handleOpenLoginModal}>Login</MenuItem> */}
                 <MenuItem onClick={handleOpenRegisterModal}>Register</MenuItem>
               </ProfileMenu>
             </Box>
@@ -257,14 +257,14 @@ export default function Navbar() {
                   </NavLink>
                 </MenuItem>
               ))}
-              <MenuItem
+              {/* <MenuItem
                 onClick={() => {
                   handleCloseNavMenu();
                   handleOpenLoginModal();
                 }}
               >
                 Login
-              </MenuItem>
+              </MenuItem> */}
               <MenuItem
                 onClick={() => {
                   handleCloseNavMenu();

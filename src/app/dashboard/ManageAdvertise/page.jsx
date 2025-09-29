@@ -16,128 +16,26 @@ import {
   Card,
   CardMedia,
   useMediaQuery,
+  Tooltip,
+  Fade,
+  Alert,
+  Snackbar,
 } from "@mui/material";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Image as ImageIcon,
-  Menu as MenuIcon,
-  Close as CloseIcon,
-  Power as PowerIcon,
+  CloudUpload as CloudUploadIcon,
+  Save as SaveIcon,
+  HighlightOff as HighlightOffIcon,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useTheme } from "@mui/material/styles";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import {
-  Home as HomeIcon,
-  TableRows as TableCellsIcon,
-  Group as UsersIcon,
-  Settings as Cog6ToothIcon,
-} from "@mui/icons-material";
-import { logout } from "@/Redux/Slice/AdminAuthSlice";
-
-const AdminSidebar = ({ isMobile, sidebarOpen, setSidebarOpen }) => {
-  const pathname = usePathname();
-  const dispatch = useDispatch();
-  const router = useRouter();
-
-  const menuItems = [
-    { name: "Dashboard Overview", icon: HomeIcon, href: "/admin-dashboard" },
-    { name: "Manage Products", icon: TableCellsIcon, href: "/dashboard/ManageProducts" },
-    { name: "Manage Advertise", icon: TableCellsIcon, href: "/dashboard/ManageAdvertise" },
-    { name: "Manage Users", icon: UsersIcon, href: "/admin-dashboard/users" },
-    { name: "Settings", icon: Cog6ToothIcon, href: "/admin-dashboard/settings" },
-  ];
-
-  const handleLogout = () => {
-    dispatch(logout());
-    router.push("/admin-login");
-  };
-
-  const SidebarContent = (
-    <div className="h-full w-64 bg-gradient-to-b from-gray-900 to-gray-800 text-white flex flex-col shadow-lg">
-      <div className="p-6 text-2xl font-bold border-b border-gray-700 flex items-center gap-2">
-        ⚡ Admin Panel
-      </div>
-
-      <nav className="flex-1 p-4 space-y-2">
-        {menuItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`flex items-center w-full px-4 py-2 rounded-lg transition ease-in-out ${
-                isActive ? "bg-gray-700 text-yellow-400 font-semibold" : "hover:bg-gray-700 text-gray-300"
-              }`}
-              onClick={() => isMobile && setSidebarOpen(false)}
-            >
-              <item.icon className="h-5 w-5 mr-3" />
-              {item.name}
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="p-4 border-t border-gray-700">
-        <Button
-          variant="contained"
-          color="error"
-          startIcon={<PowerIcon />}
-          fullWidth
-          onClick={handleLogout}
-        >
-          Logout
-        </Button>
-      </div>
-    </div>
-  );
-
-  return (
-    <>
-      {/* Sidebar for mobile */}
-      {isMobile ? (
-        <>
-          <Box
-            sx={{
-              position: "fixed",
-              left: sidebarOpen ? 0 : "-280px",
-              top: 0,
-              width: 280,
-              height: "100vh",
-              zIndex: 40,
-              transition: "left 0.3s ease-in-out",
-            }}
-          >
-            {SidebarContent}
-          </Box>
-          {sidebarOpen && (
-            <Box
-              onClick={() => setSidebarOpen(false)}
-              sx={{
-                position: "fixed",
-                inset: 0,
-                backgroundColor: "rgba(0,0,0,0.5)",
-                zIndex: 30,
-              }}
-            />
-          )}
-        </>
-      ) : (
-        <Box sx={{ width: 280, flexShrink: 0 }}>
-          {SidebarContent}
-        </Box>
-      )}
-    </>
-  );
-};
 
 const BannerForm = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md")); // mobile/tablet
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [form, setForm] = useState({
     title: "",
@@ -147,6 +45,11 @@ const BannerForm = () => {
     advertiseFiles: [],
   });
   const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   const handleChange = (e, index, field) => {
     if (field === "runningText" || field === "redirectUrls") {
@@ -159,197 +62,633 @@ const BannerForm = () => {
   };
 
   const addField = (field) => setForm({ ...form, [field]: [...form[field], ""] });
-  const removeField = (field, index) => setForm({ ...form, [field]: form[field].filter((_, i) => i !== index) });
-  const handleFileChange = (e, field) => setForm({ ...form, [field]: [...form[field], ...Array.from(e.target.files)] });
-  const removeFile = (field, index) => setForm({ ...form, [field]: form[field].filter((_, i) => i !== index) });
+  
+  const removeField = (field, index) => {
+    if (form[field].length > 1) {
+      setForm({ ...form, [field]: form[field].filter((_, i) => i !== index) });
+    }
+  };
+  
+  const handleFileChange = (e, field) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      setForm({ ...form, [field]: [...form[field], ...files] });
+    }
+    e.target.value = null;
+  };
+  
+  const removeFile = (field, index) => {
+    const newFiles = [...form[field]];
+    const removedFile = newFiles[index];
+    
+    if (removedFile && 'preview' in removedFile) {
+      URL.revokeObjectURL(removedFile.preview);
+    }
+    
+    newFiles.splice(index, 1);
+    setForm({ ...form, [field]: newFiles });
+  };
+
+  const showNotification = (message, severity = "success") => {
+    setNotification({ open: true, message, severity });
+  };
+
+  const handleCloseNotification = () => {
+    setNotification({ ...notification, open: false });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => setLoading(false), 2000); // simulate API
+
+    try {
+      // Create FormData object
+      const formData = new FormData();
+      
+      // Add text fields
+      formData.append("title", form.title || "");
+      
+      // Add running texts as JSON array
+      const validRunningTexts = form.runningText.filter(text => text.trim() !== "");
+      formData.append("runningText", JSON.stringify(validRunningTexts));
+      
+      // Add redirect URLs as JSON array
+      const validRedirectUrls = form.redirectUrls.filter(url => url.trim() !== "");
+      formData.append("redirectUrls", JSON.stringify(validRedirectUrls));
+      
+      // Add banner files
+      form.bannerFiles.forEach((file) => {
+        formData.append("bannerFiles", file);
+      });
+      
+      // Add advertise files
+      form.advertiseFiles.forEach((file) => {
+        formData.append("advertiseFiles", file);
+      });
+
+      // Debug: Log what we're sending
+      console.log("Sending data to API:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      // Make API call
+      const response = await fetch("http://localhost:5000/api/media/banner", {
+        method: "POST",
+        body: formData,
+        // Add credentials if needed
+        // credentials: 'include',
+        
+        // Add headers if your backend needs them
+        // headers: {
+        //   'Authorization': 'Bearer YOUR_TOKEN_HERE',
+        // },
+      });
+
+      // First check if response is ok
+      if (!response.ok) {
+        // Try to get error message
+        const contentType = response.headers.get("content-type");
+        let errorMessage = `Server error: ${response.status}`;
+        
+        if (contentType && contentType.includes("application/json")) {
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorMessage;
+          } catch (jsonError) {
+            console.error("Failed to parse error JSON:", jsonError);
+          }
+        } else {
+          // Response is not JSON (probably HTML error page)
+          const textError = await response.text();
+          console.error("Server returned non-JSON response:", textError);
+          errorMessage = `Server error: Expected JSON but received HTML. Status: ${response.status}`;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      // Parse JSON response
+      const data = await response.json();
+      
+      // Success handling
+      showNotification("Banner created successfully!", "success");
+      
+      // Reset form after successful submission
+      setTimeout(() => {
+        setForm({
+          title: "",
+          runningText: [""],
+          redirectUrls: [""],
+          bannerFiles: [],
+          advertiseFiles: [],
+        });
+      }, 2000);
+
+    } catch (error) {
+      console.error("Error creating banner:", error);
+      
+      // Check for network errors
+      if (error.message === "Failed to fetch") {
+        showNotification(
+          "Network error: Unable to connect to server. Please check if the server is running on port 5000.",
+          "error"
+        );
+      } else {
+        showNotification(
+          error.message || "Failed to create banner. Please try again.",
+          "error"
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Alternative: Test connection to API
+  const testAPIConnection = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/media/banner", {
+        method: "GET",
+      });
+      
+      if (!response.ok) {
+        console.error("API test failed with status:", response.status);
+        const text = await response.text();
+        console.error("Response:", text);
+      } else {
+        console.log("API connection successful");
+        const data = await response.json();
+        console.log("API response:", data);
+      }
+    } catch (error) {
+      console.error("API connection error:", error);
+    }
+  };
+
+  // You can call this in useEffect to test connection on mount
+  React.useEffect(() => {
+    // Uncomment to test API connection when component mounts
+    // testAPIConnection();
+  }, []);
+
+  const formHasContent = 
+    form.title.trim() !== "" || 
+    form.runningText.some(text => text.trim() !== "") ||
+    form.redirectUrls.some(url => url.trim() !== "") ||
+    form.bannerFiles.length > 0 || 
+    form.advertiseFiles.length > 0;
+
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      {/* Hamburger menu for mobile */}
-      {isMobile && (
-        <IconButton
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          sx={{
-            position: "fixed",
-            top: 16,
-            left: 16,
-            zIndex: 50,
-            background: "#1e293b",
-            color: "white",
-            "&:hover": { background: "#334155" },
-          }}
+    <Box 
+      component="main"
+      sx={{
+        minHeight: "100vh",
+        background: theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, #111827, #0f172a)' 
+          : 'linear-gradient(135deg, #f9fafb, #f1f5f9)',
+        py: { xs: 4, sm: 6 },
+        px: { xs: 2, sm: 3, md: 4 },
+      }}
+    >
+      <Container maxWidth="lg">
+        {/* Page Title */}
+        <motion.div 
+          initial={{ y: -20, opacity: 0 }} 
+          animate={{ y: 0, opacity: 1 }} 
+          transition={{ duration: 0.5 }}
         >
-          {sidebarOpen ? <CloseIcon /> : <MenuIcon />}
-        </IconButton>
-      )}
-
-      {/* Sidebar */}
-      <AdminSidebar isMobile={isMobile} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-
-      {/* Main Content */}
-      <Box
-        sx={{
-          flexGrow: 1,
-          p: isMobile ? 2 : 4,
-          background: "linear-gradient(135deg, #f9fafb, #f1f5f9)",
-        }}
-      >
-        <Container maxWidth="lg" sx={{ p: 0 }}>
-          {/* Page Title */}
-          <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }}>
-            <Typography
-              variant={isMobile ? "h5" : "h4"}
-              fontWeight="700"
-              gutterBottom
-              sx={{ color: "#0f172a", mb: 3, textAlign: "center" }}
-            >
-              🚀 Create New Banner
-            </Typography>
-          </motion.div>
-
-          {/* Main Form */}
-          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }}>
-            <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, borderRadius: 4, background: "white", boxShadow: "0 8px 30px rgba(0,0,0,0.06)" }}>
-              {/* Title */}
-              <TextField
-                label="Banner Title"
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                fullWidth
-                required
-                margin="normal"
-                variant="outlined"
-                sx={{ mb: 4, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }}
+          <Typography
+            variant={isSmall ? "h5" : "h4"}
+            fontWeight="800"
+            align="center"
+            gutterBottom
+            sx={{ 
+              color: theme.palette.mode === 'dark' ? '#f3f4f6' : '#111827',
+              mb: 4,
+              textShadow: "0 2px 10px rgba(0,0,0,0.08)",
+              letterSpacing: "-0.5px"
+            }}
+          >
+            <Box component="span" sx={{ position: "relative" }}>
+              Create New Banner
+              <Box 
+                component="span" 
+                sx={{ 
+                  position: "absolute",
+                  bottom: "-4px",
+                  left: 0,
+                  width: "100%",
+                  height: "8px",
+                  background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+                  borderRadius: "4px",
+                  opacity: 0.3,
+                  zIndex: -1
+                }}
               />
+            </Box>
+          </Typography>
+        </motion.div>
 
-              {/* Running Texts */}
-              <Divider sx={{ my: 4 }}>
-                <Chip label="🏃 Running Texts" color="primary" variant="outlined" />
-              </Divider>
-              {form.runningText.map((text, i) => (
-                <Box key={i} sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+        {/* Main Form */}
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }} 
+          animate={{ y: 0, opacity: 1 }} 
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Paper 
+            elevation={3} 
+            sx={{ 
+              p: { xs: 2.5, sm: 4 }, 
+              borderRadius: 4, 
+              background: theme.palette.background.paper,
+              boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
+              overflow: "hidden",
+              position: "relative",
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899)'
+              }
+            }}
+            component="form"
+            onSubmit={handleSubmit}
+          >
+            {/* Title */}
+            <TextField
+              label="Banner Title"
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              fullWidth
+              placeholder="Enter a descriptive title for your banner"
+              variant="outlined"
+              sx={{ 
+                mb: 4,
+                '& .MuiOutlinedInput-root': { 
+                  borderRadius: 2,
+                  '&:hover fieldset': {
+                    borderColor: theme.palette.primary.main,
+                  }
+                }
+              }}
+            />
+
+            {/* Running Texts */}
+            <Divider sx={{ my: 4 }}>
+              <Chip 
+                icon={<motion.div animate={{ rotate: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>🏃</motion.div>}
+                label="Running Texts" 
+                color="primary" 
+                sx={{ fontWeight: 600, px: 2 }}
+              />
+            </Divider>
+            
+            {form.runningText.map((text, i) => (
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0, x: -20 }} 
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                   <TextField
-                    label={`Text ${i + 1}`}
+                    label={`Running Text ${i + 1}`}
                     value={text}
                     onChange={(e) => handleChange(e, i, "runningText")}
                     fullWidth
+                    placeholder="Text that will scroll on your banner"
+                    size={isSmall ? "small" : "medium"}
                   />
-                  <IconButton onClick={() => removeField("runningText", i)} sx={{ ml: 1, color: "error.main" }}>
-                    <DeleteIcon />
-                  </IconButton>
+                  <Tooltip title="Remove">
+                    <IconButton 
+                      onClick={() => removeField("runningText", i)} 
+                      disabled={form.runningText.length <= 1}
+                      sx={{ 
+                        ml: 1, 
+                        color: "error.main",
+                        opacity: form.runningText.length <= 1 ? 0.5 : 1
+                      }}
+                      size={isSmall ? "small" : "medium"}
+                    >
+                      <HighlightOffIcon />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
-              ))}
-              <Button startIcon={<AddIcon />} onClick={() => addField("runningText")} sx={{ mt: 1 }}>
-                Add More
-              </Button>
+              </motion.div>
+            ))}
+            
+            <Button 
+              startIcon={<AddIcon />} 
+              onClick={() => addField("runningText")} 
+              sx={{ 
+                mt: 1, 
+                mb: 2,
+                borderRadius: 2,
+                textTransform: "none"
+              }}
+              variant="outlined"
+              size={isSmall ? "small" : "medium"}
+            >
+              Add Another Text
+            </Button>
 
-              {/* Redirect URLs */}
-              <Divider sx={{ my: 4 }}>
-                <Chip label="🔗 Redirect URLs" color="secondary" variant="outlined" />
-              </Divider>
-              {form.redirectUrls.map((url, i) => (
-                <Box key={i} sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            {/* Redirect URLs */}
+            <Divider sx={{ my: 4 }}>
+              <Chip 
+                icon={<span>🔗</span>}
+                label="Redirect URLs" 
+                color="secondary" 
+                sx={{ fontWeight: 600, px: 2 }}
+              />
+            </Divider>
+            
+            {form.redirectUrls.map((url, i) => (
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0, x: -20 }} 
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                   <TextField
                     label={`URL ${i + 1}`}
                     value={url}
                     onChange={(e) => handleChange(e, i, "redirectUrls")}
                     fullWidth
+                    placeholder="https://example.com"
+                    size={isSmall ? "small" : "medium"}
                   />
-                  <IconButton onClick={() => removeField("redirectUrls", i)} sx={{ ml: 1, color: "error.main" }}>
-                    <DeleteIcon />
-                  </IconButton>
+                  <Tooltip title="Remove">
+                    <IconButton 
+                      onClick={() => removeField("redirectUrls", i)} 
+                      disabled={form.redirectUrls.length <= 1}
+                      sx={{ 
+                        ml: 1, 
+                        color: "error.main",
+                        opacity: form.redirectUrls.length <= 1 ? 0.5 : 1
+                      }}
+                      size={isSmall ? "small" : "medium"}
+                    >
+                      <HighlightOffIcon />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
-              ))}
-              <Button startIcon={<AddIcon />} onClick={() => addField("redirectUrls")} sx={{ mt: 1 }}>
-                Add More
-              </Button>
+              </motion.div>
+            ))}
+            
+            <Button 
+              startIcon={<AddIcon />} 
+              onClick={() => addField("redirectUrls")} 
+              sx={{ 
+                mt: 1, 
+                mb: 2,
+                borderRadius: 2,
+                textTransform: "none"
+              }}
+              variant="outlined"
+              color="secondary"
+              size={isSmall ? "small" : "medium"}
+            >
+              Add Another URL
+            </Button>
 
-              {/* Banner Images */}
-              <Divider sx={{ my: 4 }}>
-                <Chip label="🖼 Banner Images" color="success" variant="outlined" />
-              </Divider>
-              <Button variant="outlined" component="label" startIcon={<ImageIcon />} sx={{ mb: 2 }}>
-                Upload Banner
-                <input type="file" hidden multiple onChange={(e) => handleFileChange(e, "bannerFiles")} />
-              </Button>
+            {/* Banner Images */}
+            <Divider sx={{ my: 4 }}>
+              <Chip 
+                icon={<span>🖼️</span>}
+                label="Banner Images" 
+                color="info" 
+                sx={{ fontWeight: 600, px: 2 }}
+              />
+            </Divider>
+            
+            <Box sx={{ 
+              mb: 3, 
+              p: 3, 
+              border: '2px dashed',
+              borderColor: 'info.main',
+              borderRadius: 2,
+              backgroundColor: 'action.hover',
+              textAlign: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                backgroundColor: 'action.selected',
+              }
+            }}
+            component="label"
+            >
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                multiple
+                onChange={(e) => handleFileChange(e, "bannerFiles")}
+              />
+              <CloudUploadIcon color="info" sx={{ fontSize: 48, mb: 1 }} />
+              <Typography variant="h6" gutterBottom>
+                Upload Banner Images
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Click or drop files here
+              </Typography>
+            </Box>
+            
+            {form.bannerFiles.length > 0 && (
               <Grid container spacing={2}>
                 {form.bannerFiles.map((file, i) => (
                   <Grid item xs={6} sm={4} md={3} key={i}>
-                    <motion.div whileHover={{ scale: 1.05 }}>
-                      <Card sx={{ borderRadius: 3, overflow: "hidden", position: "relative", height: 160, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-                        <CardMedia component="img" image={URL.createObjectURL(file)} alt={`banner-${i}`} sx={{ objectFit: "cover", height: "100%" }} />
-                        <IconButton
-                          onClick={() => removeFile("bannerFiles", i)}
-                          size="small"
-                          sx={{ position: "absolute", top: 6, right: 6, backgroundColor: "rgba(255,255,255,0.9)", "&:hover": { backgroundColor: "white" } }}
-                        >
-                          <DeleteIcon fontSize="small" sx={{ color: "#ef4444" }} />
-                        </IconButton>
+                    <motion.div 
+                      whileHover={{ scale: 1.05 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Card sx={{ 
+                        borderRadius: 2, 
+                        overflow: "hidden", 
+                        position: "relative", 
+                        height: 140,
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.1)" 
+                      }}>
+                        <CardMedia 
+                          component="img" 
+                          image={URL.createObjectURL(file)} 
+                          alt={`banner-${i}`} 
+                          sx={{ height: "100%", objectFit: "cover" }}
+                        />
+                        <Tooltip title="Remove">
+                          <IconButton
+                            onClick={() => removeFile("bannerFiles", i)}
+                            size="small"
+                            sx={{ 
+                              position: "absolute", 
+                              top: 8, 
+                              right: 8, 
+                              bgcolor: "rgba(255,255,255,0.9)",
+                              '&:hover': {
+                                bgcolor: "rgba(255,255,255,1)",
+                              }
+                            }}
+                          >
+                            <DeleteIcon fontSize="small" color="error" />
+                          </IconButton>
+                        </Tooltip>
                       </Card>
                     </motion.div>
                   </Grid>
                 ))}
               </Grid>
+            )}
 
-              {/* Advertise Images */}
-              <Divider sx={{ my: 4 }}>
-                <Chip label="📢 Advertise Images" color="warning" variant="outlined" />
-              </Divider>
-              <Button variant="outlined" component="label" startIcon={<ImageIcon />} sx={{ mb: 2 }}>
-                Upload Advertise
-                <input type="file" hidden multiple onChange={(e) => handleFileChange(e, "advertiseFiles")} />
-              </Button>
+            {/* Advertise Images */}
+            <Divider sx={{ my: 4 }}>
+              <Chip 
+                icon={<span>📢</span>}
+                label="Advertise Images" 
+                color="warning" 
+                sx={{ fontWeight: 600, px: 2 }}
+              />
+            </Divider>
+            
+            <Box sx={{ 
+              mb: 3, 
+              p: 3, 
+              border: '2px dashed',
+              borderColor: 'warning.main',
+              borderRadius: 2,
+              backgroundColor: 'action.hover',
+              textAlign: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                backgroundColor: 'action.selected',
+              }
+            }}
+            component="label"
+            >
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                multiple
+                onChange={(e) => handleFileChange(e, "advertiseFiles")}
+              />
+              <CloudUploadIcon color="warning" sx={{ fontSize: 48, mb: 1 }} />
+              <Typography variant="h6" gutterBottom>
+                Upload Advertise Images
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Click or drop files here
+              </Typography>
+            </Box>
+            
+            {form.advertiseFiles.length > 0 && (
               <Grid container spacing={2}>
                 {form.advertiseFiles.map((file, i) => (
                   <Grid item xs={6} sm={4} md={3} key={i}>
-                    <motion.div whileHover={{ scale: 1.05 }}>
-                      <Card sx={{ borderRadius: 3, overflow: "hidden", position: "relative", height: 160, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-                        <CardMedia component="img" image={URL.createObjectURL(file)} alt={`advertise-${i}`} sx={{ objectFit: "cover", height: "100%" }} />
-                        <IconButton
-                          onClick={() => removeFile("advertiseFiles", i)}
-                          size="small"
-                          sx={{ position: "absolute", top: 6, right: 6, backgroundColor: "rgba(255,255,255,0.9)", "&:hover": { backgroundColor: "white" } }}
-                        >
-                          <DeleteIcon fontSize="small" sx={{ color: "#ef4444" }} />
-                        </IconButton>
+                    <motion.div 
+                      whileHover={{ scale: 1.05 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Card sx={{ 
+                        borderRadius: 2, 
+                        overflow: "hidden", 
+                        position: "relative", 
+                        height: 140,
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.1)" 
+                      }}>
+                        <CardMedia 
+                          component="img" 
+                          image={URL.createObjectURL(file)} 
+                          alt={`advertise-${i}`} 
+                          sx={{ height: "100%", objectFit: "cover" }}
+                        />
+                        <Tooltip title="Remove">
+                          <IconButton
+                            onClick={() => removeFile("advertiseFiles", i)}
+                            size="small"
+                            sx={{ 
+                              position: "absolute", 
+                              top: 8, 
+                              right: 8, 
+                              bgcolor: "rgba(255,255,255,0.9)",
+                              '&:hover': {
+                                bgcolor: "rgba(255,255,255,1)",
+                              }
+                            }}
+                          >
+                            <DeleteIcon fontSize="small" color="error" />
+                          </IconButton>
+                        </Tooltip>
                       </Card>
                     </motion.div>
                   </Grid>
                 ))}
               </Grid>
-            </Paper>
-          </motion.div>
+            )}
 
-          {/* Sticky Save Button */}
-          <Box sx={{ position: "sticky", bottom: 0, background: "white", py: 2, borderTop: "1px solid #e2e8f0", mt: 4 }}>
-            <Button
-              type="submit"
-              variant="contained"
-              size="large"
-              fullWidth
-              disabled={loading}
-              onClick={handleSubmit}
-              sx={{
-                py: 1.5,
-                borderRadius: 3,
-                fontSize: "16px",
-                fontWeight: "bold",
-                background: "linear-gradient(90deg, #1e293b, #0f172a)",
-                "&:hover": { background: "linear-gradient(90deg, #334155, #1e293b)" },
-              }}
-            >
-              {loading ? <CircularProgress size={24} color="inherit" /> : "SAVE"}
-            </Button>
-          </Box>
-        </Container>
-      </Box>
+            {/* Submit Button */}
+            <Box sx={{ mt: 5 }}>
+              <Fade in={true}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                  disabled={loading || !formHasContent}
+                  sx={{
+                    py: isSmall ? 1.2 : 1.8,
+                    borderRadius: 3,
+                    fontSize: isSmall ? "15px" : "17px",
+                    fontWeight: "bold",
+                    textTransform: "none",
+                    boxShadow: "0 8px 20px rgba(59, 130, 246, 0.3)",
+                    background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+                    '&:hover': {
+                      background: "linear-gradient(90deg, #2563eb, #7c3aed)",
+                    },
+                    transition: "all 0.2s ease-in-out",
+                  }}
+                  startIcon={loading ? undefined : <SaveIcon />}
+                >
+                  {loading ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    "Save Banner"
+                  )}
+                </Button>
+              </Fade>
+              <Typography variant="caption" color="text.secondary" align="center" sx={{ display: "block", mt: 2 }}>
+                All fields are saved automatically. You can revisit this form anytime.
+              </Typography>
+            </Box>
+          </Paper>
+        </motion.div>
+
+        {/* Notification Snackbar */}
+        <Snackbar
+          open={notification.open}
+          autoHideDuration={6000}
+          onClose={handleCloseNotification}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert 
+            onClose={handleCloseNotification} 
+            severity={notification.severity} 
+            sx={{ width: "100%" }}
+          >
+            {notification.message}
+          </Alert>
+        </Snackbar>
+      </Container>
     </Box>
   );
 };

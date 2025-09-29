@@ -17,8 +17,9 @@ const AdminSidebar = () => {
   const router = useRouter();
 
   const menuItems = [
-    { name: "Dashboard Overview", icon: HomeIcon, href: "/admin-dashboard" },
+    { name: "Dashboard Overview", icon: HomeIcon, href: "/dashboard/admindashboard" },
     { name: "Manage Products", icon: TableCellsIcon, href: "/dashboard/ManageProducts" },
+    {name:"Edit Product",icon:TableCellsIcon,href:'/dashboard/updateAllProduct'},
     { name: "Manage Advertise", icon: TableCellsIcon, href: "/dashboard/ManageAdvertise" },
     { name: "Manage Users", icon: UsersIcon, href: "/admin-dashboard/users" },
     { name: "Settings", icon: Cog6ToothIcon, href: "/admin-dashboard/settings" },

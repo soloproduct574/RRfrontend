@@ -4,6 +4,7 @@ import { Box, useTheme, useMediaQuery, CircularProgress, Typography } from "@mui
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBannersMedia } from "../Redux/Slice/BannerSlice";
+import { motion } from "framer-motion"; // ✅ added
 
 const PoojaBanner = () => {
   const dispatch = useDispatch();
@@ -85,8 +86,13 @@ const PoojaBanner = () => {
 
   return (
     <>
+      {/* ✅ Animated Heading */}
       <Box sx={{ textAlign: "center", mb: 8, mt: 7 }}>
         <Typography
+          component={motion.div}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
           variant={isMobile ? "h5" : "h4"}
           sx={{
             fontFamily: "Arial, sans-serif",
@@ -99,20 +105,25 @@ const PoojaBanner = () => {
             gap: isMobile ? 1 : 2,
           }}
         >
-          <img
+          <motion.img
             src="/texticon.png"
             alt="icon"
             style={{ width: isMobile ? 30 : 50, height: isMobile ? 30 : 50 }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ repeat: Infinity, duration: 2 }}
           />
           RR New Updates
-          <img
+          <motion.img
             src="/texticon.png"
             alt="icon"
             style={{ width: isMobile ? 30 : 50, height: isMobile ? 30 : 50 }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ repeat: Infinity, duration: 2, delay: 0.5 }}
           />
         </Typography>
       </Box>
 
+      {/* ✅ Banner Carousel */}
       <Box
         sx={{
           mt: 4,

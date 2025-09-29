@@ -16,5 +16,4 @@ const store = configureStore({
   },
 });
 
-// ✅ Make sure we export default store
 export default store;

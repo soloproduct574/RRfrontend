@@ -47,7 +47,7 @@ const AdminSidebar = ({ isMobile, sidebarOpen, setSidebarOpen }) => {
     { name: "Dashboard Overview", icon: HomeIcon, href: "/admin-dashboard" },
     { name: "Manage Products", icon: TableCellsIcon, href: "/dashboard/ManageProducts" },
     { name: "Manage Advertise", icon: TableCellsIcon, href: "/dashboard/ManageAdvertise" },
-    { name: "Manage Users", icon: UsersIcon, href: "/admin-dashboard/users" },
+    { name: "Manage Users", icon: UsersIcon, href: "/dashboard/ManageUsers" },
     { name: "Settings", icon: Cog6ToothIcon, href: "/admin-dashboard/settings" },
   ];
 

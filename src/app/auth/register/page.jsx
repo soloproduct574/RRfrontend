@@ -352,27 +352,29 @@ console.log(formData);
               </Button>
             </Box>
 
-            {/* Already have an account? */}
-            <Typography
-              variant="body2"
-              textAlign="center"
-              sx={{ mt: 3, color: "text.secondary" }}
-            >
-              Already have an account?{" "}
-              <Link
-                component="button"
-                underline="hover"
-                sx={{
-                  color: "#ff6600",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  "&:hover": { textDecoration: "underline" },
-                }}
-                onClick={()=> router.push('/dashboard')}
-              >
-                RR _Login
-              </Link>
-            </Typography>
+   <Typography
+  variant="body2"
+  textAlign="center"
+  sx={{ mt: 3, color: "text.secondary" }}
+>
+  Already have an account?{" "}
+  <Button
+    onClick={() => router.push("/dashboard")}
+    sx={{
+      color: "#ff6600",
+      fontWeight: 600,
+      textTransform: "none",
+      p: 0,
+      minWidth: "auto",
+      "&:hover": {
+        textDecoration: "underline",
+        background: "transparent",
+      },
+    }}
+  >
+    RR _Login
+  </Button>
+</Typography>
           </Paper>
         </motion.div>
       </Box>

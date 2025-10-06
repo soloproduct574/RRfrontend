@@ -97,113 +97,71 @@ const BannerForm = () => {
     setNotification({ ...notification, open: false });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
 
-    try {
-      // Create FormData object
-      const formData = new FormData();
-      
-      // Add text fields
-      formData.append("title", form.title || "");
-      
-      // Add running texts as JSON array
-      const validRunningTexts = form.runningText.filter(text => text.trim() !== "");
-      formData.append("runningText", JSON.stringify(validRunningTexts));
-      
-      // Add redirect URLs as JSON array
-      const validRedirectUrls = form.redirectUrls.filter(url => url.trim() !== "");
-      formData.append("redirectUrls", JSON.stringify(validRedirectUrls));
-      
-      // Add banner files
-      form.bannerFiles.forEach((file) => {
-        formData.append("bannerFiles", file);
-      });
-      
-      // Add advertise files
-      form.advertiseFiles.forEach((file) => {
-        formData.append("advertiseFiles", file);
-      });
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-      // Debug: Log what we're sending
-      console.log("Sending data to API:");
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
+  try {
+    const formData = new FormData();
 
-      // Make API call
-      const response = await fetch("http://localhost:5000/api/media/banner", {
-        method: "POST",
-        body: formData,
-        // Add credentials if needed
-        // credentials: 'include',
-        
-        // Add headers if your backend needs them
-        // headers: {
-        //   'Authorization': 'Bearer YOUR_TOKEN_HERE',
-        // },
-      });
+    // ✅ match backend naming
+    formData.append("title", form.title || "");
 
-      // First check if response is ok
-      if (!response.ok) {
-        // Try to get error message
-        const contentType = response.headers.get("content-type");
-        let errorMessage = `Server error: ${response.status}`;
-        
-        if (contentType && contentType.includes("application/json")) {
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorMessage;
-          } catch (jsonError) {
-            console.error("Failed to parse error JSON:", jsonError);
-          }
-        } else {
-          // Response is not JSON (probably HTML error page)
-          const textError = await response.text();
-          console.error("Server returned non-JSON response:", textError);
-          errorMessage = `Server error: Expected JSON but received HTML. Status: ${response.status}`;
-        }
-        
-        throw new Error(errorMessage);
-      }
+    const validRunningTexts = form.runningText.filter((t) => t.trim() !== "");
+    formData.append("rotating_texts", JSON.stringify(validRunningTexts));
 
-      // Parse JSON response
-      const data = await response.json();
-      
-      // Success handling
-      showNotification("Banner created successfully!", "success");
-      
-      // Reset form after successful submission
-      setTimeout(() => {
-        setForm({
-          title: "",
-          runningText: [""],
-          redirectUrls: [""],
-          bannerFiles: [],
-          advertiseFiles: [],
-        });
-      }, 2000);
+    const validRedirectUrls = form.redirectUrls.filter((u) => u.trim() !== "");
+    formData.append("redirect_urls", JSON.stringify(validRedirectUrls));
 
-    } catch (error) {
-      console.error("Error creating banner:", error);
-      
-      // Check for network errors
-      if (error.message === "Failed to fetch") {
-        showNotification(
-          "Network error: Unable to connect to server. Please check if the server is running on port 5000.",
-          "error"
-        );
-      } else {
-        showNotification(
-          error.message || "Failed to create banner. Please try again.",
-          "error"
-        );
-      }
-    } finally {
-      setLoading(false);
+    // ✅ backend expects "banner_images"
+    form.bannerFiles.forEach((file) => {
+      formData.append("banner_images", file);  
+    });
+
+    // ✅ backend expects "advertise_images"
+    form.advertiseFiles.forEach((file) => {
+      formData.append("advertise_images", file);
+    });
+
+    // Debug logging
+    console.log("Sending data to API:");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
     }
-  };
+
+    const response = await fetch("http://localhost:5000/api/media/banner", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Upload failed (${response.status}): ${errText}`);
+    }
+
+    const data = await response.json();
+    console.log("✅ Success:", data);
+
+    showNotification("Banner created successfully!", "success");
+
+    // Reset
+    setTimeout(() => {
+      setForm({
+        title: "",
+        runningText: [""],
+        redirectUrls: [""],
+        bannerFiles: [],
+        advertiseFiles: [],
+      });
+    }, 2000);
+  } catch (error) {
+    console.error("❌ Upload error:", error);
+    showNotification(error.message || "Failed to create banner", "error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Alternative: Test connection to API
   const testAPIConnection = async () => {

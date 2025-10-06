@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import {
   Box,
   useTheme,
@@ -12,55 +13,41 @@ import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBannersMedia } from "../Redux/Slice/BannerSlice";
 import { ArrowBackIosNew, ArrowForwardIos } from "@mui/icons-material";
+import { motion, AnimatePresence } from "framer-motion";
 
 const PoojaBanner = () => {
   const dispatch = useDispatch();
   const { items: banners, status } = useSelector((state) => state.banners);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
-  const [paused, setPaused] = useState(false);
-  const [imagesLoaded, setImagesLoaded] = useState({});
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // ✅ Flatten ads + banner images to one stream
+  const allImages = banners.flatMap((b) => b.all_images || []);
+
+  // Fetch once
   useEffect(() => {
     if (status === "idle") dispatch(fetchBannersMedia());
   }, [dispatch, status]);
 
+  // ✅ Auto slide every 4s regardless of preload
   useEffect(() => {
-    if (paused || banners.length === 0) return;
+    if (!allImages.length) return;
     const interval = setInterval(() => {
-      nextSlide();
-    }, 5000);
+      setCurrentIndex((prev) => (prev + 1) % allImages.length);
+    }, 8000);
     return () => clearInterval(interval);
-  }, [currentIndex, paused, banners.length]);
-
-  const goToSlide = (index) => setCurrentIndex(index);
-  const nextSlide = () =>
-    setCurrentIndex((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
-  const prevSlide = () =>
-    setCurrentIndex((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
-
-  const handleTouchStart = (e) =>
-    (touchStartX.current = e.changedTouches[0].screenX);
-  const handleTouchEnd = (e) => {
-    touchEndX.current = e.changedTouches[0].screenX;
-    if (touchStartX.current - touchEndX.current > 75) nextSlide();
-    if (touchEndX.current - touchStartX.current > 75) prevSlide();
-  };
-
-  const handleImageLoad = (id) =>
-    setImagesLoaded((prev) => ({ ...prev, [id]: true }));
+  }, [allImages.length]);
 
   if (status === "loading") {
     return (
       <Box
         sx={{
-          mt: 4,
-          height: { xs: "30vh", sm: "40vh", md: "55vh", lg: "65vh" },
+          mt: 3,
+          height: { xs: "35vh", sm: "45vh", md: "55vh", lg: "65vh" },
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -72,129 +59,71 @@ const PoojaBanner = () => {
     );
   }
 
-  if (!banners || banners.length === 0) {
+  if (!allImages.length) {
     return (
-      <Box sx={{ mt: 4, textAlign: "center", color: "text.secondary" }}>
+      <Box sx={{ mt: 3, textAlign: "center", color: "text.secondary" }}>
         No Banners Found
       </Box>
     );
   }
 
+  const nextSlide = () =>
+    setCurrentIndex((prev) => (prev + 1) % allImages.length);
+  const prevSlide = () =>
+    setCurrentIndex((prev) =>
+      prev === 0 ? allImages.length - 1 : prev - 1
+    );
+
   return (
     <>
-      {/* Heading */}
-      <Box sx={{ textAlign: "center", mb: 6, mt: 7 }}>
-        <Typography
-          variant={isMobile ? "h6" : "h4"}
-          sx={{
-            fontFamily: "Arial, sans-serif",
-            color: "#ff3838ff",
-            fontWeight: 600,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: isMobile ? 1 : 2,
-          }}
-        >
-          <Image
-            src="/texticon.png"
-            alt="icon"
-            width={isMobile ? 25 : 40}
-            height={isMobile ? 25 : 40}
-          />
-          RR New Updates
-          <Image
-            src="/texticon.png"
-            alt="icon"
-            width={isMobile ? 25 : 40}
-            height={isMobile ? 25 : 40}
-          />
-        </Typography>
-      </Box>
+     
 
       {/* Slider */}
       <Box
         sx={{
           position: "relative",
           width: "100%",
-          height: { xs: "30vh", sm: "40vh", md: "55vh", lg: "65vh" },
+          height: { xs: "35vh", sm: "45vh", md: "55vh", lg: "65vh" },
           overflow: "hidden",
           borderRadius: 2,
-          boxShadow: 3,
-          bgcolor: "black",
+          bgcolor: "#ffffffff",
         }}
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
       >
-        {/* Slide wrapper */}
-        <Box
-          sx={{
-            display: "flex",
-            transition: "transform 0.6s ease-in-out",
-            transform: `translateX(-${currentIndex * 100}%)`,
-            height: "100%",
-            width: `${banners.length * 100}%`,
-          }}
-        >
-          {banners.map((banner, index) => (
-            <Box
-              key={banner._id}
-              sx={{
-                minWidth: "100%",
-                position: "relative",
-                height: "100%",
-                flexShrink: 0,
-                bgcolor: "black",
-              }}
-            >
-              {!imagesLoaded[banner._id] && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#fff",
-                    zIndex: 1,
-                  }}
-                >
-                  Loading...
-                </Box>
-              )}
-              <Image
-                src={banner.banner_images[0]}
-                alt={banner.title}
-                fill
-                sizes="100vw"
-                style={{ objectFit: "cover" }}
-                priority={index === 0}
-                onLoadingComplete={() => handleImageLoad(banner._id)}
-              />
-            </Box>
-          ))}
-        </Box>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            style={{ position: "relative", width: "100%", height: "100%" }}
+          >
+            <Image
+              src={allImages[currentIndex] || "/placeholder.jpg"}
+              alt={`banner-${currentIndex}`}
+              fill
+              sizes="(max-width: 600px) 100vw,
+                     (max-width: 1200px) 80vw,
+                     100vw"
+              style={{ objectFit: isMobile?"contain":"cover", objectPosition: "center" }}
+              priority={currentIndex === 0} // LCP boost first one only
+              unoptimized // direct CDN, no next/image proxy issues
+            />
+          </motion.div>
+        </AnimatePresence>
 
-        {/* Navigation Arrows */}
-        {!isMobile && banners.length > 1 && (
+        {/* Nav Arrows */}
+        {allImages.length > 1 && (
           <>
             <IconButton
               onClick={prevSlide}
-              sx={{
-                ...navButtonPos,
-                left: isTablet ? 8 : 16,
-              }}
+              sx={{ ...navButtonPos, left: isTablet ? 8 : 16 }}
             >
               <ArrowBackIosNew fontSize="small" />
             </IconButton>
             <IconButton
               onClick={nextSlide}
-              sx={{
-                ...navButtonPos,
-                right: isTablet ? 8 : 16,
-              }}
+              sx={{ ...navButtonPos, right: isTablet ? 8 : 16 }}
             >
               <ArrowForwardIos fontSize="small" />
             </IconButton>
@@ -213,18 +142,21 @@ const PoojaBanner = () => {
             zIndex: 10,
           }}
         >
-          {banners.map((_, index) => (
-            <Box
+          {allImages.map((_, index) => (
+            <motion.div
               key={index}
-              onClick={() => goToSlide(index)}
-              sx={{
+              onClick={() => setCurrentIndex(index)}
+              animate={{
+                scale: currentIndex === index ? 1.3 : 1,
+                backgroundColor:
+                  currentIndex === index ? "#fff" : "rgba(255,255,255,0.5)",
+              }}
+              transition={{ duration: 0.3 }}
+              style={{
                 width: isMobile ? 8 : 10,
                 height: isMobile ? 8 : 10,
                 borderRadius: "50%",
-                bgcolor:
-                  currentIndex === index ? "white" : "rgba(255,255,255,0.5)",
                 cursor: "pointer",
-                transition: "all 0.3s ease",
               }}
             />
           ))}

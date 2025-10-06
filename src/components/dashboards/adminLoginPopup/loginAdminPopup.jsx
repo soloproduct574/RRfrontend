@@ -40,7 +40,6 @@ export default function AdminLoginPage() {
       });
     }
   }, [token, dispatch, router]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await dispatch(loginAdmin({ login, password }));
@@ -64,7 +63,6 @@ export default function AdminLoginPage() {
       }}
     >
       {/* <AdminSidebar/> */}
-      {/* Full-width container but form centered */}
       <Container maxWidth="sm">
         <Box
           sx={{

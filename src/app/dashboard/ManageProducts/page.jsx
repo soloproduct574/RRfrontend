@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -12,6 +12,10 @@ import {
   IconButton,
   Dialog,
   Alert,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
   useTheme,
   useMediaQuery,
   Drawer,
@@ -20,6 +24,8 @@ import {
 } from "@mui/material";
 import { Close, Menu } from "@mui/icons-material";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategories } from "@/redux/slice/CategoryFileMakeSlice";
 import AdminSidebar from "@/components/dashboards/AdminSideBar";
 
 // Responsive glass text field styles
@@ -44,7 +50,10 @@ export default function ProductRegisterPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const isLaptop = useMediaQuery(theme.breakpoints.up("md"));
-
+  const dispatch = useDispatch();
+  const categoriesState = useSelector((state) => state.categoryReducer) || {};
+  const categories = categoriesState.items || [];
+  const categoriesStatus = categoriesState.status || "idle";
   const [loading, setLoading] = useState(false);
   const [serverMsg, setServerMsg] = useState(null);
   const [imageError, setImageError] = useState("");
@@ -56,7 +65,7 @@ export default function ProductRegisterPage() {
     description: "",
     original_price: "",
     offer_price: "",
-    categories: "",
+    category: "", 
     images: [],
     video: null,
   });
@@ -67,8 +76,15 @@ export default function ProductRegisterPage() {
     type: "",
   });
 
+  // Fetch categories on mount
+  useEffect(() => {
+    if (categoriesStatus === "idle") {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, categoriesStatus]);
+
   const handleChange = (e) => {
-    const { name, files } = e.target;
+    const { name, files, value } = e.target;
 
     if (name === "images" && files) {
       const newFiles = Array.from(files);
@@ -77,13 +93,11 @@ export default function ProductRegisterPage() {
         setImageError("Maximum 5 images allowed");
         return;
       }
-
       setImageError("");
       const updated = newFiles.map((file) => ({
         file,
         url: URL.createObjectURL(file),
       }));
-
       setFormData((prev) => ({
         ...prev,
         images: [...prev.images, ...updated],
@@ -93,12 +107,13 @@ export default function ProductRegisterPage() {
         setVideoError("Only one video allowed");
         return;
       }
-
       setVideoError("");
       setFormData((prev) => ({
         ...prev,
         video: { file: files[0], url: URL.createObjectURL(files[0]) },
       }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -129,31 +144,25 @@ export default function ProductRegisterPage() {
       formDataToSend.append("description", formData.description);
       formDataToSend.append("original_price", formData.original_price);
       formDataToSend.append("offer_price", formData.offer_price);
-
-      if (formData.categories.trim()) {
-        const categoriesArray = formData.categories
-          .split(",")
-          .map((c) => ({ name: c.trim() }));
-        formDataToSend.append("categories", JSON.stringify(categoriesArray));
+      if (formData.category) {
+        formDataToSend.append(
+          "categories",
+          JSON.stringify([{ name: formData.category }])
+        );
       } else {
         formDataToSend.append("categories", "[]");
       }
-
-      formData.images.forEach((img) => {
-        formDataToSend.append("images", img.file);
-      });
+      formData.images.forEach((img) => formDataToSend.append("images", img.file));
       if (formData.video) {
         formDataToSend.append("video", formData.video.file);
       }
-
       await axios.post(
-        "https://rrbackend-49lt.onrender.com/api/products/",
+        "http://localhost:5000/api/products/",
         formDataToSend,
         {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-
       setServerMsg({
         type: "success",
         text: "✅ Product registered successfully!",
@@ -164,7 +173,7 @@ export default function ProductRegisterPage() {
         description: "",
         original_price: "",
         offer_price: "",
-        categories: "",
+        category: "",
         images: [],
         video: null,
       });
@@ -309,27 +318,30 @@ export default function ProductRegisterPage() {
                 overflowY: "auto",
               }}
             >
-              <TextField
-                label="Categories"
-                placeholder="e.g. Electronics, Smartphones"
-                name="categories"
-                fullWidth
-                value={formData.categories}
-                onChange={(e) =>
-                  setFormData({ ...formData, categories: e.target.value })
-                }
-                sx={getGlassTextFieldStyle(isMobile)}
-                size={isMobile ? "small" : "medium"}
-              />
+              {/* Category Dropdown */}
+              <FormControl fullWidth>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  name="category"
+                  value={formData.category}
+                  label="Category"
+                  onChange={handleChange}
+                >
+                  {categories.map((cat) => (
+                    <MenuItem key={cat._id} value={cat.category_name}>
+                      {cat.category_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
+              {/* Product Fields */}
               <TextField
                 label="Product Name"
                 name="product_name"
                 fullWidth
                 value={formData.product_name}
-                onChange={(e) =>
-                  setFormData({ ...formData, product_name: e.target.value })
-                }
+                onChange={handleChange}
                 required
                 sx={getGlassTextFieldStyle(isMobile)}
                 size={isMobile ? "small" : "medium"}
@@ -341,9 +353,7 @@ export default function ProductRegisterPage() {
                 type="number"
                 fullWidth
                 value={formData.original_price}
-                onChange={(e) =>
-                  setFormData({ ...formData, original_price: e.target.value })
-                }
+                onChange={handleChange}
                 required
                 sx={getGlassTextFieldStyle(isMobile)}
                 size={isMobile ? "small" : "medium"}
@@ -355,9 +365,7 @@ export default function ProductRegisterPage() {
                 type="number"
                 fullWidth
                 value={formData.offer_price}
-                onChange={(e) =>
-                  setFormData({ ...formData, offer_price: e.target.value })
-                }
+                onChange={handleChange}
                 required
                 sx={getGlassTextFieldStyle(isMobile)}
                 size={isMobile ? "small" : "medium"}
@@ -370,9 +378,7 @@ export default function ProductRegisterPage() {
                 multiline
                 rows={isMobile ? 2 : 3}
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
+                onChange={handleChange}
                 required
                 sx={getGlassTextFieldStyle(isMobile)}
                 size={isMobile ? "small" : "medium"}
@@ -433,44 +439,6 @@ export default function ProductRegisterPage() {
                 <Alert severity="error" sx={{ mt: 1 }}>
                   {videoError}
                 </Alert>
-              )}
-
-              {/* Video Preview */}
-              {formData.video && (
-                <Box
-                  sx={{
-                    position: "relative",
-                    width: "100%",
-                    maxHeight: 200,
-                    mt: 1,
-                  }}
-                >
-                  <video
-                    src={formData.video.url}
-                    controls
-                    style={{ width: "100%", maxHeight: 200 }}
-                    onClick={() =>
-                      setPreviewDialog({
-                        open: true,
-                        src: formData.video.url,
-                        type: "video",
-                      })
-                    }
-                  />
-                  <IconButton
-                    size="small"
-                    onClick={() => removeFile("video")}
-                    sx={{
-                      position: "absolute",
-                      top: 2,
-                      right: 2,
-                      background: "rgba(0,0,0,0.5)",
-                      color: "white",
-                    }}
-                  >
-                    <Close fontSize="small" />
-                  </IconButton>
-                </Box>
               )}
 
               {/* Submit */}

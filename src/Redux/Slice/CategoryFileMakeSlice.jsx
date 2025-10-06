@@ -27,7 +27,7 @@ export const createCategory = createAsyncThunk("categories/create", async (categ
 });
 
 export const updateCategory = createAsyncThunk("categories/update", async ({ id, formData }) => {
-  const res = await fetch(`${API_URL}/${id}`, { // Fixed: Added missing slash
+  const res = await fetch(`${API_URL}/${id}`, { 
     method: "PUT",
     body: formData,
   });
@@ -39,14 +39,13 @@ export const updateCategory = createAsyncThunk("categories/update", async ({ id,
 });
 
 export const deleteCategory = createAsyncThunk("categories/delete", async (id) => {
-  const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" }); // Fixed: Added missing slash
+  const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" }); 
   if (!res.ok) {
     throw new Error('Failed to delete category');
   }
   return id;
 });
 
-// --- Slice ---
 const categorySlice = createSlice({
   name: "categories",
   initialState: { 

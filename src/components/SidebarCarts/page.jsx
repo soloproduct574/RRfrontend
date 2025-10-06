@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Drawer,
   List,
@@ -10,43 +10,47 @@ import {
   Box,
   Typography,
   Divider,
+  IconButton,
+  useMediaQuery,
 } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { useTheme } from "@mui/material/styles";
 import { useRouter, usePathname } from "next/navigation";
 
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
+  const theme = useTheme();
+
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Detect screen size
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md")); // md = 960px
 
   const isCartActive = pathname === "/cart";
   const isLikedActive = pathname === "/like";
 
-  return (
-    <Drawer
-      variant="permanent"
-      anchor="left"
+  const drawerWidth = 250;
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const drawerContent = (
+    <Box
       sx={{
-        width: 250,
-        height: "100vh",
-        flexShrink: 0,
-        "& .MuiDrawer-paper": {
-          width: 250,
-          boxSizing: "border-box",
-          background: "linear-gradient(180deg, #ffffff 0%, #f9f9f9 100%)",
-          borderRight: "1px solid #e0e0e0",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          position: "relative",
-          top: 0,
-          left: 0,
-        },
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        background: "linear-gradient(180deg, #ffffff 0%, #f9f9f9 100%)",
       }}
     >
       {/* Sidebar Header */}
       <Box
-        p={1}
+        p={1.5}
         sx={{
           borderBottom: "1px solid #ddd",
           textAlign: "center",
@@ -62,9 +66,13 @@ export default function Sidebar() {
 
       {/* Navigation List */}
       <List sx={{ flexGrow: 1, mt: 1 }}>
+        {/* Cart */}
         <ListItemButton
           selected={isCartActive}
-          onClick={() => router.push("/cart")}
+          onClick={() => {
+            router.push("/cart");
+            setMobileOpen(false);
+          }}
           sx={{
             borderRadius: "8px",
             mx: 1,
@@ -90,16 +98,16 @@ export default function Sidebar() {
             primaryTypographyProps={{
               fontWeight: isCartActive ? "bold" : "medium",
             }}
-            secondaryTypographyProps={{
-              fontSize: "0.8rem",
-              color: "text.secondary",
-            }}
           />
         </ListItemButton>
 
+        {/* Liked Products */}
         <ListItemButton
           selected={isLikedActive}
-          onClick={() => router.push("/like")}
+          onClick={() => {
+            router.push("/like");
+            setMobileOpen(false);
+          }}
           sx={{
             borderRadius: "8px",
             mx: 1,
@@ -125,13 +133,69 @@ export default function Sidebar() {
             primaryTypographyProps={{
               fontWeight: isLikedActive ? "bold" : "medium",
             }}
-            secondaryTypographyProps={{
-              fontSize: "0.8rem",
-              color: "text.secondary",
-            }}
           />
         </ListItemButton>
       </List>
-    </Drawer>
+    </Box>
+  );
+
+  return (
+    <>
+      {/* Menu Button for Mobile */}
+      {!isDesktop && (
+        <IconButton
+          onClick={handleDrawerToggle}
+          sx={{
+            position: "fixed",
+            top: 16,
+            left: 16,
+            zIndex: 2000,
+            backgroundColor: "#fff",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+            "&:hover": { backgroundColor: "#f0f0f0" },
+          }}
+        >
+          <MenuIcon />
+        </IconButton>
+      )}
+
+      {/* Desktop Drawer */}
+      {isDesktop ? (
+        <Drawer
+          variant="permanent"
+          anchor="left"
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              width: drawerWidth,
+              boxSizing: "border-box",
+              borderRight: "1px solid #e0e0e0",
+            },
+          }}
+          open
+        >
+          {drawerContent}
+        </Drawer>
+      ) : (
+        // Mobile Drawer
+        <Drawer
+          variant="temporary"
+          anchor="left"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            "& .MuiDrawer-paper": {
+              width: drawerWidth,
+              boxSizing: "border-box",
+              borderRight: "1px solid #e0e0e0",
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      )}
+    </>
   );
 }

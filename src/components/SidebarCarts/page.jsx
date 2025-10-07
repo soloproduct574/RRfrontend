@@ -13,7 +13,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useRouter, usePathname } from "next/navigation";
 
-export default function Sidebar() {
+export default function TopBarButtons() {
   const router = useRouter();
   const pathname = usePathname();
 

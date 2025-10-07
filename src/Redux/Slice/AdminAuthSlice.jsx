@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "https://rrbackend-49lt.onrender.com/api/auth/admin";
+const API_URL = "http://localhost:5000/api/auth/admin";
 
 // 1️⃣ LOGIN ADMIN
 export const loginAdmin = createAsyncThunk(

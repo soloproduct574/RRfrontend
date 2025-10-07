@@ -1,19 +1,19 @@
 "use client";
-
+import { useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Image from "next/image";
 import {
-  Card,
-  CardContent,
+  Box,
   Typography,
   Button,
-  Box,
-  Divider,
+  Card,
+  CardContent,
   Grid,
+  Divider,
+  Stack,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { removeFromCart } from "@/Redux/Slice/cartSlice";
-import Sidebar from "../../components/SidebarCarts/page";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { useRouter } from "next/navigation";
@@ -24,14 +24,18 @@ export default function CartPage() {
   const dispatch = useDispatch();
   const { cartItems = [] } = useSelector((state) => state.cart);
 
-  const subtotal = cartItems.reduce(
-    (acc, item) =>
-      acc + (item.offer_price ?? item.original_price ?? 0) * item.quantity,
-    0
+  const subtotal = useMemo(
+    () =>
+      cartItems.reduce(
+        (acc, item) =>
+          acc + (item.offer_price ?? item.original_price ?? 0) * item.quantity,
+        0
+      ),
+    [cartItems]
   );
 
-  const tax = subtotal * 0.05;
-  const shipping = subtotal > 1000 ? 0 : 50;
+  const tax = useMemo(() => subtotal * 0.05, [subtotal]);
+  const shipping = useMemo(() => (subtotal > 1000 ? 0 : 50), [subtotal]);
   const total = subtotal + tax + shipping;
   const handleBuyNow = () => {
   router.push("/paymentmode");
@@ -40,14 +44,15 @@ export default function CartPage() {
   return (
     <Box
       sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(to bottom right, #f8fafc, #e3f2fd)",
         display: "flex",
         flexDirection: "column",
-        minHeight: "100vh",
-        background: "#f5f5f5",
       }}
     >
-      {/* Navbar */}
       <Navbar />
+      {/* Top Buttons instead of Sidebar */}
+      <TopBarButtons />
 
       {/* Sidebar just below Navbar */}
       <Sidebar />
@@ -297,6 +302,35 @@ export default function CartPage() {
       >
         <Footer />
       </Box>
+
+      <Footer />
+    </Box>
+  );
+}
+
+/* ---------------- Helper Summary Row Component ---------------- */
+function SummaryRow({ label, value, fontSize = "1rem", color, fontWeight }) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <Typography variant="body1" color="text.secondary">
+        {label}
+      </Typography>
+      <Typography
+        variant="body1"
+        sx={{
+          fontSize,
+          fontWeight: fontWeight || 500,
+          color: color || "text.primary",
+        }}
+      >
+        {value}
+      </Typography>
     </Box>
   );
 }

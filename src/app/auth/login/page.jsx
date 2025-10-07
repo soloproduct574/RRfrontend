@@ -52,7 +52,7 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
 
     try {
       const res = await axios.post(
-        "https://rrbackend-49lt.onrender.com/api/auth/login",
+        "http://localhost:5000/api/auth/login",
         formData,
         { headers: { "Content-Type": "application/json" } }
       );

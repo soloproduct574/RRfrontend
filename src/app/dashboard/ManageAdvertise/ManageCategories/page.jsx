@@ -348,7 +348,7 @@ const CategoryList = () => {
                 ":hover": { transform: "translateY(-4px)", boxShadow: 6 },
               }}
             >
-              <Box sx={{ position: "relative", width: 300, height: 220 }}>
+              <Box sx={{ position: "relative", width: 250, height: 180 }}>
                 {cat.category_images?.length > 0 ? (
                   <Image
                     src={cat.category_images[0]}

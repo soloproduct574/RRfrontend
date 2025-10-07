@@ -105,7 +105,7 @@ export default function Footer() {
             <Typography variant="h6" gutterBottom textAlign={{ xs: 'center', md: 'left' }} sx={{ fontWeight: 600,textDecoration: 'underline', textUnderlineOffset: '6px', textDecorationColor: '#f1530fff' }}>
               Quick Links
             </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, alignItems: { xs: 'center', md: 'flex-start' } }}>
+            <Box sx={{ display: "flex", flexDirection: { xs: "row", md: "column" }, gap: 1.5, alignItems: { xs: 'center', md: 'flex-start' } }}>
               <Link href="/blogs" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>Blogs</Link>
               <Link href="/about" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>About Us</Link>
               <Link href="/contact" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>Contact Us</Link>

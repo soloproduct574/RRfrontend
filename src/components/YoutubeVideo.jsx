@@ -54,7 +54,7 @@ export default function VideoCards() {
   }}
 >
   <img src="/texticon.png" alt="icon" style={{ width: 40, height: 40 }} />
-  Top Trending Products
+  Our Youtube Videos
   <img src="/texticon.png" alt="icon" style={{ width: 40, height: 40 }} />
 </Typography>
 

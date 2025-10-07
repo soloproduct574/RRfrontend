@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -9,62 +9,61 @@ import {
   useMediaQuery,
   CircularProgress,
   Alert,
+  Skeleton,
+  Button,
 } from "@mui/material";
 import Image from "next/image";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategories } from "@/redux/slice/CategoryFileMakeSlice";
-
-const ProductsScroller = () => {
+import { useRouter } from "next/navigation";
+const CategoryScroller = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const router = useRouter();
 
-  // ✅ CORRECT: Use 'categoryReducer' to match your store configuration
+  // Get categories from Redux state
   const categoriesState = useSelector((state) => state.categoryReducer) || {};
   const categories = categoriesState.items || [];
   const status = categoriesState.status || "idle";
   const error = categoriesState.error || null;
-  
-  console.log("🔍 Redux categoryReducer state:", categoriesState);
-  console.log("📦 Categories array:", categories);
-  console.log("📊 Status:", status);
 
+  // Responsive settings
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md")); 
   const isLaptop = useMediaQuery(theme.breakpoints.between("md", "lg")); 
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg")); 
   const visibleCount = isMobile ? 2 : isTablet ? 4 : isLaptop ? 5 : 6;
+  
   const [startIndex, setStartIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState({});
+  const [imageErrors, setImageErrors] = useState({});
   const containerRef = useRef(null);
+  const preloadedImages = useRef(new Set()).current;
 
-  // ✅ Fetch categories on component mount
+  // Fetch categories on component mount
   useEffect(() => {
-    console.log("🚀 Dispatching fetchCategories...");
     dispatch(fetchCategories());
   }, [dispatch]);
 
+  // Auto scroll carousel
   useEffect(() => {
-    if (categories.length === 0) {
-      console.log("⏸️ Auto-scroll paused: No categories available");
-      return;
-    }
+    if (categories.length === 0) return;
     
-    console.log("🔄 Starting auto-scroll with", categories.length, "categories");
     const interval = setInterval(() => {
       setStartIndex((prev) =>
         prev >= categories.length - visibleCount ? 0 : prev + 1
       );
-    }, 9000);
+    }, 5000);
     return () => clearInterval(interval);
   }, [categories.length, visibleCount]);
 
-  // ✅ Swipe gestures for mobile
+  // Setup touch gestures for mobile
   useEffect(() => {
     const container = containerRef.current;
     if (!container || categories.length === 0) return;
     
-    console.log("👆 Setting up touch gestures");
     let touchStartX = 0;
     let touchEndX = 0;
 
@@ -84,54 +83,177 @@ const ProductsScroller = () => {
     };
   }, [categories.length]);
 
+  // Preload images for smoother experience - using browser API safely
+  useEffect(() => {
+    if (categories.length === 0 || typeof window === 'undefined') return;
+    
+    // Function to preload an image using browser Image constructor
+    const preloadImage = (src) => {
+      if (preloadedImages.has(src)) return;
+      
+      // Use the browser's global Image constructor, not the imported Next.js Image component
+      const img = new window.Image();
+      img.src = src;
+      img.onload = () => {
+        preloadedImages.add(src);
+      };
+      img.onerror = () => {
+        setImageErrors(prev => ({...prev, [src]: true}));
+      };
+    };
+    
+    // Preload visible images first
+    const visibleCategories = categories.slice(startIndex, startIndex + visibleCount);
+    visibleCategories.forEach(category => {
+      const imageUrl = category.category_images?.[0];
+      if (imageUrl && typeof imageUrl === 'string') preloadImage(imageUrl);
+    });
+    
+    // Then preload the next batch with a delay
+    if (categories.length > visibleCount) {
+      const nextIndex = (startIndex + visibleCount) % categories.length;
+      const nextBatch = categories.slice(nextIndex, nextIndex + visibleCount);
+      
+      const preloadTimeout = setTimeout(() => {
+        nextBatch.forEach(category => {
+          const imageUrl = category.category_images?.[0];
+          if (imageUrl && typeof imageUrl === 'string') preloadImage(imageUrl);
+        });
+      }, 1000);
+      
+      return () => clearTimeout(preloadTimeout);
+    }
+  }, [categories, startIndex, visibleCount, preloadedImages]);
+
+  // Handle image load state
+  const handleImageLoad = (id) => {
+    setImagesLoaded(prev => ({...prev, [id]: true}));
+  };
+
+  // Handle image error
+  const handleImageError = (id, url) => {
+    setImageErrors(prev => ({...prev, [id]: true, [url]: true}));
+    setImagesLoaded(prev => ({...prev, [id]: true}));
+  };
+
+  // Navigation handlers
   const handleNext = () => {
-    console.log("➡️ Next button clicked");
     setStartIndex((prev) =>
       prev >= categories.length - visibleCount ? 0 : prev + 1
     );
   };
 
   const handlePrev = () => {
-    console.log("⬅️ Previous button clicked");
     setStartIndex((prev) =>
       prev === 0 ? Math.max(0, categories.length - visibleCount) : prev - 1
     );
   };
 
-  // Use categories from Redux
-  const visibleCategories = categories.slice(startIndex, startIndex + visibleCount);
-  
-  console.log("👀 Visible categories:", visibleCategories);
-  console.log("📍 Start index:", startIndex);
-  console.log("👁️ Visible count:", visibleCount);
+  // Memoize display categories to prevent unnecessary re-renders
+  const displayCategories = useMemo(() => {
+    const visibleCategories = categories.slice(startIndex, startIndex + visibleCount);
+    
+    return visibleCategories.length < visibleCount && categories.length > 0
+      ? [...visibleCategories, ...categories.slice(0, visibleCount - visibleCategories.length)]
+      : visibleCategories;
+  }, [categories, startIndex, visibleCount]);
+
+  // Helper function to get proper image URL or fallback
+  const getCategoryImageUrl = (category) => {
+    const categoryId = category._id || '';
+    const imageUrl = category.category_images?.[0];
+    
+    // Check if there was a previous error loading this image
+    if (imageErrors[categoryId] || imageErrors[imageUrl]) {
+      return "/default-category.jpg";
+    }
+    
+    // Validate URL format to prevent Next.js Image loading issues
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      return "/default-category.jpg";
+    }
+    
+    return imageUrl;
+  };
 
   // Show loading state
   if (status === "loading") {
-    console.log("⏳ Showing loading state");
     return (
       <Box
         sx={{
           width: "100%",
-          py: 8,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          py: { xs: 3, md: 8 },
+          position: "relative",
+          overflow: "hidden",
           bgcolor: "#fff",
-          flexDirection: "column",
-          gap: 2,
         }}
       >
-        <CircularProgress />
-        <Typography variant="body2" color="text.secondary">
-          Loading categories...
-        </Typography>
+        {/* Header */}
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          gap={2}
+          flexWrap="wrap"
+          mb={{ xs: 2, md: 6 }}
+        >
+          <Image src="/texticon.png" alt="icon" width={35} height={35} priority />
+          <Typography
+            variant={isMobile ? "h6" : isTablet ? "h5" : "h4"}
+            sx={{
+              textAlign: "center",
+              fontFamily: "Arial, sans-serif",
+              color: "#ff3838",
+              fontWeight: 700,
+              letterSpacing: 0.5,
+            }}
+          >
+            Shop By Product Categories
+          </Typography>
+          <Image src="/texticon.png" alt="icon" width={35} height={35} priority />
+        </Box>
+        
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: { xs: 1, sm: 1, md: 5 },
+            px: { xs: 2, md: 0 },
+            width: "100%",
+          }}
+        >
+          {[...Array(visibleCount)].map((_, index) => (
+            <Box
+              key={index}
+              sx={{
+                flex: "0 0 auto",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+              }}
+            >
+              <Skeleton
+                variant="rectangular"
+                animation="wave"
+                sx={{
+                  width: { xs: 80, sm: 100, md: 130, lg: 170 },
+                  height: { xs: 80, sm: 100, md: 130, lg: 170 },
+                  mb: 1.5,
+                  mt: { xs: 3, sm: 2, md: 3, lg: 4 },
+                }}
+              />
+              <Skeleton variant="text" width={80} animation="wave" />
+            </Box>
+          ))}
+        </Box>
       </Box>
     );
   }
 
   // Show error state
   if (status === "failed") {
-    console.log("💥 Showing error state:", error);
     return (
       <Box
         sx={{
@@ -150,10 +272,10 @@ const ProductsScroller = () => {
     );
   }
 
-  console.log("✅ Rendering main component with", categories.length, "categories");
-
   return (
     <Box
+           onClick={() => router.push("/products")}
+
       sx={{
         width: "100%",
         py: { xs: 3, md: 8 },
@@ -161,6 +283,7 @@ const ProductsScroller = () => {
         overflow: "hidden",
         bgcolor: "#fff",
       }}
+      
     >
       {/* Header */}
       <Box
@@ -171,9 +294,10 @@ const ProductsScroller = () => {
         flexWrap="wrap"
         mb={{ xs: 2, md: 6 }}
       >
-        <Image src="/texticon.png" alt="icon" width={35} height={35} />
+        <Image src="/texticon.png" alt="icon" width={35} height={35} priority />
         <Typography
-          variant={isMobile ? "body" : isTablet ? "h5" : "h4"}
+          variant={isMobile ? "h6" : isTablet ? "h5" : "h4"}
+          component="h2"
           sx={{
             textAlign: "center",
             fontFamily: "Arial, sans-serif",
@@ -184,12 +308,13 @@ const ProductsScroller = () => {
         >
           Shop By Product Categories
         </Typography>
-        <Image src="/texticon.png" alt="icon" width={35} height={35} />
+        <Image src="/texticon.png" alt="icon" width={35} height={35} priority />
       </Box>
 
       {/* Category list */}
       <Box
         ref={containerRef}
+        
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -200,18 +325,18 @@ const ProductsScroller = () => {
           width: "100%",
           transition: "transform 0.8s ease",
           minHeight: 200,
+        
         }}
       >
-        {visibleCategories.map((category, index) => {
-          console.log(`🎯 Rendering category ${index}:`, category);
-          
-          // ✅ Use the correct field names from your API
-          const categoryImage = category.category_images?.[0] || "/default-category.jpg";
+        {displayCategories.map((category, index) => {
+          const categoryId = category._id || `temp-${index}`;
+          const categoryImage = getCategoryImageUrl(category);
           const categoryName = category.category_name || "Unnamed Category";
+          const isLoaded = imagesLoaded[categoryId];
           
           return (
             <Box
-              key={category._id || index}
+              key={categoryId}
               sx={{
                 flex: "0 0 auto",
                 display: "flex",
@@ -219,51 +344,90 @@ const ProductsScroller = () => {
                 alignItems: "center",
                 textAlign: "center",
                 cursor: "pointer",
+                transition: "transform 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                }
               }}
             >
               <Box
                 sx={{
-                  width: { xs: 80, sm: 100, md: 130, lg: 150 },
-                  height: { xs: 80, sm: 100, md: 130, lg: 150 },
-                  borderRadius: "50%",
+                  position: "relative",
+                  width: { xs: 80, sm: 100, md: 130, lg: 170 },
+                  height: { xs: 80, sm: 100, md: 130, lg: 170 },
                   overflow: "hidden",
                   mb: 1.5,
                   mt: { xs: 3, sm: 2, md: 3, lg: 4 },
                   boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
                   transition: "transform 0.4s ease, box-shadow 0.3s",
                   "&:hover": {
-                    transform: "translateY(-6px) scale(1.08)",
+                    transform: "scale(1.08)",
                     boxShadow: "0 10px 25px rgba(0,0,0,0.25)",
                   },
+                  backgroundColor: "#f0f0f0",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  border: "1px solid #e0e0e0",
                 }}
               >
+                {/* Show skeleton while image loads */}
+                {!isLoaded && (
+                  <Skeleton 
+                    variant="rectangular" 
+                    animation="wave"
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%"
+                    }}
+                  />
+                )}
+                
+                {/* Using a lower resolution image for mobile to improve load times */}
                 <Image
                   src={categoryImage}
                   alt={categoryName}
-                  width={200}
-                  height={200}
-                  unoptimized
+                  width={isMobile ? 100 : 200}
+                  height={isMobile ? 100 : 200}
+                  quality={isMobile ? 70 : 85}
+                  unoptimized={categoryImage !== "/default-category.jpg"}
+                  priority={index < (isMobile ? 2 : 4)}
+                  onLoad={() => handleImageLoad(categoryId)}
                   style={{ 
                     width: "100%", 
                     height: "100%", 
-                    objectFit: "cover" 
+                    objectFit: "contain",
+                    opacity: isLoaded ? 1 : 0,
+                    transition: "opacity 0.3s ease",
+                    transform: "scale(0.9)",
+                    
                   }}
-                  onError={(e) => {
-                    // Fallback if image fails to load
-                    e.target.src = "/default-category.jpg";
-                  }}
+                  onError={() => handleImageError(categoryId, categoryImage)}
                 />
               </Box>
+              
               <Typography
-                variant={isMobile ? "body2" : "subtitle1"}
+                variant="subtitle1"
+                component="h3"
                 sx={{
                   fontWeight: 600,
-                  color: "#222",
-                  fontSize: isMobile ? "0.8rem" : "1rem",
-                  maxWidth: "120px",
+                  color: "#333",
+                  fontSize: { xs: "0.875rem", sm: "0.925rem", md: "1rem" },
+                  maxWidth: { xs: "90px", sm: "100px", md: "130px", lg: "170px" },
+                  height: { xs: "2.5em", sm: "2.5em" },
                   overflow: "hidden",
+                  textAlign: "center",
                   textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  lineHeight: 1.25,
+                  textShadow: "0px 0px 1px rgba(255,255,255,0.8)",
+                  padding: "0 4px",
+                  marginTop: 1,
                 }}
               >
                 {categoryName}
@@ -284,11 +448,11 @@ const ProductsScroller = () => {
         <>
           <IconButton
             onClick={handlePrev}
-            disabled={startIndex === 0}
+            aria-label="Previous categories"
             sx={{
               position: "absolute",
-              top: "50%",
-              left: { xs: 20, sm: 20, md: 40 },
+              top: "55%",
+              left: { xs: 5, sm: 10, md: 20 },
               transform: "translateY(-50%)",
               backgroundColor: "white",
               boxShadow: 3,
@@ -297,6 +461,9 @@ const ProductsScroller = () => {
                 color: "white",
               },
               opacity: startIndex === 0 ? 0.4 : 1,
+              zIndex: 10,
+              width: { xs: 30, sm: 36, md: 40 },
+              height: { xs: 30, sm: 36, md: 40 },
             }}
           >
             <ArrowBackIosNewIcon fontSize={isMobile ? "small" : "medium"} />
@@ -304,11 +471,11 @@ const ProductsScroller = () => {
 
           <IconButton
             onClick={handleNext}
-            disabled={startIndex >= categories.length - visibleCount}
+            aria-label="Next categories"
             sx={{
               position: "absolute",
-              top: "50%",
-              right: { xs: 20, sm: 20, md: 40 },
+              top: "55%",
+              right: { xs: 5, sm: 10, md: 20 },
               transform: "translateY(-50%)",
               backgroundColor: "white",
               boxShadow: 3,
@@ -317,14 +484,48 @@ const ProductsScroller = () => {
                 color: "white",
               },
               opacity: startIndex >= categories.length - visibleCount ? 0.4 : 1,
+              zIndex: 10,
+              width: { xs: 30, sm: 36, md: 40 },
+              height: { xs: 30, sm: 36, md: 40 },
             }}
           >
             <ArrowForwardIosIcon fontSize={isMobile ? "small" : "medium"} />
           </IconButton>
         </>
       )}
+
+      <Box sx={{ display: "flex", justifyContent: "center" }} mt={3}>
+  <Button
+    variant="contained"
+    onClick={() => (window.location.href = "/products")}
+    sx={{
+      borderRadius: "40px",
+      fontWeight: 700,
+      fontSize: "16px",
+      textTransform: "uppercase",
+      letterSpacing: "1px",
+      background: "linear-gradient(135deg, #ff416c, #ff4b2b)", // Pink → Red
+      color: "white",
+      px: 4,
+      py: 1.2,
+      boxShadow: "0 6px 15px rgba(255, 65, 108, 0.4)",
+      transition: "all 0.35s ease",
+      "&:hover": {
+        background: "linear-gradient(135deg, #ff4b2b, #ff416c)",
+        transform: "translateY(-3px) scale(1.05)",
+        boxShadow: "0 10px 25px rgba(255, 65, 108, 0.55)",
+      },
+      "&:active": {
+        transform: "scale(0.96)",
+      },
+    }}
+  >
+    View More
+  </Button>
+</Box>
+
     </Box>
   );
 };
 
-export default ProductsScroller;
+export default CategoryScroller;

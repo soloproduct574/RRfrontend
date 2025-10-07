@@ -26,7 +26,8 @@ const cardVariants = {
   }),
 };
 
-export default function VideoCards() {
+export default function  
+VideoCards() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm")); 
 

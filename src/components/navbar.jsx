@@ -21,6 +21,7 @@ import RegisterModal from "../app/auth/register/page";
 
 const pages = [
   { name: "Home", path: "/" },
+  { name: "Products", path: "/products" },
   { name: "About", path: "/about" },
   { name: "Contact", path: "/contact" },
 ];

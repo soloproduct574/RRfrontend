@@ -15,8 +15,8 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
+import Add from "@mui/icons-material/Add";
+import Remove from "@mui/icons-material/Remove";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -38,7 +38,7 @@ const ProductCardInner = React.memo(({ product }) => {
     type: "success",
   });
   const [openModal, setOpenModal] = useState(false);
-
+ const theme = useTheme();
   const favoriteItems =
     useSelector((state) => state.favorites.favoriteItems) || [];
   const isFav = favoriteItems.some((p) => p._id === product._id);
@@ -165,7 +165,7 @@ const ProductCardInner = React.memo(({ product }) => {
             top: 12,
             left: 12,
             fontWeight: "bold",
-            backgroundColor: "rgba(255, 255, 255, 0.74)",
+            backgroundColor: "rgba(255, 160, 27, 0.74)",
             color: "black",
             zIndex: 2,
           }}
@@ -198,7 +198,7 @@ const ProductCardInner = React.memo(({ product }) => {
             "& img": {
               width: "100%",
               height: "100%",
-              objectFit: "cover",
+              objectFit: "contain",
               transition: "transform 0.5s ease",
               transform: "scale(1)",
             },
@@ -243,13 +243,12 @@ const ProductCardInner = React.memo(({ product }) => {
         </Box>
 
         <CardContent sx={{ textAlign: "center" }}>
-          <Typography variant="caption" color="text.secondary" fontWeight={600}>
-            {brandName}
-          </Typography>
+  
           {categoryName && (
             <Typography
-              variant="caption"
-              color="primary"
+              variant="body"
+              fontWeight={500}
+              color="black"
               sx={{ display: "block" }}
             >
               {categoryName}
@@ -273,14 +272,11 @@ const ProductCardInner = React.memo(({ product }) => {
           <Box
             sx={{
               display: "flex",
-              justifyContent: "center",
+              justifyContent: "left",
               alignItems: "baseline",
-              gap: 1,
+              gap: 2,
             }}
           >
-            <Typography variant="h6" color="primary" fontWeight={700}>
-              ₹{displayPrice}
-            </Typography>
             {offer_price && (
               <Typography
                 variant="body2"
@@ -289,38 +285,92 @@ const ProductCardInner = React.memo(({ product }) => {
                 ₹{original_price}
               </Typography>
             )}
+            <Typography variant="h6" color="black" fontWeight={700}>
+              ₹{displayPrice}
+            </Typography>
+            
             {discountPercentage > 0 && (
               <Chip
                 icon={<LocalOfferIcon sx={{ fontSize: 16 }} />}
                 label={`Save ${Math.round(discountPercentage)}%`}
-                color="success"
+                color="warning"
                 size="small"
                 sx={{ fontWeight: 600 }}
               />
             )}
           </Box>
 
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 1,
-              mb: 1,
-            }}
-          >
-            <IconButton
-              size="small"
-              onClick={decreaseQuantity}
-              disabled={quantity <= 1}
-            >
-              <RemoveIcon />
-            </IconButton>
-            <Typography variant="h6">{quantity}</Typography>
-            <IconButton size="small" onClick={increaseQuantity}>
-              <AddIcon />
-            </IconButton>
-          </Box>
+           <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 1,
+        mb: 1,
+        userSelect: "none",
+      }}
+    >
+      {/* Decrease Button */}
+      <IconButton
+        onClick={decreaseQuantity}
+        disabled={quantity <= 1}
+        sx={{
+          border: "1px solid",
+          borderColor: quantity <= 1 ? "grey.300" : theme.palette.primary.main,
+          color: quantity <= 1 ? "grey.400" : theme.palette.primary.main,
+          backgroundColor: quantity <= 1 ? "grey.100" : "transparent",
+          width: 36,
+          height: 36,
+          transition: "all 0.2s ease",
+          "&:hover": {
+            bgcolor: quantity <= 1 ? "grey.100" : theme.palette.primary.light,
+            color: "#fff",
+          },
+        }}
+        size="small"
+      >
+        <Remove />
+      </IconButton>
+
+      {/* Quantity Display */}
+      <Typography
+        variant="h6"
+        sx={{
+          px: 2,
+          py: 0.5,
+          minWidth: 48,
+          textAlign: "center",
+          borderRadius: 2,
+          border: "1px solid",
+          borderColor: "divider",
+          backgroundColor: "rgba(0,0,0,0.05)",
+          fontWeight: 600,
+          fontSize: { xs: "1.1rem", sm: "1.25rem" },
+        }}
+      >
+        {quantity}
+      </Typography>
+
+      {/* Increase Button */}
+      <IconButton
+        onClick={increaseQuantity}
+        sx={{
+          border: "1px solid",
+          borderColor: theme.palette.primary.main,
+          color: theme.palette.primary.main,
+          width: 36,
+          height: 36,
+          transition: "all 0.2s ease",
+          "&:hover": {
+            bgcolor: theme.palette.primary.light,
+            color: "#fff",
+          },
+        }}
+        size="small"
+      >
+        <Add />
+      </IconButton>
+    </Box>
 
           <Box sx={{ display: "flex", gap: 1 }}>
             <MuiButton
@@ -462,34 +512,35 @@ const ProductCard = () => {
       )}
 
       <Box sx={{ display: "flex", justifyContent: "center" }} mt={3}>
-        <MuiButton
-          variant="contained"
-          onClick={() => (window.location.href = "/products")}
-          sx={{
-            borderRadius: "30px",
-            fontWeight: 700,
-            fontSize: "16px",
-            textTransform: "uppercase",
-            letterSpacing: "1px",
-            background: "linear-gradient(45deg, #8e2de2, #ff6a00)", // Purple → Orange
-            color: "white",
-            px: 3,
-            py: 1,
-            boxShadow: "0 6px 20px rgba(255, 106, 0, 0.4)",
-            transition: "all 0.35s ease-in-out",
-            "&:hover": {
-              background: "linear-gradient(45deg, #ff6a00, #8e2de2)",
-              transform: "scale(1.08)",
-              boxShadow: "0 10px 25px rgba(142, 45, 226, 0.6)",
-            },
-            "&:active": {
-              transform: "scale(0.95)",
-            },
-          }}
-        >
-          View More
-        </MuiButton>
-      </Box>
+  <MuiButton
+    variant="contained"
+    onClick={() => (window.location.href = "/products")}
+    sx={{
+      borderRadius: "40px",
+      fontWeight: 700,
+      fontSize: "16px",
+      textTransform: "uppercase",
+      letterSpacing: "1px",
+      background: "linear-gradient(135deg, #ff416c, #ff4b2b)", // Pink → Red
+      color: "white",
+      px: 4,
+      py: 1.2,
+      boxShadow: "0 6px 15px rgba(255, 65, 108, 0.4)",
+      transition: "all 0.35s ease",
+      "&:hover": {
+        background: "linear-gradient(135deg, #ff4b2b, #ff416c)",
+        transform: "translateY(-3px) scale(1.05)",
+        boxShadow: "0 10px 25px rgba(255, 65, 108, 0.55)",
+      },
+      "&:active": {
+        transform: "scale(0.96)",
+      },
+    }}
+  >
+    View More
+  </MuiButton>
+</Box>
+
     </Box>
   );
 };

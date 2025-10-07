@@ -49,7 +49,7 @@ const SocialShare = ({ productName }) => {
     <Box ref={containerRef} sx={{ position: "relative" }}>
       {/* Main Share Button */}
       <IconButton onClick={toggleIcons}>
-        <ShareIcon sx={{ color: "grey" }} />
+        <ShareIcon sx={{ color: "black" }} />
       </IconButton>
 
       {/* Social Icons */}

@@ -11,6 +11,7 @@ import FeaturesSection from "@/components/featuresContact";
 import ProductCard from "@/components/productCard";
 import { fetchProducts } from "../Redux/Slice/productSlice";
 import VideoCards from "@/components/YoutubeVideo";
+import ValuesSection from "@/components/ValueSection";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -35,6 +36,7 @@ export default function Home() {
       
       <ProductCard /> 
       <VideoCards/>
+      <ValuesSection/>
       <FeaturesSection />
       <Footer />
     </>

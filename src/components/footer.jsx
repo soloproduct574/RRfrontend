@@ -35,7 +35,7 @@ export default function Footer() {
       <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
         <Grid container spacing={4}>
           {/* Brand Section with Logo */}
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={4} ml={isMobile ? 4 : 0}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-start' } }}>
               <Box sx={{ 
                 display: 'flex', 
@@ -44,8 +44,8 @@ export default function Footer() {
                 flexDirection: { xs: 'column', md: 'row' } 
               }}>
                 <Box sx={{
-                  width: 70,
-                  height: 70,
+                  width: isMobile ? 100 : 70,
+                  height: isMobile ? 100 : 70,
                   borderRadius: '50%',
                   backgroundColor: 'white',
                   display: 'flex',
@@ -70,7 +70,7 @@ export default function Footer() {
                   />
                 </Box>
                 <Typography 
-                  variant="h5" 
+                  variant={isMobile ? "h4" : "h4"} 
                   fontWeight="bold" 
                   textAlign={{ xs: 'center', md: 'left' }}
                   sx={{ 
@@ -101,12 +101,12 @@ export default function Footer() {
           </Grid>
 
           {/* Quick Links */}
-          <Grid item xs={6} md={2}>
+          <Grid item xs={6} md={2} ml={isMobile ? 6 : 0}>
             <Typography variant="h6" gutterBottom textAlign={{ xs: 'center', md: 'left' }} sx={{ fontWeight: 600,textDecoration: 'underline', textUnderlineOffset: '6px', textDecorationColor: '#f1530fff' }}>
               Quick Links
             </Typography>
             <Box sx={{ display: "flex", flexDirection: { xs: "row", md: "column" }, gap: 1.5, alignItems: { xs: 'center', md: 'flex-start' } }}>
-              <Link href="/blogs" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>Blogs</Link>
+              <Link href="/product" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>Product</Link>
               <Link href="/about" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>About Us</Link>
               <Link href="/contact" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>Contact Us</Link>
               <Link href="/about/faq" color="inherit" underline="hover" sx={{ transition: 'all 0.3s', '&:hover': { transform: 'translateX(5px)', color: '#f1530fff' } }}>FAQs</Link>
@@ -127,7 +127,7 @@ export default function Footer() {
           </Grid> */}
 
           {/* Contact Info */}
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={4} ml={isMobile ? 3 : 0}>
             <Typography variant="h6" gutterBottom textAlign={{ xs: 'center', md: 'left' }} sx={{ fontWeight: 600 ,textDecoration: 'underline', textUnderlineOffset: '6px', textDecorationColor: '#f1530fff' }}>
               Get in Touch
             </Typography>
@@ -159,7 +159,7 @@ export default function Footer() {
         <Box
           textAlign="center"
           pt={5}
-          mt={4}
+          mt={isMobile ? 0 : 6}
           borderTop="1px solid rgba(255, 255, 255, 0.2)"
         >
           <Typography variant="body2" sx={{ opacity: 0.8, fontSize: '0.9rem' }}>

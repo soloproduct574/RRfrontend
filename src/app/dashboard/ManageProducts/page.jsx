@@ -21,22 +21,26 @@ import {
   Drawer,
   AppBar,
   Toolbar,
+  Grid,
+  Card,
+  CardMedia,
+  CardActions,
 } from "@mui/material";
-import { Close, Menu } from "@mui/icons-material";
+import { Close, Menu, Delete } from "@mui/icons-material";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategories } from "@/redux/slice/CategoryFileMakeSlice";
 import AdminSidebar from "@/components/dashboards/AdminSideBar";
 
-// Responsive glass text field styles
+// 🔸 Responsive glass text field style
 const getGlassTextFieldStyle = (isMobile) => ({
   "& .MuiOutlinedInput-root": {
     "& fieldset": { borderColor: "white" },
     "&:hover fieldset": { borderColor: "#ff9900" },
-    "&.Mui-focused fieldset": { borderColor: "white" },
+    "&.Mui-focused fieldset": { borderColor: "#ff9900" },
   },
   "& .MuiInputLabel-root": { color: "white" },
-  "& .MuiInputLabel-root.Mui-focused": { color: "white" },
+  "& .MuiInputLabel-root.Mui-focused": { color: "#ff9900" },
   input: { color: "white" },
   "& input::placeholder": {
     color: "rgba(255,255,255,0.7)",
@@ -45,15 +49,19 @@ const getGlassTextFieldStyle = (isMobile) => ({
   fontSize: isMobile ? "14px" : "16px",
 });
 
+// 🔸 Main Component
 export default function ProductRegisterPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
-  const isLaptop = useMediaQuery(theme.breakpoints.up("md"));
   const dispatch = useDispatch();
+
+  // Redux state
   const categoriesState = useSelector((state) => state.categoryReducer) || {};
   const categories = categoriesState.items || [];
   const categoriesStatus = categoriesState.status || "idle";
+
+  // Local UI state
   const [loading, setLoading] = useState(false);
   const [serverMsg, setServerMsg] = useState(null);
   const [imageError, setImageError] = useState("");
@@ -65,7 +73,7 @@ export default function ProductRegisterPage() {
     description: "",
     original_price: "",
     offer_price: "",
-    category: "", 
+    category: "",
     images: [],
     video: null,
   });
@@ -76,98 +84,120 @@ export default function ProductRegisterPage() {
     type: "",
   });
 
-  // Fetch categories on mount
+  // 🔸 Load categories from redux
   useEffect(() => {
     if (categoriesStatus === "idle") {
       dispatch(fetchCategories());
     }
   }, [dispatch, categoriesStatus]);
 
-  const handleChange = (e) => {
-    const { name, files, value } = e.target;
+  /** Handle field and file inputs */
+ const handleChange = (e) => {
+  const { name, files, value } = e.target;
 
-    if (name === "images" && files) {
-      const newFiles = Array.from(files);
+  if (name === "images" && files) {
+    const newFiles = Array.from(files);
 
-      if (formData.images.length + newFiles.length > 5) {
-        setImageError("Maximum 5 images allowed");
-        return;
-      }
-      setImageError("");
-      const updated = newFiles.map((file) => ({
-        file,
-        url: URL.createObjectURL(file),
-      }));
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...updated],
-      }));
-    } else if (name === "video" && files) {
-      if (files.length > 1) {
-        setVideoError("Only one video allowed");
-        return;
-      }
-      setVideoError("");
-      setFormData((prev) => ({
-        ...prev,
-        video: { file: files[0], url: URL.createObjectURL(files[0]) },
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+    // ✅ Max 5 images total
+    if (formData.images.length + newFiles.length > 5) {
+      setImageError("Maximum 5 images allowed");
+      return;
     }
-  };
 
-  const removeFile = (name) => {
-    if (name === "images") {
-      setFormData((prev) => ({ ...prev, images: [] }));
-      setImageError("");
-    } else if (name === "video") {
-      setFormData((prev) => ({ ...prev, video: null }));
-      setVideoError("");
+    // ✅ Validate each image (max 1 MB)
+    const oversized = newFiles.filter((file) => file.size > 1 * 1024 * 1024);
+    if (oversized.length > 0) {
+      setImageError(
+        `${oversized.map((f) => f.name).join(", ")} exceeds 1 MB limit`
+      );
+      return;
     }
-  };
 
+    setImageError("");
+    const updated = newFiles.map((file) => ({
+      file,
+      url: URL.createObjectURL(file),
+    }));
+
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, ...updated],
+    }));
+  } 
+  
+  else if (name === "video" && files) {
+    if (files.length > 1) {
+      setVideoError("Only one video allowed");
+      return;
+    }
+
+    const videoFile = files[0];
+
+    // ✅ Validate video (max 15 MB)
+    if (videoFile.size > 10 * 1024 * 1024) {
+      setVideoError(`${videoFile.name} exceeds 15 MB limit`);
+      return;
+    }
+
+    setVideoError("");
+    setFormData((prev) => ({
+      ...prev,
+      video: { file: videoFile, url: URL.createObjectURL(videoFile) },
+    }));
+  } 
+  
+  else {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }
+};
+
+
+  /** Remove specific previews */
+  const removeImage = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
+  const removeVideo = () => setFormData((prev) => ({ ...prev, video: null }));
+
+  /** Submit form to backend */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setServerMsg(null);
+    setLoading(true);
 
     if (formData.images.length < 3) {
-      setImageError("Minimum 3 images required");
+      setImageError("Minimum 3 images required.");
       setLoading(false);
       return;
     }
 
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("product_name", formData.product_name);
-      formDataToSend.append("description", formData.description);
-      formDataToSend.append("original_price", formData.original_price);
-      formDataToSend.append("offer_price", formData.offer_price);
-      if (formData.category) {
-        formDataToSend.append(
-          "categories",
-          JSON.stringify([{ name: formData.category }])
-        );
-      } else {
-        formDataToSend.append("categories", "[]");
-      }
-      formData.images.forEach((img) => formDataToSend.append("images", img.file));
-      if (formData.video) {
-        formDataToSend.append("video", formData.video.file);
-      }
-      await axios.post(
-        "http://localhost:5000/api/products/",
-        formDataToSend,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+      const fd = new FormData();
+      fd.append("product_name", formData.product_name);
+      fd.append("description", formData.description);
+      fd.append("original_price", formData.original_price);
+      fd.append("offer_price", formData.offer_price);
+      fd.append(
+        "categories",
+        formData.category
+          ? JSON.stringify([{ name: formData.category }])
+          : "[]"
       );
+      formData.images.forEach((img) => fd.append("images", img.file));
+      if (formData.video) fd.append("video", formData.video.file);
+
+      await axios.post("http://localhost:5000/api/products/", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       setServerMsg({
         type: "success",
         text: "✅ Product registered successfully!",
       });
 
+      // Reset everything
       setFormData({
         product_name: "",
         description: "",
@@ -179,10 +209,10 @@ export default function ProductRegisterPage() {
       });
       setImageError("");
       setVideoError("");
-    } catch (error) {
+    } catch (err) {
       setServerMsg({
         type: "error",
-        text: error.response?.data?.message || "Something went wrong",
+        text: err.response?.data?.message || "Something went wrong!",
       });
     } finally {
       setLoading(false);
@@ -191,7 +221,7 @@ export default function ProductRegisterPage() {
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      {/* Mobile App Bar */}
+      {/* 🔸 Mobile AppBar */}
       {isMobile && (
         <AppBar
           position="fixed"
@@ -203,21 +233,17 @@ export default function ProductRegisterPage() {
           <Toolbar>
             <IconButton
               color="inherit"
-              aria-label="open drawer"
-              edge="start"
               onClick={() => setMobileDrawerOpen(true)}
-              sx={{ mr: 2 }}
+              edge="start"
             >
               <Menu />
             </IconButton>
-            <Typography variant="h6" noWrap component="div">
-              Admin Panel
-            </Typography>
+            <Typography variant="h6">Admin Panel</Typography>
           </Toolbar>
         </AppBar>
       )}
 
-      {/* Sidebar Drawer */}
+      {/* 🔸 Sidebar Drawer */}
       <Drawer
         variant={isMobile ? "temporary" : "permanent"}
         open={isMobile ? mobileDrawerOpen : true}
@@ -229,75 +255,55 @@ export default function ProductRegisterPage() {
             backgroundColor: "rgba(0, 0, 0, 0.9)",
             backdropFilter: "blur(10px)",
             height: "100vh",
-            position: "fixed",
           },
         }}
       >
         <AdminSidebar onLogout={() => setMobileDrawerOpen(false)} />
       </Drawer>
 
-      {/* Main Content */}
+      {/* 🔸 Main Content */}
       <Box
         sx={{
           flexGrow: 1,
-          display: "flex",
-          alignItems: isLaptop ? "center" : "stretch",
-          justifyContent: "center",
-          p: isMobile ? 1 : 3,
           backgroundImage: "url('/manageproductbg.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          minHeight: "100vh",
-          width: "100%",
-          position: "relative",
+          p: isMobile ? 1 : 3,
+          pt: isMobile ? "64px" : 0,
           "&::before": {
             content: '""',
             position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backdropFilter: "blur(4px)",
-            backgroundColor: "rgba(0,0,0,0.2)",
+            inset: 0,
+            background: "rgba(0,0,0,0.25)",
             zIndex: 1,
           },
-          pt: isMobile ? "64px" : 0,
         }}
       >
         <Container
-          maxWidth={isMobile || isTablet ? false : "sm"}
+          maxWidth="md"
           sx={{
             position: "relative",
             zIndex: 2,
-            height: isLaptop ? "auto" : "100%",
-            display: "flex",
-            alignItems: "stretch",
-            px: isMobile ? 2 : 3,
           }}
         >
+          {/* Form Wrapper */}
           <Paper
             elevation={4}
             sx={{
               p: isMobile ? 2 : 4,
               borderRadius: 3,
-              backgroundColor: "rgba(255, 255, 255, 0.3)",
-              backdropFilter: "blur(12px)",
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
-              flexGrow: 1,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
+              background: "rgba(255,255,255,0.2)",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
             }}
           >
-            {/* Title */}
             <Typography
               variant={isMobile ? "h5" : "h4"}
-              fontWeight="bold"
-              gutterBottom
               align="center"
-              sx={{ color: "black" }}
+              fontWeight={700}
+              mb={3}
             >
-              Add Your Product
+              Add Product
             </Typography>
 
             {serverMsg && (
@@ -306,19 +312,13 @@ export default function ProductRegisterPage() {
               </Alert>
             )}
 
-            {/* Form */}
+            {/* 🧾 Form */}
             <Box
               component="form"
               onSubmit={handleSubmit}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-                flexGrow: 1,
-                overflowY: "auto",
-              }}
+              sx={{ display: "flex", flexDirection: "column", gap: 2 }}
             >
-              {/* Category Dropdown */}
+              {/* Category */}
               <FormControl fullWidth>
                 <InputLabel>Category</InputLabel>
                 <Select
@@ -335,110 +335,162 @@ export default function ProductRegisterPage() {
                 </Select>
               </FormControl>
 
-              {/* Product Fields */}
-              <TextField
-                label="Product Name"
-                name="product_name"
-                fullWidth
-                value={formData.product_name}
-                onChange={handleChange}
-                required
-                sx={getGlassTextFieldStyle(isMobile)}
-                size={isMobile ? "small" : "medium"}
-              />
-
-              <TextField
-                label="Original Price"
-                name="original_price"
-                type="number"
-                fullWidth
-                value={formData.original_price}
-                onChange={handleChange}
-                required
-                sx={getGlassTextFieldStyle(isMobile)}
-                size={isMobile ? "small" : "medium"}
-              />
-
-              <TextField
-                label="Offer Price"
-                name="offer_price"
-                type="number"
-                fullWidth
-                value={formData.offer_price}
-                onChange={handleChange}
-                required
-                sx={getGlassTextFieldStyle(isMobile)}
-                size={isMobile ? "small" : "medium"}
-              />
+              {/* Basic Fields */}
+              {["product_name", "original_price", "offer_price"].map((f) => (
+                <TextField
+                  key={f}
+                  label={f.replace("_", " ").toUpperCase()}
+                  name={f}
+                  type={f.includes("price") ? "number" : "text"}
+                  fullWidth
+                  value={formData[f]}
+                  onChange={handleChange}
+                  required
+                  sx={getGlassTextFieldStyle(isMobile)}
+                />
+              ))}
 
               <TextField
                 label="Description"
                 name="description"
-                fullWidth
                 multiline
                 rows={isMobile ? 2 : 3}
+                fullWidth
                 value={formData.description}
                 onChange={handleChange}
                 required
                 sx={getGlassTextFieldStyle(isMobile)}
-                size={isMobile ? "small" : "medium"}
               />
 
-              {/* Upload Images */}
-              <Button
-                variant="outlined"
-                component="label"
-                fullWidth
-                sx={{
-                  color: "#fff",
-                  borderColor: "#fff",
-                  "&:hover": { borderColor: "#ff9900", color: "#ff9900" },
-                  fontSize: isMobile ? "12px" : "14px",
-                }}
+              {/* Upload Buttons */}
+              <Box
+                display="flex"
+                flexDirection={isMobile ? "column" : "row"}
+                gap={1}
               >
-                Upload Images (3-5 required)
-                <input
-                  type="file"
-                  name="images"
-                  hidden
-                  accept="image/*"
-                  multiple
-                  onChange={handleChange}
-                  disabled={formData.images.length >= 5}
-                />
-              </Button>
-              {imageError && (
-                <Alert severity="error" sx={{ mt: 1 }}>
-                  {imageError}
-                </Alert>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  fullWidth
+                  sx={{
+                    color: "#fff",
+                    borderColor: "#fff",
+                    "&:hover": { borderColor: "#ff9900", color: "#ff9900" },
+                  }}
+                >
+                  Upload Images (3–5)
+                  <input
+                    hidden
+                    type="file"
+                    name="images"
+                    accept="image/*"
+                    multiple
+                    onChange={handleChange}
+                    disabled={formData.images.length >= 5}
+                    max={5}
+                  />
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  component="label"
+                  fullWidth
+                  sx={{
+                    color: "#fff",
+                    borderColor: "#fff",
+                    "&:hover": { borderColor: "#ff9900", color: "#ff9900" },
+                  }}
+                >
+                  Upload Video
+                  <input
+                    hidden
+                    type="file"
+                    name="video"
+                    accept="video/*"
+                    onChange={handleChange}
+                    disabled={!!formData.video}
+                  />
+                </Button>
+              </Box>
+
+              {/* Upload Errors */}
+              {imageError && <Alert severity="error">{imageError}</Alert>}
+              {videoError && <Alert severity="error">{videoError}</Alert>}
+
+              {/* Image Previews */}
+              {formData.images.length > 0 && (
+                <Box mt={2}>
+                  <Typography fontWeight={600}>Image Preview</Typography>
+                  <Grid container spacing={1}>
+                    {formData.images.map((img, idx) => (
+                      <Grid item xs={4} sm={3} key={idx}>
+                        <Card sx={{ position: "relative" }}>
+                          <CardMedia
+                            component="img"
+                            image={img.url}
+                            alt={`preview-${idx}`}
+                            sx={{ height: 80, objectFit: "cover", cursor: "pointer" }}
+                            onClick={() =>
+                              setPreviewDialog({
+                                open: true,
+                                type: "image",
+                                src: img.url,
+                              })
+                            }
+                          />
+                          <CardActions
+                            sx={{
+                              position: "absolute",
+                              top: 0,
+                              right: 0,
+                            }}
+                          >
+                            <IconButton
+                              size="small"
+                              onClick={() => removeImage(idx)}
+                              sx={{
+                                bgcolor: "rgba(0,0,0,0.5)",
+                                color: "white",
+                                "&:hover": { bgcolor: "red" },
+                              }}
+                            >
+                              <Delete fontSize="small" />
+                            </IconButton>
+                          </CardActions>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Box>
               )}
 
-              {/* Upload Video */}
-              <Button
-                variant="outlined"
-                component="label"
-                fullWidth
-                sx={{
-                  color: "#fff",
-                  borderColor: "#fff",
-                  "&:hover": { borderColor: "#ff9900", color: "#ff9900" },
-                  fontSize: isMobile ? "12px" : "14px",
-                }}
-              >
-                Upload Video (Optional)
-                <input
-                  type="file"
-                  name="video"
-                  hidden
-                  accept="video/*"
-                  onChange={handleChange}
-                  disabled={formData.video !== null}
-                />
-              </Button>
-              {videoError && (
-                <Alert severity="error" sx={{ mt: 1 }}>
-                  {videoError}
-                </Alert>
+              {/* Video Preview */}
+              {formData.video && (
+                <Box mt={2}>
+                  <Typography fontWeight={600}>Video Preview</Typography>
+                  <Card sx={{ position: "relative" }}>
+                    <video
+                      src={formData.video.url}
+                      style={{ width: "100%", maxHeight: "200px" }}
+                      controls
+                    />
+                    <CardActions
+                      sx={{ position: "absolute", top: 0, right: 0 }}
+                    >
+                      <IconButton
+                        size="small"
+                        onClick={removeVideo}
+                        sx={{
+                          bgcolor: "rgba(0,0,0,0.5)",
+                          color: "white",
+                          "&:hover": { bgcolor: "red" },
+                        }}
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </CardActions>
+                  </Card>
+                </Box>
               )}
 
               {/* Submit */}
@@ -446,16 +498,13 @@ export default function ProductRegisterPage() {
                 type="submit"
                 fullWidth
                 variant="contained"
+                disabled={loading}
                 sx={{
                   mt: 2,
-                  borderRadius: 2,
                   fontWeight: "bold",
+                  borderRadius: 2,
                   background: "linear-gradient(45deg, #ff6600, #ff9900)",
-                  "&:hover": {
-                    background: "linear-gradient(45deg, #e65c00, #e68a00)",
-                  },
                 }}
-                disabled={loading}
               >
                 {loading ? (
                   <CircularProgress size={20} color="inherit" />
@@ -468,26 +517,22 @@ export default function ProductRegisterPage() {
         </Container>
       </Box>
 
-      {/* Preview Dialog */}
+      {/* 🔸 Fullscreen Image/Video Preview Dialog */}
       <Dialog
         open={previewDialog.open}
-        onClose={() =>
-          setPreviewDialog({ open: false, src: "", type: "" })
-        }
+        onClose={() => setPreviewDialog({ open: false, src: "", type: "" })}
         maxWidth="md"
         fullScreen={isMobile}
       >
-        <Box sx={{ position: "relative", p: isMobile ? 1 : 2 }}>
+        <Box sx={{ position: "relative", p: 1 }}>
           <IconButton
-            onClick={() =>
-              setPreviewDialog({ open: false, src: "", type: "" })
-            }
+            onClick={() => setPreviewDialog({ open: false, src: "", type: "" })}
             sx={{
               position: "absolute",
               top: 8,
               right: 8,
-              background: "rgba(0,0,0,0.5)",
-              color: "white",
+              bgcolor: "rgba(0,0,0,0.5)",
+              color: "#fff",
             }}
           >
             <Close />
@@ -496,21 +541,13 @@ export default function ProductRegisterPage() {
             <img
               src={previewDialog.src}
               alt="preview"
-              style={{
-                width: "100%",
-                height: isMobile ? "auto" : "80vh",
-                objectFit: "contain",
-              }}
+              style={{ width: "100%", height: "auto", objectFit: "contain" }}
             />
           ) : (
             <video
               src={previewDialog.src}
               controls
-              style={{
-                width: "100%",
-                height: isMobile ? "auto" : "80vh",
-                objectFit: "contain",
-              }}
+              style={{ width: "100%", height: "auto", objectFit: "contain" }}
             />
           )}
         </Box>

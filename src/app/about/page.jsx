@@ -380,7 +380,7 @@ const AboutUsPage = () => {
             viewport={{ once: true, amount: 0.3 }}
             variants={staggerContainer}
           >
-            <Grid display={'flex'} justifyContent={'space-between'} spacing={4}>
+            <Grid display={{ xs: 'grid', md: 'flex' }} gridTemplateColumns={{ xs: '1fr 1fr' }} justifyContent={'space-between'} spacing={4}>
               {stats.map((stat, index) => (
                 <Grid item xs={6} md={3} key={index}>
                   <motion.div variants={fadeInUp}>
@@ -581,9 +581,9 @@ const AboutUsPage = () => {
               </motion.div>
             </Box>
 
-            <Grid display={'flex'}  gap={4} spacing={4}>
+            <Grid display={{ xs: 'block', md: 'flex' }}  gap={4} spacing={4}>
               {commitments.map((item, index) => (
-                <Grid item xs={12} sm={6} lg={3} key={index} >
+                <Grid item xs={12} sm={6} lg={3} key={index} mt={{xs: 0, sm: 4, md: 0}} >
                   <motion.div variants={fadeInUp}>
                     <ProfessionalCard>
                       <CardContent sx={{ p: 4, textAlign: 'center', height: '100%' }}>

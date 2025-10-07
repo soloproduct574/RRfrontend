@@ -165,7 +165,7 @@ const ProductList = () => {
       product_images: product.product_images || [],
       product_videos: product.product_videos || [],
       categories: product.categories.map(cat => cat.name).join(', ') || '',
-      brands: product.brands.map(brand => brand.name).join(', ') || '',
+      // brands: product.brands.map(brand => brand.name).join(', ') || '',
       newImages: [],
       newVideos: [],
       removedImages: [],
@@ -316,10 +316,10 @@ const ProductList = () => {
         .filter(cat => cat.trim() !== '')
         .map(cat => ({ name: cat.trim() }));
         
-      const formattedBrands = formData.brands
-        .split(',')
-        .filter(brand => brand.trim() !== '')
-        .map(brand => ({ name: brand.trim() }));
+      // const formattedBrands = formData.brands
+      //   .split(',')
+      //   .filter(brand => brand.trim() !== '')
+      //   .map(brand => ({ name: brand.trim() }));
 
       // Prepare product data
       const productData = {
@@ -331,7 +331,7 @@ const ProductList = () => {
         product_images: filteredImages,
         product_videos: filteredVideos,
         categories: formattedCategories,
-        brands: formattedBrands
+        // brands: formattedBrands
       };
       
       let result;
@@ -774,7 +774,7 @@ const ProductList = () => {
                 
                
                 
-                <Grid item xs={12} sm={6}>
+                {/* <Grid item xs={12} sm={6}>
                   <TextField
                     label="Brand Name"
                     name="brands"
@@ -785,7 +785,7 @@ const ProductList = () => {
                     helperText="Example: company name "
                     size={isMobile ? "small" : "medium"}
                   />
-                </Grid>
+                </Grid> */}
               </Grid>
             )}
             

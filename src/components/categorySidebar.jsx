@@ -1,86 +1,116 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Box,
   Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  CircularProgress,
-  Alert,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  Paper,
   Divider,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchCategories } from "@/redux/slice/CategoryFileMakeSlice";
-import { fetchProducts } from "@/redux/slice/productSlice";
 
-export default function CategorySidebar() {
-  const dispatch = useDispatch();
-  const [expanded, setExpanded] = useState(false);
+/**
+ * Sidebar built from the products array.
+ * No Redux call; categories come from product data.
+ */
+export default function CategorySidebar({ products = [], onSelectCategory }) {
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
-  // Redux state
-  const categoriesState = useSelector((state) => state.categoryReducer) || {};
-  const categories = categoriesState.items || [];
-  const status = categoriesState.status || "idle";
-  const error = categoriesState.error || null;
+  // ✅ Extract unique categories from available products
+  const allCategories = useMemo(() => {
+    const categoryMap = new Map();
 
-  const productsState = useSelector((state) => state.products) || {};
-  const products = productsState.items || [];
+    products.forEach((prod) => {
+      prod.categories?.forEach((cat) => {
+        const id = typeof cat === "object" ? cat._id : cat;
+        const name = typeof cat === "object" ? cat.name || cat.category_name : cat;
+        if (id && name && !categoryMap.has(id)) {
+          categoryMap.set(id, { _id: id, category_name: name });
+        }
+      });
+    });
 
-  useEffect(() => {
-    if (status === "idle") dispatch(fetchCategories());
-    if (productsState.status === "idle") dispatch(fetchProducts());
-  }, [dispatch, status, productsState.status]);
+    return Array.from(categoryMap.values());
+  }, [products]);
 
-  const handleChange = (categoryId) => (event, isExpanded) => {
-    setExpanded(isExpanded ? categoryId : false);
+  // ✅ Category selection handler
+  const handleChange = (e) => {
+    const categoryId = e.target.value;
+    setSelectedCategory(categoryId);
+    const selected =
+      categoryId === "all"
+        ? null
+        : allCategories.find((c) => c._id === categoryId);
+    if (onSelectCategory) onSelectCategory(selected);
   };
 
-  if (status === "loading") return <CircularProgress />;
-  if (status === "failed") return <Alert severity="error">{error}</Alert>;
-
   return (
-    <Box sx={{ width: "100%", p: 2 }}>
-      <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-        Categories
+    <Paper
+      elevation={3}
+      sx={{
+        p: 2,
+        borderRadius: 2,
+        maxHeight: "90vh",
+        overflowY: "auto",
+        background: "linear-gradient(135deg, #fafafa, #ffffff)",
+      }}
+    >
+      {/* Sidebar Title */}
+      <Typography
+        variant="h6"
+        sx={{
+          mb: 2,
+          textAlign: "center",
+          fontWeight: 700,
+          color: "#1976d2",
+        }}
+      >
+        🛍 Categories
       </Typography>
+
       <Divider sx={{ mb: 2 }} />
 
-      {categories.map((category) => (
-        <Accordion
-          key={category._id}
-          expanded={expanded === category._id}
-          onChange={handleChange(category._id)}
+      {/* Category Radio List */}
+      {allCategories.length ? (
+        <RadioGroup
+          value={selectedCategory}
+          onChange={handleChange}
+          sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}
         >
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography>{category.category_name}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            {products
-              .filter((p) => {
-                // filter products by category
-                return (
-                  p.categories?.some(
-                    (c) => c._id === category._id || c === category.category_name
-                  )
-                );
-              })
-              .map((product) => (
-                <Typography key={product._id} sx={{ pl: 2, py: 0.5 }}>
-                  {product.product_name}
-                </Typography>
-              ))}
-          </AccordionDetails>
-        </Accordion>
-      ))}
+          {/* Always include "All" */}
+          <FormControlLabel
+            value="all"
+            control={<Radio color="primary" />}
+            label="All Categories"
+            sx={{
+              py: 0.3,
+              borderRadius: 1,
+              "&:hover": { backgroundColor: "#f5f5f5" },
+            }}
+          />
 
-      {categories.length === 0 && status === "succeeded" && (
-        <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
-          No categories available
+          {/* Generated category names */}
+          {allCategories.map((cat) => (
+            <FormControlLabel
+              key={cat._id}
+              value={cat._id}
+              control={<Radio color="primary" />}
+              label={cat.category_name}
+              sx={{
+                py: 0.3,
+                borderRadius: 1,
+                "&:hover": { backgroundColor: "#f5f5f5" },
+              }}
+            />
+          ))}
+        </RadioGroup>
+      ) : (
+        <Typography align="center" color="text.secondary">
+          No categories found
         </Typography>
       )}
-    </Box>
+    </Paper>
   );
 }

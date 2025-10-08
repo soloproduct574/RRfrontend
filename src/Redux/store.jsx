@@ -1,12 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
-import adminAuthReducer from "./slice/AdminAuthSlice.jsx";
+import adminAuthReducer from "./slice/adminAuthSlice.jsx";
 import cartReduces from './slice/cartSlice.jsx'
 import productReducer from './slice/productSlice.jsx'
 import favoritesReducer from "./slice/favoritesSlice.jsx";
-import bannerReducer from "./slice/BannerSlice.jsx";
-import dashboardProduct from './slice/DashboardProductHandle.jsx'
-import categoryReducer from "./slice/CategoryFileMakeSlice.jsx";
-import orderReducer  from './slice/OrderSlice.jsx'
+import bannerReducer from "./slice/bannerSlice.jsx";
+import dashboardProduct from './slice/dashboardProductHandle.jsx'
+import categoryReducer from "./slice/categoryFileMakeSlice.jsx";
+import orderReducer  from './slice/orderSlice.jsx'
 
 const store = configureStore({
   reducer: {

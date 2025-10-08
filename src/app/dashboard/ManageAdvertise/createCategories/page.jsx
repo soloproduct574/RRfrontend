@@ -17,7 +17,7 @@ import {
   Drawer,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { createCategory, fetchCategories } from "../../../../redux/slice/CategoryFileMakeSlice.jsx";
+import { createCategory, fetchCategories } from "../../../../redux/slice/categoryFileMakeSlice.jsx";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";

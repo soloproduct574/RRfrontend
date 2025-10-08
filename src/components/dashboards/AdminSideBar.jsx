@@ -9,7 +9,7 @@ import {
   Cog6ToothIcon,
   PowerIcon,
 } from "@heroicons/react/24/outline";
-import { logout } from "../../redux/slice/AdminAuthSlice";
+import { logout } from "../../redux/slice/adminAuthSlice";
 
 const AdminSidebar = () => {
   const pathname = usePathname();

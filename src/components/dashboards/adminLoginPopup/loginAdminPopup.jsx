@@ -5,7 +5,7 @@ import {
   loginAdmin,
   setTokenFromStorage,
   fetchAdminDashboard,
-} from "../../../redux/slice/AdminAuthSlice";
+} from "../../../redux/slice/AdminAuthSlice.jsx";
 import { useRouter } from "next/navigation";
 import {
   Box,

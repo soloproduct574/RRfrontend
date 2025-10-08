@@ -46,7 +46,12 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   useMediaQuery,
-  useTheme
+  useTheme,
+  AppBar,
+  Toolbar,
+  Drawer,
+  Menu
+
 } from '@mui/material';
 import { 
   Edit, 
@@ -69,6 +74,7 @@ const ProductList = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isMedium = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   
   // State management
   const [page, setPage] = useState(0);
@@ -81,7 +87,7 @@ const ProductList = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   // Refs for file uploads
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
@@ -425,9 +431,46 @@ const ProductList = () => {
   }
 
   return (
-    <Box>
 
-    <Container  maxWidth="xl" sx={{ py: 3 }}>
+    <Box sx={{ display: "flex", justifyContent: "center", minHeight: "100vh" }}>
+      {/* Mobile App Bar */}
+      {isMobile && (
+        <AppBar
+          position="fixed"
+          sx={{
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <Toolbar>
+            
+            <Typography variant="h6" noWrap component="div"  onClick={() => setMobileDrawerOpen(true)}>
+              Admin Panel
+            </Typography>
+          </Toolbar>
+        </AppBar>
+      )}
+
+      {/* Sidebar Drawer */}
+      <Drawer
+        variant={isMobile ? "temporary" : "permanent"}
+        open={isMobile ? mobileDrawerOpen : true}
+        onClose={() => setMobileDrawerOpen(false)}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: isMobile ? 240 : isTablet ? 200 : 257,
+            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            backdropFilter: "blur(10px)",
+            height: "100vh",
+            position: "fixed",
+          },
+        }}
+      >
+        <AdminSidebar onLogout={() => setMobileDrawerOpen(false)} />
+      </Drawer>
+
+    <Box  ml={isMobile ? 10 : 27}  maxWidth="xl" sx={{ py: 3 }}>
       <Box 
         display="flex" 
         flexDirection={isMobile ? 'column' : 'row'} 
@@ -1084,7 +1127,7 @@ const ProductList = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </Container>
+    </Box>
     </Box>
   );
 };

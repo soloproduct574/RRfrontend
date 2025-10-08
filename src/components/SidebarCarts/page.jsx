@@ -25,14 +25,14 @@ export default function TopBarButtons() {
       text: "View Cart",
       icon: (
         <ShoppingCartIcon
-          color={isCartActive ? "primary" : "inherit"}
+          color={isCartActive ? "success  " : "inherit"}
           sx={{ transition: "transform 0.3s ease" }}
         />
       ),
       path: "/cart",
       active: isCartActive,
-      activeColor: "#e3f2fd",
-      borderColor: "#1976d2",
+      activeColor: "#e3fde3ff",
+      borderColor: "#22d219ff",
     },
     {
       text: "Liked Products",
@@ -68,7 +68,7 @@ export default function TopBarButtons() {
             flexDirection: "row",
             justifyContent: "center",
             alignItems: "center",
-            background: "linear-gradient(90deg, #ffffff 0%, #f9f9f9 100%)",
+            // background: "linear-gradient(90deg, #ffffff 0%, #f9f9f9 100%)",
             width: "100%",
           }}
         >

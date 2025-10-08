@@ -20,6 +20,10 @@ import {
   Fade,
   Alert,
   Snackbar,
+  Drawer,
+  AppBar,
+  Toolbar,
+
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -31,7 +35,7 @@ import {
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useTheme } from "@mui/material/styles";
-
+import AdminSidebar from "@/components/dashboards/AdminSideBar";
 const BannerForm = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -130,7 +134,7 @@ const handleSubmit = async (e) => {
       console.log(key, value);
     }
 
-    const response = await fetch("http://localhost:5000/api/media/banner", {
+    const response = await fetch("https://rrbackend-49lt.onrender.com/api/media/banner", {
       method: "POST",
       body: formData,
     });
@@ -166,7 +170,7 @@ const handleSubmit = async (e) => {
   // Alternative: Test connection to API
   const testAPIConnection = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/media/banner", {
+      const response = await fetch("https://rrbackend-49lt.onrender.com/api/media/banner", {
         method: "GET",
       });
       
@@ -197,7 +201,48 @@ const handleSubmit = async (e) => {
     form.bannerFiles.length > 0 || 
     form.advertiseFiles.length > 0;
 
+    const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+    const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   return (
+    <>
+    <Box sx={{ display: "flex", justifyContent: "center", minHeight: "100vh" }}>
+      {/* Mobile App Bar */}
+      {isMobile && (
+        <AppBar
+          position="fixed"
+          sx={{
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <Toolbar>
+            
+            <Typography variant="h6" noWrap component="div"               onClick={() => setMobileDrawerOpen(true)}
+>
+              Admin Panel
+            </Typography>
+          </Toolbar>
+        </AppBar>
+      )}
+
+      {/* Sidebar Drawer */}
+      <Drawer
+        variant={isMobile ? "temporary" : "permanent"}
+        open={isMobile ? mobileDrawerOpen : true}
+        onClose={() => setMobileDrawerOpen(false)}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: isMobile ? 240 : isTablet ? 200 : 257,
+            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            backdropFilter: "blur(10px)",
+            height: "100vh",
+            position: "fixed",
+          },
+        }}
+      >
+        <AdminSidebar onLogout={() => setMobileDrawerOpen(false)} />
+      </Drawer>
     <Box 
       component="main"
       sx={{
@@ -217,6 +262,7 @@ const handleSubmit = async (e) => {
           transition={{ duration: 0.5 }}
         >
           <Typography
+           mt={{ xs: 5, md:0 }}
             variant={isSmall ? "h5" : "h4"}
             fontWeight="800"
             align="center"
@@ -439,7 +485,7 @@ const handleSubmit = async (e) => {
                 backgroundColor: 'action.selected',
               }
             }}
-            component="label"
+            // component="label"
             >
               <input
                 type="file"
@@ -528,7 +574,7 @@ const handleSubmit = async (e) => {
                 backgroundColor: 'action.selected',
               }
             }}
-            component="label"
+            // component="label"
             >
               <input
                 type="file"
@@ -648,6 +694,8 @@ const handleSubmit = async (e) => {
         </Snackbar>
       </Container>
     </Box>
+    </Box>
+    </>
   );
 };
 

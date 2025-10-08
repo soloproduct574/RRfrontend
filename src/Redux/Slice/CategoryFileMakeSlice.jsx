@@ -2,11 +2,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 // --- API Base ---
-const API_URL = "http://localhost:5000/api/category/categories";
+const API_URL = "https://rrbackend-49lt.onrender.com/api/category/categories";
 
 // --- Async Thunks ---
 export const fetchCategories = createAsyncThunk("categories/fetch", async () => {
   const res = await fetch(API_URL);
+  console.log("Fetch categories response:", res);
+  
   if (!res.ok) {
     throw new Error('Failed to fetch categories');
   }

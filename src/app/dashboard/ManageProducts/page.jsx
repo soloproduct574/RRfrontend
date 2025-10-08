@@ -59,6 +59,8 @@ export default function ProductRegisterPage() {
   // Redux state
   const categoriesState = useSelector((state) => state.categoryReducer) || {};
   const categories = categoriesState.items || [];
+  console.log("Categories:", categories);
+  
   const categoriesStatus = categoriesState.status || "idle";
 
   // Local UI state
@@ -188,7 +190,7 @@ export default function ProductRegisterPage() {
       formData.images.forEach((img) => fd.append("images", img.file));
       if (formData.video) fd.append("video", formData.video.file);
 
-      await axios.post("http://localhost:5000/api/products/", fd, {
+      await axios.post("https://rrbackend-49lt.onrender.com/api/products/", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

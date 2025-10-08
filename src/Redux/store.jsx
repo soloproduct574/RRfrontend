@@ -6,6 +6,7 @@ import favoritesReducer from "./Slice/favoritesSlice.jsx";
 import bannerReducer from "./Slice/BannerSlice.jsx";
 import dashboardProduct from './Slice/DashboardProductHandle.jsx'
 import categoryReducer from "./Slice/CategoryFileMakeSlice.jsx";
+import orderReducer  from './Slice/OrderSlice.jsx'
 
 const store = configureStore({
   reducer: {
@@ -15,7 +16,8 @@ const store = configureStore({
     favorites: favoritesReducer,
     banners: bannerReducer,
     dashboardProduct:dashboardProduct,
-    categoryReducer:categoryReducer
+    categoryReducer:categoryReducer,
+    orders:orderReducer 
 
   },
 });

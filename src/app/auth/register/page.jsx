@@ -20,7 +20,7 @@ import Link from "next/link";
 
 // ✅ API call: matches backend route
 const registerUser = (formData) =>
-  axios.post("http://localhost:5000/api/auth/register", formData, {
+  axios.post("https://rrbackend-49lt.onrender.com/api/auth/register", formData, {
     headers: { "Content-Type": "application/json" },
   });
 

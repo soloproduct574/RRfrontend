@@ -6,7 +6,7 @@ export const fetchProducts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       console.log('🔄 Fetching products from API...');
-      const response = await fetch('http://localhost:5000/api/products', {
+      const response = await fetch('https://rrbackend-49lt.onrender.com/api/products', {
         method: "GET",
         headers: {
           "Content-Type": "application/json"

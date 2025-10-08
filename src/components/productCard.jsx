@@ -118,7 +118,7 @@ const ProductCardInner = React.memo(({ product }) => {
     );
     setSnackbar({
       open: true,
-      message: `Proceeding to buy ${quantity} x ${name} 💳`,
+      message: `Proceeding to buy ${quantity} x ${name} 💳 check out your cart`,
       type: "info",
     });
   }, [
@@ -404,6 +404,7 @@ const ProductCardInner = React.memo(({ product }) => {
       </Card>
 
       <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}

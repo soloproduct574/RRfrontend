@@ -18,14 +18,15 @@ const AdminSidebar = () => {
 
   const menuItems = [
     { name: "Dashboard Overview", icon: HomeIcon, href: "/dashboard/admindashboard" },
+        {name:"Manage Category",icon:TableCellsIcon,href:'/dashboard/ManageAdvertise/ManageCategories'},
+
     { name: "Manage Products", icon: TableCellsIcon, href: "/dashboard/ManageProducts" },
     {name:"Edit Product",icon:TableCellsIcon,href:'/dashboard/updateAllProduct'},
     { name: "Manage Advertise", icon: TableCellsIcon, href: "/dashboard/ManageAdvertise" },
     {name:"Edit Advertise",icon:TableCellsIcon,href:'/dashboard/ManageAdvertise/edit'},
     // {name:"Create Category",icon:TableCellsIcon,href:'/dashboard/ManageAdvertise/createCategories'},
-    {name:"Manage Category",icon:TableCellsIcon,href:'/dashboard/ManageAdvertise/ManageCategories'},
     { name: "Manage Users", icon: UsersIcon, href: "/dashboard/ManageUsers" },
-    { name: "Settings", icon: Cog6ToothIcon, href: "/admin-dashboard/settings" },
+    // { name: "Settings", icon: Cog6ToothIcon, href: "/admin-dashboard/settings" },
   ];
 
  const handleLogout = () => {

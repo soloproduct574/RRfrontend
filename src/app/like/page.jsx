@@ -86,7 +86,7 @@ export default function LikedProducts() {
 
             <Button
               variant="contained"
-              color="primary"
+              color="warning"
               href="/products"
               sx={{
                 mt: 2,

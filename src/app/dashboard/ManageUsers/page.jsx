@@ -33,7 +33,7 @@ const UsersList = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/auth/users");
+        const response = await axios.get("https://rrbackend-49lt.onrender.com/api/auth/users");
         setUsers(response.data.users || []);
       } catch (err) {
         setError("Failed to fetch users.");

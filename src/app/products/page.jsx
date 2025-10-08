@@ -232,7 +232,7 @@ const ProductCardInner = React.memo(({ product }) => {
         </CardContent>
       </Card>
 
-      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+      <Snackbar   open={snackbar.open} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} onClose={() => setSnackbar({ ...snackbar, open: false })}>
         <Alert severity={snackbar.type}>{snackbar.message}</Alert>
       </Snackbar>
 

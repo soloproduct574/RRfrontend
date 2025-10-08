@@ -20,11 +20,16 @@ import {
   Stack,
   useMediaQuery,
   IconButton,
+  AppBar,
+  Toolbar,
+  Drawer, Menu
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { motion } from "framer-motion";
 import { useTheme } from "@mui/material/styles";
+import AdminSidebar from "@/components/dashboards/AdminSideBar";
 
 export default function BannersPage() {
   const [banners, setBanners] = useState([]);
@@ -38,11 +43,12 @@ export default function BannersPage() {
   const theme = useTheme();
   const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
 
+  
   // ✅ Fetch banners
   const fetchBanners = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/media/banners");
+      const res = await fetch("https://rrbackend-49lt.onrender.com/api/media/banners");
       const data = await res.json();
       if (data.success) {
         setBanners(data.banners);
@@ -62,7 +68,7 @@ export default function BannersPage() {
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this banner?")) return;
     try {
-      await fetch(`http://localhost:5000/api/media/banner/${id}`, {
+      await fetch(`https://rrbackend-49lt.onrender.com/api/media/banner/${id}`, {
         method: "DELETE",
       });
       setBanners((prev) => prev.filter((b) => b._id !== id));
@@ -120,7 +126,7 @@ export default function BannersPage() {
       });
 
       const res = await fetch(
-        `http://localhost:5000/api/media/banner/${selectedBanner._id}`,
+        `https://rrbackend-49lt.onrender.com/api/media/banner/${selectedBanner._id}`,
         {
           method: "PUT",
           body: formData,
@@ -139,19 +145,59 @@ export default function BannersPage() {
     }
   };
 
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   return (
+    <>
+    
+    <Box sx={{ display: "flex", justifyContent: "center", minHeight: "100vh" }}>
+      {/* Mobile App Bar */}
+      {isMobile && (
+        <AppBar
+          position="fixed"
+          sx={{
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <Toolbar>
+          
+            <Typography variant="h6" noWrap component="div"    onClick={() => setMobileDrawerOpen(true)}>
+              Admin Panel
+            </Typography>
+          </Toolbar>
+        </AppBar>
+      )}
+
+      {/* Sidebar Drawer */}
+      <Drawer
+        variant={isMobile ? "temporary" : "permanent"}
+        open={isMobile ? mobileDrawerOpen : true}
+        onClose={() => setMobileDrawerOpen(false)}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: isMobile ? 240 : isTablet ? 200 : 257,
+            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            backdropFilter: "blur(10px)",
+            height: "100vh",
+            position: "fixed",
+          },
+        }}
+      >
+        <AdminSidebar onLogout={() => setMobileDrawerOpen(false)} />
+      </Drawer>
+    
     <Box
       sx={{
         minHeight: "100vh",
-        py: { xs: 4, md: 6 },
+        py: { xs: 10, md: 6 },
         px: { xs: 2, md: 4 },
-        background:
-          theme.palette.mode === "dark"
-            ? "linear-gradient(135deg, #0f172a, #1e293b)"
-            : "linear-gradient(135deg, #f0f9ff, #e0f2fe)",
+   
       }}
     >
-      <Container maxWidth="lg">
+      <Box maxWidth="lg">
         {/* Heading */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
           <Typography
@@ -237,7 +283,7 @@ export default function BannersPage() {
                       </Stack>
 
                       {/* Actions */}
-                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between",gap:2 }}>
                         <Button
                           variant="outlined"
                           size="small"
@@ -342,28 +388,158 @@ export default function BannersPage() {
               ))}
             </Grid>
 
-            {/* File Inputs */}
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="subtitle1">Upload New Banner Images</Typography>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={(e) => setNewBannerFiles(Array.from(e.target.files))}
-              />
-            </Box>
+           {/* Banner Upload */}
+<Box sx={{ mt: 3 }}>
+  <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+    Upload New Banner Images
+  </Typography>
 
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="subtitle1">Upload New Advertise Images</Typography>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={(e) =>
-                  setNewAdvertiseFiles(Array.from(e.target.files))
-                }
-              />
-            </Box>
+  <Box
+    // component="label"
+    sx={{
+      p: 4,
+      border: "2px dashed",
+      borderColor: "divider",
+      borderRadius: 3,
+      backgroundColor: "action.hover",
+      textAlign: "center",
+      cursor: "pointer",
+      transition: "all 0.3s ease",
+      "&:hover": {
+        borderColor: "info.main",
+        backgroundColor: "action.selected",
+        transform: "scale(1.01)",
+        boxShadow: 2,
+      },
+    }}
+  >
+    <input
+      hidden
+      type="file"
+      accept="image/*"
+      multiple
+      onChange={(e) => setNewBannerFiles(Array.from(e.target.files))}
+    />
+    <CloudUploadIcon sx={{ fontSize: 50, mb: 1, color: "info.main" }} />
+    <Typography variant="h6" fontWeight="bold" color="info.main">
+      Click or Drag Images Here
+    </Typography>
+    <Typography variant="body2" color="text.secondary">
+      Upload banner images (JPG, PNG, WEBP)
+    </Typography>
+  </Box>
+
+  {/* Banner Previews */}
+  {newBannerFiles?.length > 0 && (
+    <Box
+      sx={{
+        mt: 2,
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 2,
+      }}
+    >
+      {newBannerFiles.map((file, idx) => (
+        <Box
+          key={idx}
+          sx={{
+            position: "relative",
+            width: 90,
+            height: 90,
+            borderRadius: 2,
+            overflow: "hidden",
+            boxShadow: 2,
+          }}
+        >
+          <img
+            src={URL.createObjectURL(file)}
+            alt={`banner-${idx}`}
+            width="100%"
+            height="100%"
+            style={{ objectFit: "cover" }}
+          />
+        </Box>
+      ))}
+    </Box>
+  )}
+</Box>
+
+{/* Advertise Upload */}
+<Box sx={{ mt: 4 }}>
+  <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+    Upload New Advertise Images
+  </Typography>
+
+  <Box
+    // component="label"
+    sx={{
+      p: 4,
+      border: "2px dashed",
+      borderColor: "divider",
+      borderRadius: 3,
+      backgroundColor: "action.hover",
+      textAlign: "center",
+      cursor: "pointer",
+      transition: "all 0.3s ease",
+      "&:hover": {
+        borderColor: "success.main",
+        backgroundColor: "action.selected",
+        transform: "scale(1.01)",
+        boxShadow: 2,
+      },
+    }}
+  >
+    <input
+      hidden
+      type="file"
+      accept="image/*"
+      multiple
+      onChange={(e) => setNewAdvertiseFiles(Array.from(e.target.files))}
+    />
+    <CloudUploadIcon sx={{ fontSize: 50, mb: 1, color: "success.main" }} />
+    <Typography variant="h6" fontWeight="bold" color="success.main">
+      Click or Drag Images Here
+    </Typography>
+    <Typography variant="body2" color="text.secondary">
+      Upload advertise images (JPG, PNG, WEBP)
+    </Typography>
+  </Box>
+
+  {/* Advertise Previews */}
+  {newAdvertiseFiles?.length > 0 && (
+    <Box
+      sx={{
+        mt: 2,
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 2,
+      }}
+    >
+      {newAdvertiseFiles.map((file, idx) => (
+        <Box
+          key={idx}
+          sx={{
+            position: "relative",
+            width: 90,
+            height: 90,
+            borderRadius: 2,
+            overflow: "hidden",
+            boxShadow: 2,
+          }}
+        >
+          <img
+            src={URL.createObjectURL(file)}
+            alt={`advertise-${idx}`}
+            width="100%"
+            height="100%"
+            style={{ objectFit: "cover" }}
+          />
+        </Box>
+      ))}
+    </Box>
+  )}
+</Box>
+
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setEditDialog(false)}>Cancel</Button>
@@ -372,7 +548,9 @@ export default function BannersPage() {
             </Button>
           </DialogActions>
         </Dialog>
-      </Container>
+      </Box>
     </Box>
+    </Box>
+    </>
   );
 }

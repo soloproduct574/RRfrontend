@@ -26,9 +26,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import MenuIcon from "@mui/icons-material/Menu";
 
 import ProductModal from "../../components/ProductModal.jsx";
-import { fetchProducts } from "@/redux/slice/productSlice.jsx";
-import { addToCart } from "@/redux/slice/cartSlice.jsx";
-import { toggleFavorite } from "@/redux/slice/favoritesSlice.jsx";
+import { fetchProducts } from "../../redux/slice/productSlice.jsx";
+import { addToCart } from "../../redux/slice/cartSlice.jsx";
+import { toggleFavorite } from "../../redux/slice/favoritesSlice.jsx";
 import Navbar from "@/components/navbar.jsx";
 import Footer from "@/components/footer";
 import SocialShare from "@/components/SocialMedia/SocialShare.jsx";

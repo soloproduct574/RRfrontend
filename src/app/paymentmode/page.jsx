@@ -36,7 +36,7 @@ import Image from "next/image";
 import axios from "axios";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { clearCart } from "@/redux/slice/cartSlice";
+import { clearCart } from "../../redux/slice/cartSlice";
 import UpiPaymentSection from "./UpiPaymentsec";
 
 const Paymentprocess = () => {

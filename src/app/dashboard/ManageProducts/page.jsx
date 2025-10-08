@@ -29,7 +29,7 @@ import {
 import { Close, Menu, Delete } from "@mui/icons-material";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCategories } from "@/redux/slice/CategoryFileMakeSlice";
+import { fetchCategories } from "../../redux/slice/CategoryFileMakeSlice";
 import AdminSidebar from "@/components/dashboards/AdminSideBar";
 
 // 🔸 Responsive glass text field style

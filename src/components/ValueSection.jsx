@@ -247,7 +247,7 @@ const ValuesSection = () => {
                       `,
                       backdropFilter: "blur(10px)",
                       transition: "all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                      maxHeight: {xs: '100%', md: '90vh'},
+                      maxHeight: {xs: '100%', md: '95vh'},
                       display: "flex",
                       flexDirection: "column",
                       "&:hover": {

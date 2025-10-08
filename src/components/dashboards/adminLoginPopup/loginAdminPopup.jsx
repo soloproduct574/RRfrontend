@@ -47,7 +47,6 @@ export default function AdminLoginPage() {
       router.push("/dashboard");
     }
   };
-
   return (
     <Box
       sx={{
@@ -62,7 +61,6 @@ export default function AdminLoginPage() {
     backgroundRepeat: "no-repeat",
       }}
     >
-      {/* <AdminSidebar/> */}
       <Container maxWidth="sm">
         <Box
           sx={{
@@ -91,7 +89,6 @@ export default function AdminLoginPage() {
           )}
 
           <Box component="form" onSubmit={handleSubmit} noValidate>
-            {/* Username / Email */}
             <TextField
               margin="normal"
               fullWidth

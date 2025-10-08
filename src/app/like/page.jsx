@@ -11,8 +11,8 @@ import {
   Divider,
   Grid,
 } from "@mui/material";
-import { addToCart } from "../../redux/slice/cartSlice";
-import { removeFavorite } from "../../redux/slice/favoritesSlice";
+import { addToCart } from "../../redux/slice/cartSlice.jsx";
+import { removeFavorite } from "../../redux/slice/favoritesSlice.jsx";
 import Sidebar from "../../components/SidebarCarts/page";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";

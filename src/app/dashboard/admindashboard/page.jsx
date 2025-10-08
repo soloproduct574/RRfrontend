@@ -39,7 +39,7 @@ import {
   selectOrdersError,
   selectOrdersSummary,
   selectCurrentOrder,
-} from '../../../redux/slice/OrderSlice';
+} from '../../../redux/slice/OrderSlice.jsx';
 import AdminSidebar from '@/components/dashboards/AdminSideBar';
 
 const OrderDashboard = () => {

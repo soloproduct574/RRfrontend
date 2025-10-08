@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProducts, deleteProduct, updateProduct } from '../../redux/slice/DashboardProductHandle';
+import { fetchProducts, deleteProduct, updateProduct } from '../../../redux/slice/DashboardProductHandle.jsx';
 import { 
   Box, 
   Typography, 

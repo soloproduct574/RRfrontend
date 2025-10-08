@@ -9,7 +9,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import FeaturesSection from "@/components/featuresContact";
 import ProductCard from "@/components/productCard";
-import { fetchProducts } from "../Redux/Slice/productSlice";
+import { fetchProducts } from "../redux/slice/productSlice";
 import VideoCards from "@/components/YoutubeVideo";
 import ValuesSection from "@/components/ValueSection";
 

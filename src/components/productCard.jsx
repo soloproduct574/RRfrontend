@@ -24,8 +24,8 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import SocialShare from "./SocialMedia/SocialShare.jsx";
 import ProductModal from "./ProductModal.jsx";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../Redux/Slice/cartSlice.jsx";
-import { toggleFavorite } from "../Redux/Slice/favoritesSlice.jsx";
+import { addToCart } from "../redux/slice/cartSlice.jsx";
+import { toggleFavorite } from "../redux/slice/favoritesSlice.jsx";
 
 // ✅ Inner card component for a single product
 const ProductCardInner = React.memo(({ product }) => {

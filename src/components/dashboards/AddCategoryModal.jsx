@@ -12,7 +12,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { createCategory, fetchCategories } from "@/Redux/Slice/CategoryFileMakeSlice";
+import { createCategory, fetchCategories } from "@/redux/slice/CategoryFileMakeSlice";
 
 const AddCategoryModal = ({ open, onClose }) => {
   const dispatch = useDispatch();

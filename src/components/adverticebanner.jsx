@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBannersMedia } from "../Redux/Slice/BannerSlice";
+import { fetchBannersMedia } from "../redux/slice/BannerSlice";
 import { ArrowBackIosNew, ArrowForwardIos } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 

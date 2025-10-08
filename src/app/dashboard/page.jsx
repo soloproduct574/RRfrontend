@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setTokenFromStorage, fetchAdminDashboard } from "../../Redux/Slice/AdminAuthSlice";
+import { setTokenFromStorage, fetchAdminDashboard } from "../../redux/slice/AdminAuthSlice";
 
 import LoginPopup from "../../components/dashboards/adminLoginPopup/loginAdminPopup";
 import AdminSidebar from "@/components/dashboards/AdminSideBar";

@@ -13,7 +13,7 @@ import {
   Stack,
 } from "@mui/material";
 import { motion } from "framer-motion";
-import { removeFromCart } from "@/Redux/Slice/cartSlice";
+import { removeFromCart } from "@/redux/slice/cartSlice";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { useRouter } from "next/navigation";

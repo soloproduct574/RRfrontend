@@ -38,7 +38,7 @@ import categoryReducer, {
   deleteCategory,
   fetchCategories,
   updateCategory,
-} from "@/Redux/Slice/CategoryFileMakeSlice";
+} from "@/redux/slice/CategoryFileMakeSlice";
 import AdminSidebar from "@/components/dashboards/AdminSideBar";
 
 // --- Theme ---

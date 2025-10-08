@@ -19,8 +19,8 @@ import Hls from "hls.js";
 
 // Redux imports
 import { useDispatch, useSelector } from "react-redux";
-import { toggleFavorite } from "../Redux/Slice/favoritesSlice";
-import { addToCart } from "../Redux/Slice/cartSlice";
+import { toggleFavorite } from "../redux/slice/favoritesSlice";
+import { addToCart } from "../redux/slice/cartSlice";
 
 // -------------------------
 // ✅ VideoPlayer Component

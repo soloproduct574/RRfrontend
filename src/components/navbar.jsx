@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useSelector } from "react-redux";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -98,6 +99,10 @@ export default function Navbar() {
   const [openRegister, setOpenRegister] = React.useState(false);
   const pathname = usePathname();
 
+  // ✅ Get cart items from Redux
+  const cartItems = useSelector((state) => state.cart.cartItems);
+  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
   // Handlers
   const handleOpenNavMenu = (event) => setAnchorElNav(event.currentTarget);
   const handleCloseNavMenu = () => setAnchorElNav(null);
@@ -109,17 +114,14 @@ export default function Navbar() {
     setAnchorElUser(null);
     setOpenLogin(true);
   };
-
   const handleCloseLoginModal = () => setOpenLogin(false);
 
   const handleOpenRegisterModal = () => {
     setAnchorElUser(null);
     setOpenRegister(true);
   };
-
   const handleCloseRegisterModal = () => setOpenRegister(false);
 
-  // Switch between modals
   const handleSwitchToRegister = () => {
     setOpenLogin(false);
     setOpenRegister(true);
@@ -166,7 +168,6 @@ export default function Navbar() {
               }}
             />
           </LogoContainer>
-          {/* <HoverButton text="RR_Traders" /> */}
 
           <Typography>RR Traders</Typography>
 
@@ -178,11 +179,12 @@ export default function Navbar() {
               </NavLink>
             ))}
 
+            {/* Cart with actual count */}
             <CartButton component={Link} href="/cart" startIcon={<ShoppingCartIcon />}>
-              Cart
+              Cart ({cartCount})
             </CartButton>
 
-            {/* Profile Avatar & Menu */}
+            {/* Profile Avatar */}
             <Box sx={{ ml: 1 }}>
               <IconButton
                 onClick={handleOpenUserMenu}
@@ -204,14 +206,31 @@ export default function Navbar() {
                 transformOrigin={{ horizontal: "right", vertical: "top" }}
                 anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
               >
-                {/* <MenuItem onClick={handleOpenLoginModal}>Login</MenuItem> */}
                 <MenuItem onClick={handleOpenRegisterModal}>Register</MenuItem>
               </ProfileMenu>
             </Box>
           </Box>
 
-          {/* Mobile Menu */}
-          <Box sx={{ display: { xs: "flex", md: "none" } }}>
+          {/* Mobile / Tablet Menu */}
+          <Box sx={{ display: { xs: "flex", md: "none" }, alignItems: "center", gap: 1 }}>
+            {/* Cart Icon with actual count */}
+            <IconButton
+              component={Link}
+              href="/cart"
+              sx={{
+                color: "#000",
+                "&:hover": {
+                  backgroundColor: alpha("#ff6600", 0.1),
+                  color: "#ff6600",
+                },
+              }}
+            >
+              <Badge badgeContent={cartCount} color="error">
+                <ShoppingCartIcon />
+              </Badge>
+            </IconButton>
+
+            {/* Mobile Menu */}
             <IconButton
               size="large"
               onClick={handleOpenNavMenu}
@@ -223,10 +242,9 @@ export default function Navbar() {
                 },
               }}
             >
-              <Badge badgeContent={3} color="error">
-                <MenuIcon />
-              </Badge>
+              <MenuIcon />
             </IconButton>
+
             <Menu
               anchorEl={anchorElNav}
               open={Boolean(anchorElNav)}
@@ -258,14 +276,6 @@ export default function Navbar() {
                   </NavLink>
                 </MenuItem>
               ))}
-              {/* <MenuItem
-                onClick={() => {
-                  handleCloseNavMenu();
-                  handleOpenLoginModal();
-                }}
-              >
-                Login
-              </MenuItem> */}
               <MenuItem
                 onClick={() => {
                   handleCloseNavMenu();
@@ -279,7 +289,7 @@ export default function Navbar() {
         </Toolbar>
       </AppBar>
 
-      {/* ✅ Login & Register Modals */}
+      {/* Login & Register Modals */}
       <LoginModal
         open={openLogin}
         onClose={handleCloseLoginModal}

@@ -15,7 +15,7 @@ import Image from "next/image";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCategories } from "../redux/slice/categoryFileMakeSlice.jsx";
+import { fetchCategories } from "@/Redux/Slice/FileCategoryMakeSlice.jsx";
 import { useRouter } from "next/navigation";
 
 const CategoryScroller = () => {

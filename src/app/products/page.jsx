@@ -88,6 +88,7 @@ const ProductCardInner = React.memo(({ product }) => {
           borderRadius: 3,
           overflow: "hidden",
           backdropFilter: "blur(10px)",
+          border:'#f700ffff 1px solid',
           backgroundColor: "rgba(255,255,255,0.85)",
           boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
           position: "relative",
@@ -120,7 +121,7 @@ const ProductCardInner = React.memo(({ product }) => {
             src={productImages[currentImageIndex]}
             alt={name}
             onError={(e) => (e.target.src = "/logo.jpg")}
-            style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
+            style={{ width: "100%", height: "100%", objectFit: "contain", transition: "transform 0.5s ease" }}
           />
           <Box
             sx={{
